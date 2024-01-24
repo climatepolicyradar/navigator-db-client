@@ -3,8 +3,8 @@ import logging
 from sqlalchemy import create_engine, exc
 from sqlalchemy.orm import Session, registry, sessionmaker
 
-from config import SQLALCHEMY_DATABASE_URI, STATEMENT_TIMEOUT
-from errors import RepositoryError
+from .config import SQLALCHEMY_DATABASE_URI, STATEMENT_TIMEOUT
+from .errors import RepositoryError
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URI,

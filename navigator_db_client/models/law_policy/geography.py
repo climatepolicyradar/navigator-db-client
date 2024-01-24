@@ -1,6 +1,6 @@
 import sqlalchemy as sa
 
-from session import Base
+from ...session import Base
 
 
 GEO_NONE = "XAA"
