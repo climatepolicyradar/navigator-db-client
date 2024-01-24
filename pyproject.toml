@@ -9,7 +9,7 @@ packages = [{include = "navigator_db_client"}]
 
 [tool.poetry.dependencies]
 python = "^3.9"
-sqlalchemy = "^2.0.25"
+sqlalchemy = "^1.4.31"
 
 
 [build-system]
