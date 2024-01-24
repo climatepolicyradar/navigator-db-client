@@ -7,10 +7,12 @@ concept of "data source" is not yet implemented, see PDCT-431.
 """
 import logging
 from enum import Enum
+
 import sqlalchemy as sa
 from sqlalchemy.sql import text
-from session import Base
 from sqlalchemy.orm.session import object_session
+
+from ...session import Base
 
 
 _LOGGER = logging.getLogger(__name__)
