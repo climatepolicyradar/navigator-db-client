@@ -5,10 +5,10 @@ import sqlalchemy as sa
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 
-from app.clients.db.models.app import Organisation
-from app.clients.db.models.app.enum import BaseModelEnum
-from app.clients.db.models.document import PhysicalDocument
-from app.clients.db.session import Base
+from models.app import Organisation
+from models.app.enum import BaseModelEnum
+from models.document import PhysicalDocument
+from session import Base
 
 from .geography import Geography
 

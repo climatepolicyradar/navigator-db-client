@@ -1,8 +1,8 @@
 import sqlalchemy as sa
 
-from app.clients.db.models.app import Organisation
-from app.clients.db.models.law_policy import Family
-from app.clients.db.session import Base
+from models.app import Organisation
+from models.law_policy import Family
+from session import Base
 
 
 class Collection(Base):

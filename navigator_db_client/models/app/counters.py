@@ -9,7 +9,7 @@ import logging
 from enum import Enum
 import sqlalchemy as sa
 from sqlalchemy.sql import text
-from app.clients.db.session import Base
+from session import Base
 from sqlalchemy.orm.session import object_session
 
 
