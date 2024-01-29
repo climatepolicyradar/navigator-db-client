@@ -1,11 +1,11 @@
 [tool.poetry]
-name = "navigator-db-client"
+name = "db-client"
 version = "0.1.0"
 description = "All things to do with the datamodel and its storage. Including alembic migrations and datamodel code."
 authors = ["asacristani <adriansacristan1993@gmail.com>"]
 license = "BSD 3-Clause License"
 readme = "README.md"
-packages = [{include = "navigator_db_client"}]
+packages = [{include = "db_client"}]
 
 [tool.poetry.dependencies]
 python = "^3.9"
