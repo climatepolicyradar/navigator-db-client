@@ -3,7 +3,7 @@ from sqlalchemy.dialects import postgresql
 
 from .family import Family
 from ...models.app.users import Organisation
-from ...session import Base
+from ..base import Base
 
 
 class MetadataTaxonomy(Base):

@@ -8,7 +8,7 @@ from sqlalchemy.orm import relationship
 from ...models.app import Organisation
 from ...models.app.enum import BaseModelEnum
 from ...models.document import PhysicalDocument
-from ...session import Base
+from ..base import Base
 
 from .geography import Geography
 

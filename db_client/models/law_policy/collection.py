@@ -2,7 +2,7 @@ import sqlalchemy as sa
 
 from ...models.app import Organisation
 from ...models.law_policy import Family
-from ...session import Base
+from ..base import Base
 
 
 class Collection(Base):

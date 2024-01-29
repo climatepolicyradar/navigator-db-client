@@ -5,7 +5,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 
 from ...models.app.enum import BaseModelEnum
-from ...session import Base
+from ..base import Base
 
 
 # TODO Our current process for updating languages in the database relies on
