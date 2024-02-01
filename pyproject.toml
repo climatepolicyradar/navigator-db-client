@@ -10,6 +10,11 @@ packages = [{include = "db_client"}]
 [tool.poetry.dependencies]
 python = "^3.9"
 sqlalchemy = "^1.4.31"
+alembic = "^1.7.6"
+alembic-utils = "^0.8.2"
+
+[tool.poetry.dev-dependencies]
+pytest-alembic = "^0.10.5"
 
 
 [build-system]
