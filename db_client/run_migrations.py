@@ -1,9 +1,9 @@
-import os
-import subprocess
-from alembic import context
+from alembic import command
+from alembic.config import Config
+from sqlalchemy.engine import Engine
 
 
-def run_migrations(alembic_files_location: str) -> None:
+def run_migrations(alembic_files_location: str, engine: Engine) -> None:
     """
     Apply alembic migrations.
 
@@ -12,9 +12,12 @@ def run_migrations(alembic_files_location: str) -> None:
     """
     # Path to alembic.ini
     alembic_ini_path = f"{alembic_files_location}/alembic.ini"
+    alembic_cfg = Config(alembic_ini_path)
 
     # Set the script location
-    config = context.config
-    config.set_main_option('script_location', f"{alembic_files_location}/alembic")
+    alembic_cfg.set_main_option("script_location", f"{alembic_files_location}/alembic")
 
-    subprocess.run(["alembic", "-c", alembic_ini_path, "upgrade", "head"], check=True)
+    # Run the migration
+    with engine.begin() as connection:
+            alembic_cfg.attributes['connection'] = connection
+            command.upgrade(alembic_cfg, "head")
