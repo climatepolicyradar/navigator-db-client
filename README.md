@@ -21,8 +21,18 @@ db-client = {git = "https://github.com/climatepolicyradar/navigator-db-client.gi
 Migrations run automatically at the begginig of the backend service executions using the `db_client.run_migrations` function.
 
 ## Make migrations
-TODO
+
+```bash
+alembic revision --autogenerate --rev-id -m "migration message"
+```
 
 ## Test
 TODO
 (best deal: run test for every backend in this CI repository...)
+
+## TODO:
+[x] Pass the alembic files path in a better way
+[ ] Create some unit testing here
+[ ] Move schema tests
+[ ] Include in the admin backend the migrations run
+[ ] Automatic documentation?
