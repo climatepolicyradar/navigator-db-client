@@ -25,14 +25,18 @@ alembic revision --autogenerate --rev-id -m "migration message"
 ```
 
 ## Test
+
 ```bash
-pytest -vvv
+pytest -vvv --cov=db_client --test-alembic --cov-fail-under=95
 ```
 
 ## TODO:
 
 [x] Pass the alembic files path in a better way
 [ ] Create some unit testing here
-[ ] Move schema tests
+[x] Move schema tests
 [ ] Include in the admin backend the migrations run
 [ ] Automatic documentation?
+
+## CAUTION
+- test_db_url hardcoeded for tests in `conftest`
