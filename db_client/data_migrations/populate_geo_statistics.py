@@ -26,7 +26,7 @@ def populate_geo_statistics(db: Session) -> None:
 
 
 def _apply_geo_statistics_updates(db: Session) -> None:
-    with open("app/data_migrations/data/geo_stats_updates.json") as geo_stats_file:
+    with open("db_client/data_migrations/data/geo_stats_updates.json") as geo_stats_file:
         geo_stats_data = json.load(geo_stats_file)
         for geo_stat in geo_stats_data:
             geography_id = (
@@ -59,7 +59,7 @@ def _populate_initial_geo_statistics(db: Session) -> None:
         return
 
     # Load geo_stats data from structured data file
-    with open("app/data_migrations/data/geo_stats_data.json") as geo_stats_file:
+    with open("db_client/data_migrations/data/geo_stats_data.json") as geo_stats_file:
         geo_stats_data = json.load(geo_stats_file)
         for geo_stat in geo_stats_data:
             geography_id = (

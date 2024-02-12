@@ -13,7 +13,7 @@ def populate_document_type(db: Session) -> None:
     # meaning we will add anything here that is not present in the table
 
     with open(
-        "app/data_migrations/data/law_policy/document_type_data.json"
+        "db_client/data_migrations/data/law_policy/document_type_data.json"
     ) as submission_type_file:
         document_type_data = json.load(submission_type_file)
         load_list_idempotent(
@@ -21,7 +21,7 @@ def populate_document_type(db: Session) -> None:
         )
 
     with open(
-        "app/data_migrations/data/unf3c/submission_type_data.json"
+        "db_client/data_migrations/data/unf3c/submission_type_data.json"
     ) as submission_type_file:
         submission_type_data = json.load(submission_type_file)
         document_type_data = [

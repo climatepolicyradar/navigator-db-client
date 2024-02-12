@@ -77,7 +77,7 @@ def populate_geography(db: Session) -> None:
     if geo_populated:
         return
 
-    with open("app/data_migrations/data/geography_data.json") as geo_data_file:
+    with open("db_client/data_migrations/data/geography_data.json") as geo_data_file:
         geo_data = json.loads(geo_data_file.read())
         _add_geo_slugs(geo_data)
         load_tree(db, Geography, geo_data)

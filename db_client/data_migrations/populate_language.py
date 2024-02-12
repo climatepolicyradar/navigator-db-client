@@ -12,6 +12,6 @@ def populate_language(db: Session) -> None:
     if has_rows(db, Language):
         return
 
-    with open("app/data_migrations/data/language_data.json") as language_file:
+    with open("db_client/data_migrations/data/language_data.json") as language_file:
         language_data = json.load(language_file)
         load_list(db, Language, language_data)
