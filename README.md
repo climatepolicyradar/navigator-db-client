@@ -5,8 +5,6 @@ All things to do with the datamodel and its storage. Including alembic migration
 - [navigator-backend](https://github.com/climatepolicyradar/navigator-backend)
 - [navigator-admin-backend](https://github.com/climatepolicyradar/navigator-admin-backend)
 
-> ⚠️ Dockerfile should indicate where the DB client is installed inside of Docker containers (maybe there is a better way to do this).
-
 ## Installation
 
 1. Include the following in the `pyproject.toml`:
@@ -27,10 +25,12 @@ alembic revision --autogenerate --rev-id -m "migration message"
 ```
 
 ## Test
-TODO
-(best deal: run test for every backend in this CI repository...)
+```bash
+pytest -vvv
+```
 
 ## TODO:
+
 [x] Pass the alembic files path in a better way
 [ ] Create some unit testing here
 [ ] Move schema tests
