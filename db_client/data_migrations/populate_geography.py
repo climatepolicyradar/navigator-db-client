@@ -10,6 +10,7 @@ from db_client.models.law_policy.geography import (
     GEO_OTHER,
     GeoStatistics,
 )
+from db_client.utils import get_library_path
 
 from .utils import has_rows, load_tree
 
@@ -77,7 +78,7 @@ def populate_geography(db: Session) -> None:
     if geo_populated:
         return
 
-    with open("db_client/data_migrations/data/geography_data.json") as geo_data_file:
+    with open(f"{get_library_path()}/data_migrations/data/geography_data.json") as geo_data_file:
         geo_data = json.loads(geo_data_file.read())
         _add_geo_slugs(geo_data)
         load_tree(db, Geography, geo_data)

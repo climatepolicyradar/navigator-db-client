@@ -4,6 +4,8 @@ from alembic import command
 from alembic.config import Config
 from sqlalchemy.engine import Engine
 
+from db_client.utils import get_library_path
+
 
 def run_migrations(engine: Engine) -> None:
     """
@@ -13,8 +15,7 @@ def run_migrations(engine: Engine) -> None:
     startup never completed when using the alembic solution.
     """
     # Path of the library
-    script_path = os.path.realpath(__file__)
-    script_directory = os.path.dirname(script_path)
+    script_directory = get_library_path()
 
     # Path to alembic.ini
     alembic_ini_path = f"{script_directory}/alembic.ini"

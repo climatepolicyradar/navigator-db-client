@@ -1,40 +1,41 @@
 from db_client.data_migrations.taxonomy_utils import read_taxonomy_values
+from db_client.utils import get_library_path
 
 
 TAXONOMY_DATA = [
     {
         "key": "topic",
-        "filename": "db_client/data_migrations/data/cclw/topic_data.json",
+        "filename": f"{get_library_path()}/data_migrations/data/cclw/topic_data.json",
         "file_key_path": "name",
         "allow_blanks": True,
     },
     {
         "key": "sector",
-        "filename": "db_client/data_migrations/data/cclw/sector_data.json",
+        "filename": f"{get_library_path()}/data_migrations/data/cclw/sector_data.json",
         "file_key_path": "node.name",
         "allow_blanks": True,
     },
     {
         "key": "keyword",
-        "filename": "db_client/data_migrations/data/cclw/keyword_data.json",
+        "filename": f"{get_library_path()}/data_migrations/data/cclw/keyword_data.json",
         "file_key_path": "name",
         "allow_blanks": True,
     },
     {
         "key": "instrument",
-        "filename": "db_client/data_migrations/data/cclw/instrument_data.json",
+        "filename": f"{get_library_path()}/data_migrations/data/cclw/instrument_data.json",
         "file_key_path": "node.name",
         "allow_blanks": True,
     },
     {
         "key": "hazard",
-        "filename": "db_client/data_migrations/data/cclw/hazard_data.json",
+        "filename": f"{get_library_path()}/data_migrations/data/cclw/hazard_data.json",
         "file_key_path": "name",
         "allow_blanks": True,
     },
     {
         "key": "framework",
-        "filename": "db_client/data_migrations/data/cclw/framework_data.json",
+        "filename": f"{get_library_path()}/data_migrations/data/cclw/framework_data.json",
         "file_key_path": "name",
         "allow_blanks": True,
     },
