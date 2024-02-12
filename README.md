@@ -27,7 +27,7 @@ alembic revision --autogenerate --rev-id -m "migration message"
 ## Test
 
 ```bash
-docker-compose up --build db_client
+docker-compose run --rm db_client
 ```
 
 If you run a test DB out of Dockers:
