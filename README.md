@@ -27,6 +27,13 @@ alembic revision --autogenerate --rev-id -m "migration message"
 ## Test
 
 ```bash
+docker-compose up --build db_client
+```
+
+If you run a test DB out of Dockers:
+
+```bash
+source .env
 pytest -vvv --cov=db_client --test-alembic --cov-fail-under=95
 ```
 

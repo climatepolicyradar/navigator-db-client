@@ -1,3 +1,4 @@
+import os
 import contextlib
 
 import pytest
@@ -7,7 +8,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import create_database, database_exists, drop_database
 
-test_db_url = "postgresql://navigator:password@backend_db:5432/navigator"
+test_db_url = os.getenv("DATABASE_URL")
 
 @pytest.fixture(scope="session", autouse=True)
 def create_test_db():

@@ -1,0 +1,38 @@
+version: '3.7'
+services:
+  db_client_db:
+    image: postgres:14
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - 5432:5432
+    volumes:
+      - db-data-client:/var/lib/postgresql/data:cached
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"  ]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  db_client:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: navigator-db-client
+    tty: true
+    env_file:
+      - .env
+    volumes:
+      - ./:/cpr-db-client/:cached
+    ports:
+      - 8888:8888
+    environment:
+      PYTHONPATH: .
+    depends_on:
+      db_client_db:
+        condition: service_healthy
+
+
+volumes:
+  db-data-client:
