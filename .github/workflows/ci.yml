@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  test:
 
     runs-on: ubuntu-latest
 
@@ -34,12 +34,6 @@ jobs:
       with:
         python-version: '3.9'
 
-    - name: Install dependencies
+    - name: Build and test
       run: |
-        python -m pip install --upgrade pip
-        pip install pytest pytest-cov
-        pip install -r requirements.txt
-
-    - name: Run pytest
-      run: |
-        pytest -vvv --cov=db_client --test-alembic --cov-fail-under=95
+        docker-compose up --build db_client
