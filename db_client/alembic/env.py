@@ -170,7 +170,7 @@ family_collection_last_modified_trigger = PGTrigger(
 
 
 def get_url():
-    db_url = os.environ["DATABASE_URL"]
+    db_url = os.getenv("DATABASE_URL")
     return db_url
 
 
