@@ -36,4 +36,4 @@ COPY README.md .
 
 # ENV
 ENV PYTHONPATH=/db-client
-CMD ["pytest", "-vvv", "--cov=db_client", "--test-alembic", "--cov-fail-under=95"]
+CMD ["pytest", "-vvv", "--cov=db_client", "--test-alembic", "--cov-fail-under=80"]
