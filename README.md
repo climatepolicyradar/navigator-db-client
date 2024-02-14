@@ -39,5 +39,5 @@ pytest -vvv --cov=db_client --test-alembic --cov-fail-under=95
 
 ## TODO:
 
-- [] Create more unit testing here
-- [] Automatic documentation for pipeline
+- [ ] Create more unit testing here
+- [ ] Automatic documentation for pipeline
