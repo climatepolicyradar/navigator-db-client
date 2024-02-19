@@ -49,7 +49,7 @@ class Family(Base):
     __allow_unmapped__ = True
 
     title = sa.Column(sa.Text, nullable=False)
-    test = sa.Column(sa.Text, nullable=False)
+    test = sa.Column(sa.Text, nullable=True)
     import_id = sa.Column(sa.Text, primary_key=True)
     description = sa.Column(sa.Text, nullable=False)
     geography_id = sa.Column(sa.ForeignKey(Geography.id), nullable=False)
