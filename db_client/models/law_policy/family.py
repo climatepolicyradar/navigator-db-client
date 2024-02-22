@@ -9,7 +9,6 @@ from ...models.app import Organisation
 from ...models.app.enum import BaseModelEnum
 from ...models.document import PhysicalDocument
 from ..base import Base
-
 from .geography import Geography
 
 
@@ -58,7 +57,9 @@ class Family(Base):
         "FamilyDocument",
         lazy="joined",
     )
-    slugs: list["Slug"] = relationship("Slug", lazy="joined")
+    slugs: list["Slug"] = relationship(
+        "Slug", lazy="joined", order_by="desc(Slug.created)"
+    )
     events: list["FamilyEvent"] = relationship(
         "FamilyEvent",
         lazy="joined",
@@ -220,7 +221,9 @@ class FamilyDocument(Base):
         nullable=False,
     )
 
-    slugs: list["Slug"] = relationship("Slug", lazy="joined")
+    slugs: list["Slug"] = relationship(
+        "Slug", lazy="joined", order_by="desc(Slug.created)"
+    )
     physical_document: PhysicalDocument = relationship(
         PhysicalDocument,
         lazy="joined",
