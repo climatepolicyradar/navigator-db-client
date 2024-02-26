@@ -7,6 +7,8 @@ Create Date: 2024-02-26 12:00:00
 
 """
 import json
+from string import Template
+
 from alembic import op
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.automap import automap_base
@@ -33,11 +35,11 @@ NEW_KEYWORD_VALUES = [
     "Climate-related financial Risks",
 ]
 
-F_UPDATE_COMMAND = """
+F_UPDATE_COMMAND = Template("""
 UPDATE metadata_taxonomy 
-SET valid_metadata = jsonb_set(valid_metadata, '{}', to_jsonb(E'{}'::text)) 
-WHERE id = {};
-"""
+SET valid_metadata = jsonb_set(valid_metadata, '{keyword, allowed_values}', to_jsonb(E'$new_values'::text)) 
+WHERE id = $id
+""")
 
 
 def get_org(bind):
@@ -73,7 +75,7 @@ def upgrade():
     clean_new_values = json.dumps(new_values).replace("'", "\\'")
 
     # create SQL
-    sql = str.format(F_UPDATE_COMMAND, "{keyword, allowed_values}", clean_new_values, id)
+    sql = F_UPDATE_COMMAND.substitute(new_values=clean_new_values, id=id)
 
     # Update new values
     op.execute(sql)
