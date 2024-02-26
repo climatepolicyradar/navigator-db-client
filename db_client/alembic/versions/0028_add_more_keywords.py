@@ -33,7 +33,6 @@ NEW_KEYWORD_VALUES = [
     "Climate-related financial Risks",
 ]
 
-
 F_UPDATE_COMMAND = """
 UPDATE metadata_taxonomy 
 SET valid_metadata = jsonb_set(valid_metadata, '{}', to_jsonb(E'{}'::text)) 
@@ -66,18 +65,16 @@ def upgrade():
 
     id, kw_allowed_values = get_cclw_id_and_keywords(session)
 
-    print(kw_allowed_values)
-    #sys.exit(1)
     # Add the new values
     new_values = kw_allowed_values + NEW_KEYWORD_VALUES
     clean_new_values = json.dumps(new_values).replace("'", "\\'")
 
     # create SQL
     sql = str.format(F_UPDATE_COMMAND, "{keyword, allowed_values}", clean_new_values, id)
-    print(sql)
 
     # Update new values
     op.execute(sql)
+
 
 def downgrade():
     # There is no way back
