@@ -65,8 +65,12 @@ def upgrade():
 
     id, kw_allowed_values = get_cclw_id_and_keywords(session)
 
-    # Add the new values
-    new_values = kw_allowed_values + NEW_KEYWORD_VALUES
+    # Add the new values (idempotent)
+    new_values = kw_allowed_values
+    for new_value in NEW_KEYWORD_VALUES:
+        if new_value not in new_values:
+            new_values.append(new_value)
+
     clean_new_values = json.dumps(new_values).replace("'", "\\'")
 
     # create SQL
