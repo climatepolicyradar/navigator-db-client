@@ -40,15 +40,14 @@ WHERE id = {};
 """
 
 
-def get_entities(bind):
+def get_org(bind):
     Base.prepare(autoload_with=bind)
-    Meta = Base.classes.metadata_taxonomy
     Org = Base.classes.organisation
-    return Meta, Org
+    return Org
 
 
 def get_cclw_id_and_keywords(session):
-    Meta, Org  = get_entities(session.get_bind())
+    Org  = get_org(session.get_bind())
      # Get CCLW as an org
     cclw = session.query(Org).filter(Org.name == "CCLW").one()
     valid_metadata = cclw.metadata_taxonomy_collection[0].valid_metadata
