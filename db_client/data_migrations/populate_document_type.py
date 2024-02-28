@@ -4,11 +4,15 @@ from sqlalchemy.orm import Session
 
 from db_client.models.law_policy import FamilyDocumentType
 from db_client.utils import get_library_path
-from .utils import load_list_idempotent
+from .utils import has_rows, load_list_idempotent
 
 
 def populate_document_type(db: Session) -> None:
     """Populates the document_type table with pre-defined data."""
+
+    if has_rows(db, FamilyDocumentType):
+        return
+
 
     # This is no longer fixed but additive,
     # meaning we will add anything here that is not present in the table

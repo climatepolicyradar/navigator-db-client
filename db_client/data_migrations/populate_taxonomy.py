@@ -7,6 +7,8 @@ from db_client.models.app import ORGANISATION_CCLW, ORGANISATION_UNFCCC
 from db_client.models.app.users import Organisation
 from db_client.models.law_policy.metadata import MetadataOrganisation, MetadataTaxonomy
 
+from data_migrations.utils import has_rows
+
 
 def populate_org_taxonomy(
     db: Session,
@@ -52,6 +54,9 @@ def populate_org_taxonomy(
 
 
 def populate_taxonomy(db: Session) -> None:
+    if has_rows(db, Organisation):
+        return 
+    
     populate_org_taxonomy(
         db,
         org_name=ORGANISATION_CCLW,

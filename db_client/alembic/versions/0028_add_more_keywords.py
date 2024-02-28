@@ -13,6 +13,8 @@ from alembic import op
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.automap import automap_base
 
+from data_migrations import populate_counters, populate_document_role, populate_document_type, populate_document_variant, populate_event_type, populate_geo_statistics, populate_geography, populate_language, populate_taxonomy
+
 Base = automap_base()
 
 # revision identifiers, used by Alembic.
@@ -37,7 +39,7 @@ NEW_KEYWORD_VALUES = [
 
 F_UPDATE_COMMAND = Template("""
 UPDATE metadata_taxonomy 
-SET valid_metadata = jsonb_set(valid_metadata, '{keyword, allowed_values}', to_jsonb(E'$new_values'::text)) 
+SET valid_metadata = jsonb_set(valid_metadata, '{keyword, allowed_values}', to_jsonb(E'$new_values'::json)) 
 WHERE id = $id
 """)
 
@@ -59,11 +61,32 @@ def get_cclw_id_and_keywords(session):
     return id, valid_metadata["keyword"]["allowed_values"]
 
 
+def do_old_init_data(session):
+    
+    # These functions were originally called in the `initial_data.py` script
+    # which is now retired in favour of migrations like this
+    populate_document_type(session)
+    populate_document_role(session)
+    populate_document_variant(session)
+    populate_event_type(session)
+    populate_geography(session)
+    populate_language(session)
+    populate_taxonomy(session)
+    populate_counters(session)
+
+    session.flush()  # Geography data is used by geo-stats so flush
+
+    populate_geo_statistics(session)
+
+
 def upgrade():
 
     bind = op.get_bind()
     session = Session(bind=bind)
 
+    do_old_init_data(session)
+
+    # Now add the modification for CCLW keywords
     id, kw_allowed_values = get_cclw_id_and_keywords(session)
 
     # Add the new values (idempotent)
