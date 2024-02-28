@@ -5,11 +5,11 @@ def test_run_migrations_with_pytest_mocker(mocker):
     # Mocks
     test_path = "/test_path/test_subpath"
     mock_realpath = mocker.patch(
-        "db_client.run_migrations_script.os.path.realpath",
+        "db_client.utils.os.path.realpath",
         return_value=test_path + "test.py",
     )
     mock_dirname = mocker.patch(
-        "db_client.run_migrations_script.os.path.dirname", return_value=test_path
+        "db_client.utils.os.path.dirname", return_value=test_path
     )
     mock_Config = mocker.patch("db_client.run_migrations_script.Config")
     mock_upgrade = mocker.patch("db_client.run_migrations_script.command.upgrade")
