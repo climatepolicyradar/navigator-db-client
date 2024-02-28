@@ -13,7 +13,7 @@ from alembic import op
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.automap import automap_base
 
-from data_migrations import (
+from db_client.data_migrations import (
     populate_counters,
     populate_document_role,
     populate_document_type,
