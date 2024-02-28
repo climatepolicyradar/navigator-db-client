@@ -2,7 +2,7 @@
 Schema for counters.
 
 The following section includes the necessary schema for maintaining the counts
-of different entity types. These are scoped per "data source" - however the 
+of different entity types. These are scoped per "data source" - however the
 concept of "data source" is not yet implemented, see PDCT-431.
 """
 import logging
@@ -59,7 +59,7 @@ class EntityCounter(Base):
     _get_and_increment = text(
         """
         WITH updated AS (
-        UPDATE entity_counter SET counter = counter + 1 
+        UPDATE entity_counter SET counter = counter + 1
         WHERE id = :id RETURNING counter
         )
         SELECT counter FROM updated;

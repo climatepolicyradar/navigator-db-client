@@ -1,10 +1,19 @@
 from typing import Any
 
-import pytest
 from tests.test_schema.helpers import PytestHelpers
 from sqlalchemy.orm import Session
 
-from db_client.data_migrations import populate_counters, populate_document_role, populate_document_type, populate_document_variant, populate_event_type, populate_geo_statistics, populate_geography, populate_language, populate_taxonomy
+from db_client.data_migrations import (
+    populate_counters,
+    populate_document_role,
+    populate_document_type,
+    populate_document_variant,
+    populate_event_type,
+    populate_geo_statistics,
+    populate_geography,
+    populate_language,
+    populate_taxonomy,
+)
 
 POPULATE_FUNCS = [
     (populate_document_type, "family_document_type", 76),
@@ -24,10 +33,9 @@ def test_initial_data_populates_tables(engine: Any):
     helpers.add_alembic()
 
     with Session(engine) as db:
-        for (populate_function, table_name, expected_count) in POPULATE_FUNCS:
+        for populate_function, table_name, expected_count in POPULATE_FUNCS:
             populate_function(db)
             db.flush()
             count = db.execute(f"SELECT count(*) FROM {table_name};").scalar()
 
             assert count == expected_count, table_name
-

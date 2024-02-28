@@ -1,9 +1,3 @@
-from dataclasses import asdict
-import json
-from typing import Any, Mapping, Sequence
-
-from db_client.models.law_policy.taxonomy_entry import TaxonomyEntry
-
 """At the moment taxonomy is kept simple, and only supports string validation for enums
 
 For Example:
@@ -40,6 +34,12 @@ loaded:
     },
 
 """
+
+from dataclasses import asdict
+import json
+from typing import Any, Mapping, Sequence
+
+from db_client.models.law_policy.taxonomy_entry import TaxonomyEntry
 
 
 def _dot_dref(obj: dict, dotted_key: str):

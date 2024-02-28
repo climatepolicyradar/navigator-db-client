@@ -55,8 +55,8 @@ def populate_org_taxonomy(
 
 def populate_taxonomy(db: Session) -> None:
     if has_rows(db, Organisation):
-        return 
-    
+        return
+
     populate_org_taxonomy(
         db,
         org_name=ORGANISATION_CCLW,

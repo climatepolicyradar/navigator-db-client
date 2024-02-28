@@ -1,5 +1,6 @@
 import os
 import contextlib
+from typing import cast
 
 import pytest
 from db_client.models import Base
@@ -8,13 +9,12 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import create_database, database_exists, drop_database
 
-test_db_url = os.getenv("DATABASE_URL")
+test_db_url = cast(str, os.getenv("DATABASE_URL"))
+
 
 @pytest.fixture(scope="session", autouse=True)
 def create_test_db():
     """Create a test database and use it for the whole test session."""
-
-    
 
     # Create the test database
     if database_exists(test_db_url):

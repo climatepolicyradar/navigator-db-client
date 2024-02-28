@@ -1,6 +1,7 @@
 import logging
 import os
 from logging.config import fileConfig
+from typing import cast
 
 from alembic_utils.pg_function import PGFunction
 from alembic_utils.pg_trigger import PGTrigger
@@ -57,7 +58,7 @@ BEGIN
         UPDATE family
         SET last_modified = NOW()
         WHERE import_id = OLD.family_import_id;
-    else 
+    else
         UPDATE family
         SET last_modified = NOW()
         WHERE import_id = NEW.family_import_id;
@@ -78,7 +79,7 @@ BEGIN
         UPDATE collection
         SET last_modified = NOW()
         WHERE import_id = OLD.collection_import_id;
-    else 
+    else
         UPDATE collection
         SET last_modified = NOW()
         WHERE import_id = NEW.collection_import_id;
@@ -169,8 +170,8 @@ family_collection_last_modified_trigger = PGTrigger(
 )
 
 
-def get_url():
-    db_url = os.getenv("DATABASE_URL")
+def get_url() -> str:
+    db_url = cast(str, os.getenv("DATABASE_URL"))
     return db_url
 
 

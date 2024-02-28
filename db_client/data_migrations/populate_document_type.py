@@ -13,7 +13,6 @@ def populate_document_type(db: Session) -> None:
     if has_rows(db, FamilyDocumentType):
         return
 
-
     # This is no longer fixed but additive,
     # meaning we will add anything here that is not present in the table
 
