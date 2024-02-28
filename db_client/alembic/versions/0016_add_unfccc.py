@@ -5,10 +5,7 @@ Revises: 0015
 Create Date: Manually see commit
 
 """
-from alembic import op
 from alembic.op import execute
-import sqlalchemy as sa
-from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = "0016"

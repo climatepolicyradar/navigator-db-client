@@ -1,6 +1,7 @@
 import logging
 import os
 from logging.config import fileConfig
+from typing import cast
 
 from alembic_utils.pg_function import PGFunction
 from alembic_utils.pg_trigger import PGTrigger
@@ -169,8 +170,8 @@ family_collection_last_modified_trigger = PGTrigger(
 )
 
 
-def get_url():
-    db_url = os.getenv("DATABASE_URL")
+def get_url() -> str:
+    db_url = cast(str, os.getenv("DATABASE_URL"))
     return db_url
 
 

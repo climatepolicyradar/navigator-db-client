@@ -1,6 +1,5 @@
 from typing import Any
 
-import pytest
 from tests.test_schema.helpers import PytestHelpers
 from sqlalchemy.orm import Session
 
