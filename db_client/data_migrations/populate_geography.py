@@ -46,6 +46,9 @@ def populate_geography(db: Session) -> None:
     """Populates the geography table with pre-defined data."""
 
     geo_populated = has_rows(db, Geography)
+    if geo_populated:
+        return
+    
     # First ensure our defined entries are present
     remove_old_international_geo(db)
 
