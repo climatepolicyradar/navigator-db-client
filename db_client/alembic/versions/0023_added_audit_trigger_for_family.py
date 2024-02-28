@@ -49,7 +49,7 @@ def upgrade():
             UPDATE family
             SET last_modified = NOW()
             WHERE import_id = OLD.family_import_id;
-        else 
+        else
             UPDATE family
             SET last_modified = NOW()
             WHERE import_id = NEW.family_import_id;
@@ -147,7 +147,7 @@ def downgrade():
             UPDATE family
             SET last_modified = NOW()
             WHERE import_id = OLD.family_import_id;
-        else 
+        else
             UPDATE family
             SET last_modified = NOW()
             WHERE import_id = NEW.family_import_id;

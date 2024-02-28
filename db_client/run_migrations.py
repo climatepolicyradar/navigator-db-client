@@ -26,5 +26,5 @@ def run_migrations(engine: Engine) -> None:
 
     # Run the migration
     with engine.begin() as connection:
-            alembic_cfg.attributes['connection'] = connection
-            command.upgrade(alembic_cfg, "head")
+        alembic_cfg.attributes["connection"] = connection
+        command.upgrade(alembic_cfg, "head")

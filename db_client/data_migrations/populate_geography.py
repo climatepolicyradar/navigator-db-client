@@ -48,7 +48,7 @@ def populate_geography(db: Session) -> None:
     geo_populated = has_rows(db, Geography)
     if geo_populated:
         return
-    
+
     # First ensure our defined entries are present
     remove_old_international_geo(db)
 
@@ -81,7 +81,9 @@ def populate_geography(db: Session) -> None:
     if geo_populated:
         return
 
-    with open(f"{get_library_path()}/data_migrations/data/geography_data.json") as geo_data_file:
+    with open(
+        f"{get_library_path()}/data_migrations/data/geography_data.json"
+    ) as geo_data_file:
         geo_data = json.loads(geo_data_file.read())
         _add_geo_slugs(geo_data)
         load_tree(db, Geography, geo_data)

@@ -57,7 +57,7 @@ BEGIN
         UPDATE family
         SET last_modified = NOW()
         WHERE import_id = OLD.family_import_id;
-    else 
+    else
         UPDATE family
         SET last_modified = NOW()
         WHERE import_id = NEW.family_import_id;
@@ -78,7 +78,7 @@ BEGIN
         UPDATE collection
         SET last_modified = NOW()
         WHERE import_id = OLD.collection_import_id;
-    else 
+    else
         UPDATE collection
         SET last_modified = NOW()
         WHERE import_id = NEW.collection_import_id;

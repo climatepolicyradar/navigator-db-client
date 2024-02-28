@@ -49,7 +49,7 @@ def upgrade():
             UPDATE collection
             SET last_modified = NOW()
             WHERE import_id = OLD.collection_import_id;
-        else 
+        else
             UPDATE collection
             SET last_modified = NOW()
             WHERE import_id = NEW.collection_import_id;
@@ -123,7 +123,7 @@ def downgrade():
             UPDATE collection
             SET last_modified = NOW()
             WHERE import_id = OLD.collection_import_id;
-        else 
+        else
             UPDATE collection
             SET last_modified = NOW()
             WHERE import_id = NEW.collection_import_id;

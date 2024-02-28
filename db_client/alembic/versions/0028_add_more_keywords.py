@@ -13,7 +13,17 @@ from alembic import op
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.automap import automap_base
 
-from data_migrations import populate_counters, populate_document_role, populate_document_type, populate_document_variant, populate_event_type, populate_geo_statistics, populate_geography, populate_language, populate_taxonomy
+from data_migrations import (
+    populate_counters,
+    populate_document_role,
+    populate_document_type,
+    populate_document_variant,
+    populate_event_type,
+    populate_geo_statistics,
+    populate_geography,
+    populate_language,
+    populate_taxonomy,
+)
 
 Base = automap_base()
 
@@ -37,11 +47,13 @@ NEW_KEYWORD_VALUES = [
     "Climate-related financial Risks",
 ]
 
-F_UPDATE_COMMAND = Template("""
-UPDATE metadata_taxonomy 
-SET valid_metadata = jsonb_set(valid_metadata, '{keyword, allowed_values}', to_jsonb(E'$new_values'::json)) 
+F_UPDATE_COMMAND = Template(
+    """
+UPDATE metadata_taxonomy
+SET valid_metadata = jsonb_set(valid_metadata, '{keyword, allowed_values}', to_jsonb(E'$new_values'::json))
 WHERE id = $id
-""")
+"""
+)
 
 
 def get_org(bind):
@@ -51,8 +63,8 @@ def get_org(bind):
 
 
 def get_cclw_id_and_keywords(session):
-    Org  = get_org(session.get_bind())
-     # Get CCLW as an org
+    Org = get_org(session.get_bind())
+    # Get CCLW as an org
     cclw = session.query(Org).filter(Org.name == "CCLW").one()
     valid_metadata = cclw.metadata_taxonomy_collection[0].valid_metadata
     id = cclw.metadata_taxonomy_collection[0].id
@@ -62,7 +74,6 @@ def get_cclw_id_and_keywords(session):
 
 
 def do_old_init_data(session):
-    
     # These functions were originally called in the `initial_data.py` script
     # which is now retired in favour of migrations like this
     populate_document_type(session)
@@ -80,7 +91,6 @@ def do_old_init_data(session):
 
 
 def upgrade():
-
     bind = op.get_bind()
     session = Session(bind=bind)
 
