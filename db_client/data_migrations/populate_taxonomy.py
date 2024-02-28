@@ -7,7 +7,7 @@ from db_client.models.app import ORGANISATION_CCLW, ORGANISATION_UNFCCC
 from db_client.models.app.users import Organisation
 from db_client.models.law_policy.metadata import MetadataOrganisation, MetadataTaxonomy
 
-from data_migrations.utils import has_rows
+from .utils import has_rows
 
 
 def populate_org_taxonomy(
