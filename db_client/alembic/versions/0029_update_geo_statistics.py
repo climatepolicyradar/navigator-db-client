@@ -11,6 +11,8 @@ from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
+from db_client.utils import get_library_path
+
 # revision identifiers, used by Alembic.
 revision = "0029"
 down_revision = "0028"
@@ -45,7 +47,8 @@ def upgrade():
     # ### end Alembic commands ###
 
     # Update with new values
-    with open("alembic/versions/0029_geo_stats.csv", newline="") as csvfile:
+    root = get_library_path()
+    with open(f"{root}/alembic/versions/0029_geo_stats.csv", newline="") as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             sql = UPDATE_COMMAND.substitute(
