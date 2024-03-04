@@ -213,7 +213,6 @@ def run_migrations_offline():
     with context.begin_transaction():
         context.run_migrations()
 
-
 def run_migrations_online():
     """
     Run migrations in 'online' mode.
@@ -221,25 +220,28 @@ def run_migrations_online():
     In this scenario we need to create an Engine
     and associate a connection with the context.
     """
-    configuration = config.get_section(config.config_ini_section)
-    if configuration is None:
-        raise RuntimeError("Alembic section of configuration is missing")
-    configuration["sqlalchemy.url"] = get_url()
-    connectable = engine_from_config(
-        configuration,
-        prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
-    )
+    connectable = context.config.attributes.get("connection", None)
 
-    with connectable.connect() as connection:
-        context.configure(
-            connection=connection,
-            target_metadata=target_metadata,
-            process_revision_directives=generate_incremental_revision_id,
+    if connectable is None:
+        configuration = config.get_section(config.config_ini_section)
+        if configuration is None:
+            raise RuntimeError("Alembic section of configuration is missing")
+        configuration["sqlalchemy.url"] = get_url()
+        connectable = engine_from_config(
+            configuration,
+            prefix="sqlalchemy.",
+            poolclass=pool.NullPool,
         )
 
-        with context.begin_transaction():
-            context.run_migrations()
+        with connectable.connect() as connection:
+            context.configure(
+                connection=connection,
+                target_metadata=target_metadata,
+                process_revision_directives=generate_incremental_revision_id,
+            )
+
+            with context.begin_transaction():
+                context.run_migrations()
 
 
 register_entities(

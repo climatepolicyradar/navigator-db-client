@@ -29,6 +29,8 @@ RUN poetry export --with dev \
 RUN pip3 install --no-cache -r requirements.txt
 
 # Copy files to image
+COPY db_client/alembic.ini ./alembic.ini
+COPY db_client/alembic ./alembic
 COPY db_client ./db_client
 COPY tests ./tests
 COPY LICENSE .
@@ -36,4 +38,4 @@ COPY README.md .
 
 # ENV
 ENV PYTHONPATH=/db-client
-CMD ["pytest", "-vvv", "--cov=db_client", "--test-alembic", "--cov-fail-under=80"]
+CMD ["pytest", "--test-alembic", "-vvv", "--cov=db_client", "--cov-fail-under=80"]
