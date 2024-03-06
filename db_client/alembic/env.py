@@ -233,15 +233,15 @@ def run_migrations_online():
             poolclass=pool.NullPool,
         )
 
-        with connectable.connect() as connection:
-            context.configure(
-                connection=connection,
-                target_metadata=target_metadata,
-                process_revision_directives=generate_incremental_revision_id,
-            )
+    with connectable.connect() as connection:
+        context.configure(
+            connection=connection,
+            target_metadata=target_metadata,
+            process_revision_directives=generate_incremental_revision_id,
+        )
 
-            with context.begin_transaction():
-                context.run_migrations()
+        with context.begin_transaction():
+            context.run_migrations()
 
 
 register_entities(
