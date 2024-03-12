@@ -5,7 +5,7 @@ description = "All things to do with the datamodel and its storage. Including al
 authors = ["asacristani <adriansacristan1993@gmail.com>"]
 license = "BSD 3-Clause License"
 readme = "README.md"
-packages = [{include = "db_client"}]
+packages = [{ include = "db_client" }]
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -29,6 +29,4 @@ build-backend = "poetry.core.masonry.api"
 
 
 [tool.ruff.lint.per-file-ignores]
-"__init__.py" = [
-    "F401",
-]
+"__init__.py" = ["F401"]
