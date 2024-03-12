@@ -1,11 +1,12 @@
+from .collection import Collection, CollectionFamily, CollectionOrganisation
 from .family import (
     DocumentStatus,
     EventStatus,
-    FamilyCategory,
     Family,
+    FamilyCategory,
     FamilyDocument,
-    FamilyDocumentType,
     FamilyDocumentRole,
+    FamilyDocumentType,
     FamilyEvent,
     FamilyEventType,
     FamilyOrganisation,
@@ -14,5 +15,4 @@ from .family import (
     Variant,
 )
 from .geography import Geography, GeoStatistics
-from .collection import Collection, CollectionOrganisation, CollectionFamily
-from .metadata import MetadataOrganisation, MetadataTaxonomy, FamilyMetadata
+from .metadata import FamilyMetadata, MetadataOrganisation, MetadataTaxonomy

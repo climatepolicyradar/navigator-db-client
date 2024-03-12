@@ -1,6 +1,6 @@
 from typing import Mapping, Optional, Sequence, cast
-from sqlalchemy import Column
 
+from sqlalchemy import Column
 from sqlalchemy.orm import Session
 
 from db_client.models import AnyModel

@@ -6,9 +6,9 @@ Revises: 0024
 Create Date: 2023-11-29 13:53:59.518084
 
 """
-from alembic_utils.pg_trigger import PGTrigger
 
 from alembic import op
+from alembic_utils.pg_trigger import PGTrigger
 
 # revision identifiers, used by Alembic.
 revision = "0025"

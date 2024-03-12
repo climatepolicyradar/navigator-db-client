@@ -4,7 +4,7 @@ from typing import Union
 from sqlalchemy import update
 from sqlalchemy.orm import Session
 
-from db_client.models.law_policy import GeoStatistics, Geography
+from db_client.models.law_policy import Geography, GeoStatistics
 from db_client.utils import get_library_path
 
 from .utils import has_rows

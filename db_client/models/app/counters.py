@@ -5,15 +5,15 @@ The following section includes the necessary schema for maintaining the counts
 of different entity types. These are scoped per "data source" - however the
 concept of "data source" is not yet implemented, see PDCT-431.
 """
+
 import logging
 from enum import Enum
 
 import sqlalchemy as sa
-from sqlalchemy.sql import text
 from sqlalchemy.orm.session import object_session
+from sqlalchemy.sql import text
 
 from ..base import Base
-
 
 _LOGGER = logging.getLogger(__name__)
 
