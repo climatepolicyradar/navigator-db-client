@@ -5,7 +5,7 @@ description = "All things to do with the datamodel and its storage. Including al
 authors = ["CPR-dev-team <tech@climatepolicyradar.org>"]
 license = "Apache-2.0"
 readme = "README.md"
-packages = [{ include = "db_client" }]
+packages = [{ include = "db_client" }, { include = "tests" }]
 
 [tool.poetry.dependencies]
 python = "^3.9"
