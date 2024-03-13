@@ -3,12 +3,12 @@ import os
 from logging.config import fileConfig
 from typing import cast
 
+from alembic import context
 from alembic_utils.pg_function import PGFunction
 from alembic_utils.pg_trigger import PGTrigger
 from alembic_utils.replaceable_entity import register_entities
 from sqlalchemy import engine_from_config, pool
 
-from alembic import context
 from db_client.models import Base
 
 logger = logging.getLogger(__name__)
@@ -220,7 +220,7 @@ def run_migrations_online():
     In this scenario we need to create an Engine
     and associate a connection with the context.
     """
-    connectable = context.config.attributes.get("connection", None)
+    connectable = config.attributes.get("connection", None)
 
     if connectable is None:
         configuration = config.get_section(config.config_ini_section)
