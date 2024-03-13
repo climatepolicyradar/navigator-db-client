@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, cast
+from typing import Literal, Optional, cast
 
 import sqlalchemy as sa
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -77,7 +77,7 @@ class Family(Base):
     )
 
     @hybrid_property
-    def family_status(self) -> FamilyStatus:  # type: ignore
+    def family_status(self) -> Literal[FamilyStatus]:  # type: ignore
         """Calculates the family status given its documents."""
         if not self.family_documents:
             return FamilyStatus.CREATED
