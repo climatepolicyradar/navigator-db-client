@@ -1,14 +1,15 @@
-import contextlib
+# import contextlib
 import logging
 import os
 
 import pytest
 from pytest_alembic.config import Config
-from sqlalchemy import create_engine
+from sqlalchemy import MetaData, create_engine
 from sqlalchemy_utils import create_database, database_exists, drop_database
 
 from db_client.models import Base
-from tests.test_schema.helpers import clean_tables
+
+# from tests.test_schema.helpers import clean_tables
 
 test_db_url = str(os.getenv("DATABASE_URL"))
 
@@ -37,16 +38,16 @@ def alembic_engine():
 
     test_engine = create_engine(test_db_url)
     # session_cls = sessionmaker(test_engine)
+    metadata = MetaData(test_engine)
 
     # Create the test database
     if database_exists(test_engine.url):
-        # Base.metadata.drop_all(test_engine)
         drop_database(test_db_url)
 
     create_database(test_db_url)
 
     assert len(Base.metadata.sorted_tables) > 1, "sqlalchemy didn't find your model"
-    Base.metadata.create_all(test_engine)
+    metadata.create_all()
 
     # Run the tests
     yield test_engine
@@ -55,5 +56,4 @@ def alembic_engine():
     #     clean_tables(session, set(), Base)
 
     # Drop the test database
-    Base.metadata.drop_all(test_engine)
-    # drop_database(test_db_url)
+    metadata.drop_all()
