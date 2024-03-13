@@ -5,7 +5,6 @@ import os
 import pytest
 from pytest_alembic.config import Config
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import create_database, database_exists, drop_database
 
 from db_client.models import Base
@@ -16,44 +15,6 @@ test_db_url = str(os.getenv("DATABASE_URL"))
 _LOGGER = logging.getLogger(__name__)
 _LOGGER.info("test")
 
-# @pytest.fixture(scope="session", autouse=True)
-# def create_test_db():
-#     """Create a test database and use it for the whole test session."""
-
-#     # Create the test database
-#     if database_exists(test_db_url):
-#         drop_database(test_db_url)
-#     create_database(test_db_url)
-#     test_engine = create_engine(test_db_url)
-#     assert len(Base.metadata.sorted_tables) > 1, "sqlalchemy didn't find your model"
-#     Base.metadata.create_all(test_engine)
-
-#     # Run the tests
-#     yield
-
-#     # Drop the test database
-#     drop_database(test_db_url)
-
-
-# @pytest.fixture(scope="session")
-# def sqlalchemy_base():
-#     return Base
-
-
-# @pytest.fixture(scope="session")
-# def original_engine():
-#     engine = create_engine(test_db_url)
-#     yield engine
-
-
-# @pytest.fixture()
-# def engine(original_engine, sqlalchemy_base):
-#     session_cls = sessionmaker(original_engine)
-#     sqlalchemy_base.metadata.create_all(original_engine)
-#     yield original_engine
-#     with contextlib.closing(session_cls()) as session:
-#         clean_tables(session, set(), sqlalchemy_base)
-
 
 @pytest.fixture
 def alembic_config():
@@ -61,7 +22,6 @@ def alembic_config():
     root_dir = os.path.dirname(os.path.dirname(__file__))
     alembic_ini_path = os.path.join(root_dir, "db_client", "alembic.ini")
     alembic_scripts_path = os.path.join(root_dir, "db_client", "alembic")
-    # return Config()
     return Config(
         config_options={
             "file": alembic_ini_path,
@@ -71,7 +31,7 @@ def alembic_config():
     )
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture()
 def alembic_engine():
     """Create a test database and use it for the whole test session."""
 
@@ -89,7 +49,7 @@ def alembic_engine():
     Base.metadata.create_all(test_engine)
 
     # Run the tests
-    yield
+    yield test_engine
 
     # with contextlib.closing(session_cls()) as session:
     #     clean_tables(session, set(), Base)

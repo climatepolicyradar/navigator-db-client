@@ -28,11 +28,11 @@ POPULATE_FUNCS = [
 ]
 
 
-def test_initial_data_populates_tables(engine: Any):
-    helpers = PytestHelpers(engine)
+def test_initial_data_populates_tables(alembic_engine: Any):
+    helpers = PytestHelpers(alembic_engine)
     helpers.add_alembic()
 
-    with Session(engine) as db:
+    with Session(alembic_engine) as db:
         for populate_function, table_name, expected_count in POPULATE_FUNCS:
             populate_function(db)
             db.flush()
