@@ -1,70 +1,99 @@
-from ctypes import cast
+import contextlib
+import logging
 import os
+
 import pytest
 from pytest_alembic.config import Config
-
-import os
-import contextlib
-from typing import cast
-
-import pytest
-from db_client.models import Base
-from tests.test_schema.helpers import clean_tables
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import create_database, database_exists, drop_database
 
-test_db_url = cast(str, os.getenv("DATABASE_URL"))
+from db_client.models import Base
+from tests.test_schema.helpers import clean_tables
+
+test_db_url = str(os.getenv("DATABASE_URL"))
+
+_LOGGER = logging.getLogger(__name__)
+_LOGGER.info("test")
+
+# @pytest.fixture(scope="session", autouse=True)
+# def create_test_db():
+#     """Create a test database and use it for the whole test session."""
+
+#     # Create the test database
+#     if database_exists(test_db_url):
+#         drop_database(test_db_url)
+#     create_database(test_db_url)
+#     test_engine = create_engine(test_db_url)
+#     assert len(Base.metadata.sorted_tables) > 1, "sqlalchemy didn't find your model"
+#     Base.metadata.create_all(test_engine)
+
+#     # Run the tests
+#     yield
+
+#     # Drop the test database
+#     drop_database(test_db_url)
 
 
-@pytest.fixture(scope="session", autouse=True)
-def create_test_db():
+# @pytest.fixture(scope="session")
+# def sqlalchemy_base():
+#     return Base
+
+
+# @pytest.fixture(scope="session")
+# def original_engine():
+#     engine = create_engine(test_db_url)
+#     yield engine
+
+
+# @pytest.fixture()
+# def engine(original_engine, sqlalchemy_base):
+#     session_cls = sessionmaker(original_engine)
+#     sqlalchemy_base.metadata.create_all(original_engine)
+#     yield original_engine
+#     with contextlib.closing(session_cls()) as session:
+#         clean_tables(session, set(), sqlalchemy_base)
+
+
+@pytest.fixture
+def alembic_config():
+    """Override this fixture to configure the exact alembic context setup required."""
+    root_dir = os.path.dirname(os.path.dirname(__file__))
+    alembic_ini_path = os.path.join(root_dir, "db_client", "alembic.ini")
+    alembic_scripts_path = os.path.join(root_dir, "db_client", "alembic")
+    # return Config()
+    return Config(
+        config_options={
+            "file": alembic_ini_path,
+            "script_location": alembic_scripts_path,
+            "include_schemas": "db_client",
+        }
+    )
+
+
+@pytest.fixture(scope="function")
+def alembic_engine():
     """Create a test database and use it for the whole test session."""
 
-    # Create the test database
-    if database_exists(test_db_url):
-        drop_database(test_db_url)
-    create_database(test_db_url)
     test_engine = create_engine(test_db_url)
+    # session_cls = sessionmaker(test_engine)
+
+    # Create the test database
+    if database_exists(test_engine.url):
+        # Base.metadata.drop_all(test_engine)
+        drop_database(test_db_url)
+
+    create_database(test_db_url)
+
     assert len(Base.metadata.sorted_tables) > 1, "sqlalchemy didn't find your model"
     Base.metadata.create_all(test_engine)
 
     # Run the tests
     yield
 
+    # with contextlib.closing(session_cls()) as session:
+    #     clean_tables(session, set(), Base)
+
     # Drop the test database
-    drop_database(test_db_url)
-
-
-@pytest.fixture(scope="session")
-def sqlalchemy_base():
-    return Base
-
-
-@pytest.fixture(scope="session")
-def original_engine():
-    engine = create_engine(test_db_url)
-    yield engine
-
-
-@pytest.fixture()
-def engine(original_engine, sqlalchemy_base):
-    session_cls = sessionmaker(original_engine)
-    sqlalchemy_base.metadata.create_all(original_engine)
-    yield original_engine
-    with contextlib.closing(session_cls()) as session:
-        clean_tables(session, set(), sqlalchemy_base)
-
-
-@pytest.fixture
-def alembic_config(engine):
-    """Override this fixture to configure the exact alembic context setup required.
-    # """
-    return Config()
-    # return Config(config_options={"file":"./alembic.ini", "script_location":"./alembic", "include_schemas": "db_client"})
-
-@pytest.fixture
-def alembic_engine(original_engine):
-    """Override this fixture to provide pytest-alembic powered tests with a database handle.
-    """
-    return original_engine
+    Base.metadata.drop_all(test_engine)
+    # drop_database(test_db_url)
