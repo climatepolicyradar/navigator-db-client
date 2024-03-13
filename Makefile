@@ -17,4 +17,5 @@ git_hooks: install_trunk
 	trunk check
 
 test:
-	docker-compose run --rm db_client
+	docker compose build
+	docker compose run --rm db_client
