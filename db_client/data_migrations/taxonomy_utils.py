@@ -35,8 +35,8 @@ loaded:
 
 """
 
-from dataclasses import asdict
 import json
+from dataclasses import asdict
 from typing import Any, Mapping, Sequence
 
 from db_client.models.law_policy.taxonomy_entry import TaxonomyEntry

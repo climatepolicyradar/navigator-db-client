@@ -1,14 +1,15 @@
 from datetime import datetime
-from typing import Optional, cast
+from typing import Literal, Optional, cast
 
 import sqlalchemy as sa
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 
-from ...models.app import Organisation
-from ...models.app.enum import BaseModelEnum
-from ...models.document import PhysicalDocument
-from ..base import Base
+from db_client.models.app.enum import BaseModelEnum
+from db_client.models.app.users import Organisation
+from db_client.models.base import Base
+from db_client.models.document import PhysicalDocument
+
 from .geography import Geography
 
 
@@ -76,7 +77,7 @@ class Family(Base):
     )
 
     @hybrid_property
-    def family_status(self) -> FamilyStatus:  # type: ignore
+    def family_status(self) -> Literal[FamilyStatus]:  # type: ignore
         """Calculates the family status given its documents."""
         if not self.family_documents:
             return FamilyStatus.CREATED

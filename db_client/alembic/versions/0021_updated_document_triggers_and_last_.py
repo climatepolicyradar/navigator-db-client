@@ -6,10 +6,10 @@ Revises: 0020
 Create Date: 2023-11-22 18:49:04.057129
 
 """
-from alembic_utils.pg_function import PGFunction
-from alembic_utils.pg_trigger import PGTrigger
 
 from alembic import op
+from alembic_utils.pg_function import PGFunction
+from alembic_utils.pg_trigger import PGTrigger
 
 # revision identifiers, used by Alembic.
 revision = "0021"

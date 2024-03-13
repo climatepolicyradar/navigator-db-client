@@ -1,4 +1,4 @@
-version: '3.7'
+version: "3.7"
 services:
   db_client_db:
     image: postgres:14
@@ -10,7 +10,7 @@ services:
     volumes:
       - db-data-client:/var/lib/postgresql/data:cached
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"  ]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 5s
       timeout: 3s
       retries: 30
@@ -32,7 +32,6 @@ services:
     depends_on:
       db_client_db:
         condition: service_healthy
-
 
 volumes:
   db-data-client:

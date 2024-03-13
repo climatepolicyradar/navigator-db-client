@@ -2,9 +2,9 @@ import json
 
 from sqlalchemy.orm import Session
 
-from db_client.models.law_policy import FamilyDocumentType
+from db_client.data_migrations.utils import has_rows, load_list_idempotent
+from db_client.models.law_policy.family import FamilyDocumentType
 from db_client.utils import get_library_path
-from .utils import has_rows, load_list_idempotent
 
 
 def populate_document_type(db: Session) -> None:

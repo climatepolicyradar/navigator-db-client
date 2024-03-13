@@ -1,0 +1,75 @@
+name: CI/CD
+
+on:
+  push:
+    tags: [v*]
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions: read-all
+
+# https://github.com/marketplace/actions/docker-layer-caching
+jobs:
+  code-quality:
+    permissions:
+      # For trunk to post annotations
+      checks: write
+      # For repo checkout
+      contents: read
+    uses: climatepolicyradar/reusable-workflows/.github/workflows/python-precommit-validator.yml@main
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install latest Docker Compose
+        uses: ndeloof/install-compose-action@v0.0.1
+        with:
+          legacy: false
+
+      - uses: actions/checkout@v4
+
+      - name: Configure test env variables
+        run: cp .env.example .env
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+
+      - name: Build and test
+        run: |
+          docker-compose run --rm db_client
+
+  tag:
+    runs-on: ubuntu-latest
+    if: ${{ github.ref == 'refs/heads/main' }}
+    needs:
+      - code-quality
+      - test
+
+    outputs:
+      new_tag: ${{ steps.determine_next_tag.outputs.new_tag }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: fregante/setup-git-user@v2
+
+      - name: Determine new tag version
+        id: determine_next_tag
+        uses: climatepolicyradar/get-next-tag-from-pr-body@main
+
+      - name: Create Git tag and push
+        run: |
+          new_tag=${{ steps.determine_next_tag.outputs.new_tag }}
+          new_version_num=${new_tag#v}
+          git tag -a "${new_tag}" -m "Version ${new_version_num}"
+          git push --tags origin "${new_tag}"
+
+  release:
+    needs: tag
+    uses: climatepolicyradar/reusable-workflows/.github/workflows/release.yml@main
+    with:
+      new_tag: ${{ needs.tag.outputs.new_tag }}

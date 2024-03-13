@@ -6,12 +6,13 @@ Revises: 0027
 Create Date: 2024-02-26 12:00:00
 
 """
+
 import json
 from string import Template
 
 from alembic import op
-from sqlalchemy.orm import Session
 from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.orm import Session
 
 from db_client.data_migrations import (
     populate_counters,

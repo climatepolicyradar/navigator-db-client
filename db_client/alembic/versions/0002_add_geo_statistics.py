@@ -4,8 +4,9 @@ Revision ID: 0002
 Revises: 0001
 Create Date: 2022-08-02 11:12:29.678568
 """
-from alembic import op
+
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()

@@ -2,10 +2,10 @@
 name = "db-client"
 version = "2.0.3"
 description = "All things to do with the datamodel and its storage. Including alembic migrations and datamodel code."
-authors = ["asacristani <adriansacristan1993@gmail.com>"]
-license = "BSD 3-Clause License"
+authors = ["CPR-dev-team <tech@climatepolicyradar.org>"]
+license = "Apache-2.0"
 readme = "README.md"
-packages = [{include = "db_client"}]
+packages = [{ include = "db_client" }, { include = "tests" }]
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -26,9 +26,3 @@ pytest-mock = "^3.12.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-
-[tool.ruff.lint.per-file-ignores]
-"__init__.py" = [
-    "F401",
-]
