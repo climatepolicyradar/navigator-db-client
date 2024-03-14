@@ -1,11 +1,13 @@
-from pytest_alembic.tests import (  # test_up_down_consistency, TODO: Review and fix the dowgrade migrations
-    test_model_definitions_match_ddl,
-    test_single_head_revision,
-    test_upgrade,
-)
+from pytest_alembic import tests as test_alembic
 
-# trunk-ignore-all(pyright/reportUnusedExpression)
-# trunk-ignore-all(ruff/B018)
-test_model_definitions_match_ddl
-test_single_head_revision
-test_upgrade
+
+def test_model_definitions_match_ddl(alembic_runner):
+    test_alembic.test_model_definitions_match_ddl(alembic_runner)
+
+
+def test_single_head_revision(alembic_runner):
+    test_alembic.test_single_head_revision(alembic_runner)
+
+
+def test_upgrade(alembic_runner):
+    test_alembic.test_upgrade(alembic_runner)
