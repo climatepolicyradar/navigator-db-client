@@ -17,4 +17,4 @@ git_hooks: install_trunk
 	trunk check
 
 test:
-	pytest -vvv --cov=db_client --cov-fail-under=80
+	poetry run pytest -vvv --cov=db_client --cov-fail-under=80
