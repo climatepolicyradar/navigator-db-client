@@ -29,15 +29,9 @@ alembic revision --autogenerate --rev-id -m "migration message"
 
 ## Test
 
+DB for test is mocked using `pytest_mock_resources`
 ```bash
-docker-compose run --rm db_client
-```
-
-If you run a test DB out of Dockers:
-
-```bash
-source .env
-pytest -vvv --cov=db_client --test-alembic --cov-fail-under=95
+make test
 ```
 
 ## TODO:

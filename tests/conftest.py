@@ -12,7 +12,6 @@ from pytest_mock_resources import create_postgres_fixture, PostgresConfig
 
 from db_client.utils import get_library_path
 
-test_db_url = str(os.getenv("DATABASE_URL"))
 
 _LOGGER = logging.getLogger(__name__)
 _LOGGER.info("test")
