@@ -25,15 +25,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
+  
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: "3.9"
-
+  
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+  
+      - name: Configure Poetry
+        run: |
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          poetry config virtualenvs.create false
+  
+      - name: Install dependencies
+        run: poetry install --no-root
+  
       - name: Test
         run: |
           make test
+    
 
   tag:
     runs-on: ubuntu-latest
