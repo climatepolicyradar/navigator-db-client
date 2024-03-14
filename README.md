@@ -30,6 +30,7 @@ alembic revision --autogenerate --rev-id -m "migration message"
 ## Test
 
 DB for test is mocked using `pytest_mock_resources`
+
 ```bash
 make test
 ```
