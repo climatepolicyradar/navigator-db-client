@@ -13,7 +13,7 @@ import sqlalchemy as sa
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.sql import text
 
-from ..base import Base
+from db_client.models.base import Base
 
 _LOGGER = logging.getLogger(__name__)
 
