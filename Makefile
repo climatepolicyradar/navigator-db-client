@@ -4,5 +4,4 @@ git_hooks:
 	poetry run pre-commit install --install-hooks
 
 test:
-	docker-compose build
-	docker-compose run --rm db_client
+	pytest -vvv --cov=db_client --cov-fail-under=80
