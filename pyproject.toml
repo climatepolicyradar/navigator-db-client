@@ -5,7 +5,7 @@ description = "All things to do with the datamodel and its storage. Including al
 authors = ["CPR-dev-team <tech@climatepolicyradar.org>"]
 license = "Apache-2.0"
 readme = "README.md"
-packages = [{ include = "db_client" }, { include = "tests" }]
+packages = [{ include = "db_client" }]
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -22,6 +22,8 @@ pydantic = "^2.4.0"
 pytest-alembic = "^0.10.5"
 pytest-cov = "^4.1.0"
 pytest-mock = "^3.12.0"
+pytest-mock-resources = "^2.10.1"
+python-on-whales = "^0.70.0"
 
 [build-system]
 requires = ["poetry-core"]

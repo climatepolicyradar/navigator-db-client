@@ -12,9 +12,4 @@ git_hooks:
 	trunk check
 
 test:
-	docker compose build
-	docker compose run --rm db_client
-
-uninstall_trunk:
-	sudo rm -if `which trunk`
-	rm -ifr ${HOME}/.cache/trunk
+	poetry run pytest -vvv --cov=db_client --cov-fail-under=80

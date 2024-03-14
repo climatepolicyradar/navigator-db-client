@@ -24,24 +24,31 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Install latest Docker Compose
-        uses: ndeloof/install-compose-action@v0.0.1
-        with:
-          legacy: false
-
       - uses: actions/checkout@v4
-
-      - name: Configure test env variables
-        run: cp .env.example .env
 
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: "3.9"
 
-      - name: Build and test
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+
+      - name: Install Poetry
         run: |
-          docker-compose run --rm db_client
+          curl -sSL https://install.python-poetry.org | python3 -
+
+      - name: Configure Poetry
+        run: |
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          poetry config virtualenvs.create false
+
+      - name: Install dependencies
+        run: poetry install --no-root
+
+      - name: Test
+        run: |
+          make test
 
   tag:
     runs-on: ubuntu-latest
