@@ -6,9 +6,11 @@ ifneq ($(trunk_installed),0)
 	$(eval OS_NAME=$(shell uname -s | tr A-Z a-z))
 ifeq ($(OS_NAME),linux)
 	curl https://get.trunk.io -fsSL | bash
+	trunk init
 endif
 ifeq ($(OS_NAME),darwin)
 	brew install trunk-io
+	trunk init
 endif
 endif
 
