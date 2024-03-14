@@ -11,9 +11,9 @@ migrations and data model code.
 ## Setting up the repository
 
 To install and run the pre-commit hooks (which run using Trunk.io), please run
-`make git_hooks`. This will install and initialise Trunk if it does not already
-exist in your PATH, and will always run Trunk's built-in linting `trunk check`
-and formatting `trunk fmt` tools.
+`make install_trunk`. This will install and initialise Trunk if it does not
+already exist in your PATH. Then, run `make git_hooks` to run Trunk's built-in
+linting `trunk check` and formatting `trunk fmt` tools.
 
 Read more about Trunk via their docs page [here](https://docs.trunk.io/).
 

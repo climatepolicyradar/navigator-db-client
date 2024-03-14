@@ -7,7 +7,7 @@ ifneq (${trunk_installed},0)
 	curl https://get.trunk.io -fsSL | bash
 endif
 
-git_hooks: install_trunk
+git_hooks:
 	trunk fmt
 	trunk check
 
