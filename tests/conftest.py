@@ -1,5 +1,3 @@
-# import contextlib
-import logging
 import os
 
 import pytest
@@ -9,9 +7,6 @@ from sqlalchemy_utils import create_database, database_exists
 
 from db_client.models import Base
 from db_client.utils import get_library_path
-
-_LOGGER = logging.getLogger(__name__)
-_LOGGER.info("test")
 
 
 @pytest.fixture
