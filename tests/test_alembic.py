@@ -5,6 +5,7 @@ from pytest_alembic.tests import (  # test_up_down_consistency, TODO: Review and
 )
 
 # trunk-ignore-all(pyright/reportUnusedExpression)
+# trunk-ignore-all(ruff/B018)
 test_model_definitions_match_ddl
 test_single_head_revision
 test_upgrade
