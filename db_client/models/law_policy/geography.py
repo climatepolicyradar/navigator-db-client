@@ -1,6 +1,6 @@
 import sqlalchemy as sa
 
-from ..base import Base
+from db_client.models.base import Base
 
 GEO_NONE = "XAA"
 GEO_INTERNATIONAL = "XAB"

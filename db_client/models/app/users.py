@@ -1,7 +1,7 @@
 import sqlalchemy as sa
 from sqlalchemy import PrimaryKeyConstraint
 
-from ..base import Base
+from db_client.models.base import Base
 
 
 class AppUser(Base):
