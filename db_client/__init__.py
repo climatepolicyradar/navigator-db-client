@@ -1,2 +1,5 @@
-from . import run_migrations as run_migrations_script
-from .run_migrations import run_migrations
+""" Export select function and module symbols. """
+
+from db_client.run_migrations import run_migrations
+
+__all__ = ("run_migrations",)
