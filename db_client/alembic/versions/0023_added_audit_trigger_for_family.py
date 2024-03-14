@@ -6,11 +6,11 @@ Revises: 0022
 Create Date: 2023-11-22 22:30:02.474436
 
 """
+
 import sqlalchemy as sa
+from alembic import op
 from alembic_utils.pg_function import PGFunction
 from alembic_utils.pg_trigger import PGTrigger
-
-from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "0023"

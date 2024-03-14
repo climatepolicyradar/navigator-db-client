@@ -1,6 +1,5 @@
 from typing import Any
 
-from tests.test_schema.helpers import PytestHelpers
 from sqlalchemy.orm import Session
 
 from db_client.data_migrations import (
@@ -14,6 +13,7 @@ from db_client.data_migrations import (
     populate_language,
     populate_taxonomy,
 )
+from tests.test_schema.helpers import PytestHelpers
 
 POPULATE_FUNCS = [
     (populate_document_type, "family_document_type", 76),

@@ -4,10 +4,10 @@ from typing import cast
 from slugify import slugify
 from sqlalchemy.orm import Session
 
-from db_client.models.law_policy import Geography
 from db_client.models.law_policy.geography import (
     CPR_DEFINED_GEOS,
     GEO_OTHER,
+    Geography,
     GeoStatistics,
 )
 from db_client.utils import get_library_path

@@ -2,9 +2,9 @@ import json
 
 from sqlalchemy.orm import Session
 
-from db_client.models.law_policy import FamilyEventType
+from db_client.data_migrations.utils import has_rows, load_list
+from db_client.models.law_policy.family import FamilyEventType
 from db_client.utils import get_library_path
-from .utils import has_rows, load_list
 
 
 def populate_event_type(db: Session) -> None:

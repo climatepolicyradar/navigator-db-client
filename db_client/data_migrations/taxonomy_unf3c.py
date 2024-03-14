@@ -1,6 +1,5 @@
 from db_client.data_migrations.taxonomy_utils import read_taxonomy_values
 
-
 TAXONOMY_DATA = [
     {
         "key": "author_type",

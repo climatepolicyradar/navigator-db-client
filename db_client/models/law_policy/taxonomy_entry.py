@@ -1,7 +1,7 @@
 from typing import Mapping, Sequence
 
-from pydantic.dataclasses import dataclass as pydantic_dataclass
 from pydantic.config import ConfigDict
+from pydantic.dataclasses import dataclass as pydantic_dataclass
 
 
 @pydantic_dataclass(config=ConfigDict(validate_assignment=True, extra="forbid"))

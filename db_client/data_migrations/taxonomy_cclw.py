@@ -1,7 +1,6 @@
 from db_client.data_migrations.taxonomy_utils import read_taxonomy_values
 from db_client.utils import get_library_path
 
-
 TAXONOMY_DATA = [
     {
         "key": "topic",
