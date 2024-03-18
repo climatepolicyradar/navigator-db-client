@@ -3,7 +3,7 @@ import json
 from sqlalchemy.orm import Session
 
 from db_client.data_migrations.utils import has_rows, load_list
-from db_client.models.law_policy.family import FamilyDocumentRole
+from db_client.models.dfce.family import FamilyDocumentRole
 from db_client.utils import get_library_path
 
 

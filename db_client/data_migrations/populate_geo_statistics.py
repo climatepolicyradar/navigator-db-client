@@ -5,7 +5,7 @@ from sqlalchemy import update
 from sqlalchemy.orm import Session
 
 from db_client.data_migrations.utils import has_rows
-from db_client.models.law_policy.geography import Geography, GeoStatistics
+from db_client.models.dfce.geography import Geography, GeoStatistics
 from db_client.utils import get_library_path
 
 

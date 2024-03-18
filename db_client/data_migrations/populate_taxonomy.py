@@ -5,9 +5,12 @@ from sqlalchemy.orm import Session
 from db_client.data_migrations.taxonomy_cclw import get_cclw_taxonomy
 from db_client.data_migrations.taxonomy_unf3c import get_unf3c_taxonomy
 from db_client.data_migrations.utils import has_rows
-from db_client.models.app.counters import ORGANISATION_CCLW, ORGANISATION_UNFCCC
-from db_client.models.app.users import Organisation
-from db_client.models.law_policy.metadata import MetadataOrganisation, MetadataTaxonomy
+from db_client.models.dfce.metadata import MetadataOrganisation, MetadataTaxonomy
+from db_client.models.organisation.counters import (
+    ORGANISATION_CCLW,
+    ORGANISATION_UNFCCC,
+)
+from db_client.models.organisation.users import Organisation
 
 
 def populate_org_taxonomy(
