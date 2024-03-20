@@ -53,7 +53,8 @@ jobs:
   tag:
     runs-on: ubuntu-latest
     if: ${{ github.ref == 'refs/heads/main' }}
-    permissions: write-all
+    permissions:
+      contents: write
 
     needs:
       - code-quality
