@@ -312,4 +312,4 @@ class FamilyCorpus(Base):
     family_import_id = sa.Column(sa.ForeignKey(Family.import_id), nullable=False)
     corpus_import_id = sa.Column(sa.ForeignKey(Corpus.import_id), nullable=False)
 
-    sa.PrimaryKeyConstraint(family_import_id, corpus_import_id)
+    sa.PrimaryKeyConstraint(family_import_id)

@@ -8,7 +8,7 @@ class CorpusType(Base):
 
     __tablename__ = "corpus_type"
 
-    value = sa.Column(sa.Text, primary_key=True)
+    name = sa.Column(sa.Text, primary_key=True)
     description = sa.Column(sa.Text, nullable=False)
     valid_metadata = sa.Column(postgresql.JSONB, nullable=False)
 
@@ -21,5 +21,5 @@ class Corpus(Base):
     title = sa.Column(sa.Text, nullable=False)
     description = sa.Column(sa.Text, nullable=False)
     organisation_id = sa.Column(sa.ForeignKey(Organisation.id), nullable=False)
-    corpus_type = sa.Column(sa.ForeignKey(CorpusType.value), nullable=False)
+    corpus_type = sa.Column(sa.ForeignKey(CorpusType.name), nullable=False)
 
