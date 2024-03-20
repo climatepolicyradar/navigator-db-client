@@ -7,7 +7,7 @@ from sqlalchemy.orm import relationship
 
 from db_client.models.base import Base
 from db_client.models.document import PhysicalDocument
-from db_client.models.organisation import Corpus, BaseModelEnum, Organisation
+from db_client.models.organisation import BaseModelEnum, Corpus, Organisation
 
 from .geography import Geography
 
