@@ -7,8 +7,7 @@ from sqlalchemy.orm import relationship
 
 from db_client.models.base import Base
 from db_client.models.document import PhysicalDocument
-from db_client.models.organisation.enum import BaseModelEnum
-from db_client.models.organisation.users import Organisation
+from db_client.models.organisation import Corpus, BaseModelEnum, Organisation
 
 from .geography import Geography
 
@@ -305,3 +304,12 @@ class FamilyEvent(Base):
         onupdate=sa.func.now(),
         nullable=False,
     )
+
+
+class FamilyCorpus(Base):
+    __tablename__ = "family_corpus"
+
+    family_import_id = sa.Column(sa.ForeignKey(Family.import_id), nullable=False)
+    corpus_import_id = sa.Column(sa.ForeignKey(Corpus.import_id), nullable=False)
+
+    sa.PrimaryKeyConstraint(family_import_id, corpus_import_id)

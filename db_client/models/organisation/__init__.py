@@ -11,6 +11,7 @@ from db_client.models.organisation.counters import (
 from db_client.models.organisation.users import AppUser, OrganisationUser
 from db_client.models.organisation.organisation import Organisation
 from db_client.models.organisation.corpus import Corpus
+from db_client.models.organisation.enum import BaseModelEnum
 
 __all__ = (
     "EntityCounter",
@@ -18,4 +19,5 @@ __all__ = (
     "Organisation",
     "OrganisationUser",
     "Corpus",
+    "BaseModelEnum",
 )
