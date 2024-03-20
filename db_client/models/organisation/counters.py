@@ -32,6 +32,7 @@ class CountedEntity(str, Enum):
     Family = "family"
     Document = "document"
     Event = "event"
+    Corpus = "corpus"
 
 
 class EntityCounter(Base):
@@ -97,12 +98,11 @@ class EntityCounter(Base):
         :raises RuntimeError: raised when the prefix is not an organisation.
         :return str: The fully formatted import_id
         """
-        # Validation
-        prefix_ok = (
-            self.prefix == ORGANISATION_CCLW or self.prefix == ORGANISATION_UNFCCC
-        )
-        if not prefix_ok:
-            raise RuntimeError("Prefix is not a known organisation!")
+
+        # Validation - this prefix used to be validated as the Organisation name
+        # this has been removed as we expect many organisations. Should we query
+        # for the organisation to continue validation?
+
         n = 0  # The fourth quad is historical
         i_value = str(self.get_next_count()).zfill(8)
         n_value = str(n).zfill(4)
