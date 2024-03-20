@@ -4,6 +4,7 @@ from sqlalchemy.dialects import postgresql
 from db_client.models.base import Base
 from db_client.models.organisation.organisation import Organisation
 
+
 class CorpusType(Base):
 
     __tablename__ = "corpus_type"
