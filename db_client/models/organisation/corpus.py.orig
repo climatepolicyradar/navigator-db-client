@@ -22,4 +22,9 @@ class Corpus(Base):
     title = sa.Column(sa.Text, nullable=False)
     description = sa.Column(sa.Text, nullable=False)
     organisation_id = sa.Column(sa.ForeignKey(Organisation.id), nullable=False)
+<<<<<<< HEAD
     corpus_type = sa.Column(sa.ForeignKey(CorpusType.name), nullable=False)
+
+=======
+    corpus_type = sa.Column(sa.ForeignKey(CorpusType.value), nullable=False)
+>>>>>>> 2a5aad672d6d9c30c2c6519f1cb5167a4d51a5fe
