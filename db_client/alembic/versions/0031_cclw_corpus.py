@@ -6,12 +6,10 @@ Create Date: 2024-03-21 sometime after breakfast
 
 """
 
-
 from alembic import op
-from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.orm import Session 
-
 from data_migrations.taxonomy_cclw import get_cclw_taxonomy
+from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.orm import Session
 
 # revision identifiers, used by Alembic.
 revision = "0031"
@@ -37,29 +35,30 @@ def add_corpus_type(session, CorpusType, name, description, valid_metadata):
     return corpus_type
 
 
-def add_corpus(session, Corpus, EntityCounter, title, description, org, corpus_type):
-    counter = session.query(EntityCounter).filter(EntityCounter.prefix == org.name).one()
+def add_corpus(session, Corpus, title, description, org, corpus_type):
+    # NOTE: we cannot use create_import_id here.. so pinch the code
+    n = 0  # The fourth quad is historical
+    i_value = str(1).zfill(8)
+    n_value = str(n).zfill(4)
+    import_id = f"{org.name}.corpus.i{i_value}.n{n_value}"
     corpus = Corpus(
-        import_id = counter.create_import_id("corpus"),
-        title = title,
-        description = description,
-        organisation_id = org.id,
-        corpus_type = corpus_type,
+        import_id=import_id,
+        title=title,
+        description=description,
+        organisation_id=org.id,
+        corpus_type=corpus_type,
     )
     session.add(corpus)
     session.flush()
     return corpus
 
 
-def link_families_to_corpus(session, FamilyOrganisation, FamilyCorpus, cclw, corpus):
-    families = session.query(FamilyOrganisation).filter(FamilyOrganisation.organisaton_id == cclw.id).all()
-    session.begin()
-    for family_import_id in [ f.import_id for f in families]:
+def link_families_to_corpus(session, families, corpus):
+    session.begin(subtransactions=True)
+
+    for family in families:
         # insert into FamilyCorpus
-        session.add(FamilyCorpus(
-            family_import_id = family_import_id,
-            corpus_import_id = corpus.import_id,
-        ))
+        family.corpus_collection.append(corpus)
     session.commit()
 
 
@@ -71,23 +70,34 @@ def upgrade():
     Org = Base.classes.organisation
     Corpus = Base.classes.corpus
     CorpusType = Base.classes.corpus_type
-    EntityCounter = Base.classes.entity_counter
-    FamilyOrganisation = Base.classes.family_organisation
-    FamilyCorpus = Base.classes.family_corpus
 
     # Create Corpus Types
-    law_and_policy = add_corpus_type(session, CorpusType, "Law & Policy", "Laws and policies", get_cclw_taxonomy())
+    law_and_policy = add_corpus_type(
+        session,
+        CorpusType,
+        "Laws and Policies",
+        "Laws and policies",
+        get_cclw_taxonomy(),
+    )
 
     # Create Corpus
     cclw = get_cclw(session, Org)
-    corpus = add_corpus(session, Corpus, EntityCounter, "", "", cclw, law_and_policy)
+    # Change the name
+    cclw.name = "LSE CCLW team"
+    corpus = add_corpus(
+        session,
+        Corpus,
+        "CCLW national policies",
+        "CCLW national policies",
+        cclw,
+        law_and_policy,
+    )
     session.commit()
 
     # Link all families to their respective corpus
-    link_families_to_corpus(session, FamilyOrganisation, FamilyCorpus, cclw, corpus)
+    link_families_to_corpus(session, cclw.family_collection, corpus)
 
 
 def downgrade():
     # There is no way back
     pass
-
