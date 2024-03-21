@@ -39,7 +39,7 @@ import json
 from dataclasses import asdict
 from typing import Any, Mapping, Sequence
 
-from db_client.models.law_policy.taxonomy_entry import TaxonomyEntry
+from db_client.models.dfce.taxonomy_entry import TaxonomyEntry
 
 
 def _dot_dref(obj: dict, dotted_key: str):

@@ -1,11 +1,15 @@
-""" Export function and module symbols. """
+"""
+The Document-Family-Collection-Event (DFCE) part of the schema.
 
-from db_client.models.law_policy.collection import (
+This contains the standardized structural representation for any document within the system.
+"""
+
+from db_client.models.dfce.collection import (
     Collection,
     CollectionFamily,
     CollectionOrganisation,
 )
-from db_client.models.law_policy.family import (
+from db_client.models.dfce.family import (
     DocumentStatus,
     EventStatus,
     Family,
@@ -20,8 +24,8 @@ from db_client.models.law_policy.family import (
     Slug,
     Variant,
 )
-from db_client.models.law_policy.geography import Geography, GeoStatistics
-from db_client.models.law_policy.metadata import (
+from db_client.models.dfce.geography import Geography, GeoStatistics
+from db_client.models.dfce.metadata import (
     FamilyMetadata,
     MetadataOrganisation,
     MetadataTaxonomy,

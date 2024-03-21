@@ -4,7 +4,7 @@ from typing import cast
 from slugify import slugify
 from sqlalchemy.orm import Session
 
-from db_client.models.law_policy.geography import (
+from db_client.models.dfce.geography import (
     CPR_DEFINED_GEOS,
     GEO_OTHER,
     Geography,

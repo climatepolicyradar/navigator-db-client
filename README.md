@@ -35,7 +35,10 @@ using the `db_client.run_migrations` function.
 ## Make migrations
 
 ```bash
-alembic revision --autogenerate --rev-id -m "migration message"
+# First start postgres
+# Ensure you drop and recreate navigator db, so its empty
+alembic upgrade head
+alembic revision --autogenerate -m "migration message"
 ```
 
 ## Test

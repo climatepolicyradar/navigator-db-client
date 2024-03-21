@@ -2,6 +2,7 @@ import sqlalchemy as sa
 from sqlalchemy import PrimaryKeyConstraint
 
 from db_client.models.base import Base
+from db_client.models.organisation.organisation import Organisation
 
 
 class AppUser(Base):
@@ -13,17 +14,6 @@ class AppUser(Base):
     name = sa.Column(sa.String)
     hashed_password = sa.Column(sa.String)
     is_superuser = sa.Column(sa.Boolean, default=False, nullable=False)
-
-
-class Organisation(Base):
-    """Table of organisations to which admin users may belong."""
-
-    __tablename__ = "organisation"
-
-    id = sa.Column(sa.Integer, primary_key=True)
-    name = sa.Column(sa.String)
-    description = sa.Column(sa.String)
-    organisation_type = sa.Column(sa.String)
 
 
 class OrganisationUser(Base):
