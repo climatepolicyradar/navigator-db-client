@@ -33,4 +33,4 @@ build-backend = "poetry.core.masonry.api"
 [tool.pyright]
 include = ["db_client", "tests"]
 exclude = ["**/__pycache__"]
-executionEnvironments = [ { "root": "db_client" } ]
+executionEnvironments = [{ "root" = "db_client" }]
