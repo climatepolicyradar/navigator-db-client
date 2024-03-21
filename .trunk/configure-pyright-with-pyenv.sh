@@ -2,7 +2,7 @@
 set -e
 
 # Get the name of the expected venv for this repo from the pyproject.toml file.
-venv_name=$(grep -m 1 venv pyproject.toml | tr -s ' ' | tr -d '"' | tr -d "'" | cut -d' ' -f3)
+venv_name=$(grep -m 1 venv pyproject.toml | tr -s ' ' | tr -d '"' | tr -d "'" | cut -d' ' -f3) || true
 
 # Check if pyrightconfig already exists.
 if [[ ! -f pyrightconfig.json ]]; then
