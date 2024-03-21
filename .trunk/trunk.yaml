@@ -67,9 +67,15 @@ lint:
 
 actions:
   disabled:
-    - trunk-announce
     - trunk-check-pre-push
+    - trunk-announce
   enabled:
     - trunk-check-pre-commit
+    - configure-pyright-with-pyenv
     - trunk-fmt-pre-commit
     - trunk-upgrade-available
+  definitions:
+    - id: configure-pyright-with-pyenv
+      run: source .trunk/configure-pyright-with-pyenv.sh
+      triggers:
+        - git_hooks: [pre-commit]
