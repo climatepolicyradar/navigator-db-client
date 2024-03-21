@@ -84,7 +84,7 @@ def upgrade():
     # Create Corpus
     cclw = get_cclw(session, Org)
     # Change the name
-    cclw.name = "LSE CCLW team"
+    cclw.description = "LSE CCLW team"
     corpus = add_corpus(
         session,
         Corpus,
