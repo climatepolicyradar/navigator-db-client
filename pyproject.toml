@@ -31,7 +31,6 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pyright]
-venvPath = "/home/peter/.pyenv/versions"
-venv = "dbclient"
 include = ["db_client", "tests"]
 exclude = ["**/__pycache__"]
+executionEnvironments = [{ "root" = "db_client" }]
