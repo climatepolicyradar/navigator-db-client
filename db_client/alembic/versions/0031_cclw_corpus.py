@@ -7,9 +7,10 @@ Create Date: 2024-03-21 sometime after breakfast
 """
 
 from alembic import op
-from data_migrations.taxonomy_cclw import get_cclw_taxonomy
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
+
+from db_client.data_migrations.taxonomy_cclw import get_cclw_taxonomy
 
 # revision identifiers, used by Alembic.
 revision = "0031"
