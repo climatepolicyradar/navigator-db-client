@@ -67,10 +67,10 @@ lint:
 
 actions:
   disabled:
-    - trunk-check-pre-commit
+    - trunk-check-pre-push
     - trunk-announce
   enabled:
-    - trunk-check-pre-push
+    - trunk-check-pre-commit
     - configure-pyright-with-pyenv
     - trunk-fmt-pre-commit
     - trunk-upgrade-available
