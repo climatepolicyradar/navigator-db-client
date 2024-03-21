@@ -2,7 +2,7 @@
 
 Revision ID: 0030
 Revises: 0029
-Create Date: 2024-03-20 16:46:11.829855
+Create Date: 2024-03-21 12:58:22.725699
 
 """
 
@@ -34,11 +34,11 @@ def upgrade():
         sa.Column("title", sa.Text(), nullable=False),
         sa.Column("description", sa.Text(), nullable=False),
         sa.Column("organisation_id", sa.Integer(), nullable=False),
-        sa.Column("corpus_type", sa.Text(), nullable=False),
+        sa.Column("corpus_type_name", sa.Text(), nullable=False),
         sa.ForeignKeyConstraint(
-            ["corpus_type"],
+            ["corpus_type_name"],
             ["corpus_type.name"],
-            name=op.f("fk_corpus__corpus_type__corpus_type"),
+            name=op.f("fk_corpus__corpus_type_name__corpus_type"),
         ),
         sa.ForeignKeyConstraint(
             ["organisation_id"],
