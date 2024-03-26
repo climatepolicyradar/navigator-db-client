@@ -1,3 +1,5 @@
+""" DO NOT CHANGE THIS FILE """
+
 import json
 
 from sqlalchemy.orm import Session
@@ -7,7 +9,7 @@ from db_client.models.dfce.family import FamilyEventType
 from db_client.utils import get_library_path
 
 
-def populate_event_type(db: Session) -> None:
+def _populate_event_type(db: Session) -> None:
     """Populates the family_event_type table with pre-defined data."""
 
     if has_rows(db, FamilyEventType):

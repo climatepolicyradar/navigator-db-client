@@ -1,4 +1,7 @@
-"""At the moment taxonomy is kept simple, and only supports string validation for enums
+""" 
+DO NOT CHANGE THIS FILE
+
+At the moment taxonomy is kept simple, and only supports string validation for enums
 
 For Example:
 

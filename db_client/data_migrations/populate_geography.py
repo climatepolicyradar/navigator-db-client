@@ -1,3 +1,5 @@
+""" DO NOT CHANGE THIS FILE """
+
 import json
 from typing import cast
 
@@ -42,7 +44,7 @@ def remove_old_international_geo(db: Session) -> None:
         db.flush()
 
 
-def populate_geography(db: Session) -> None:
+def _populate_geography(db: Session) -> None:
     """Populates the geography table with pre-defined data."""
 
     geo_populated = has_rows(db, Geography)

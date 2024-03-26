@@ -10,7 +10,7 @@ from alembic import op
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 
-from db_client.data_migrations.taxonomy_cclw import get_cclw_taxonomy
+from db_client.data_migrations.taxonomy_cclw import _get_cclw_taxonomy
 
 # revision identifiers, used by Alembic.
 revision = "0032"
@@ -78,7 +78,7 @@ def upgrade():
         CorpusType,
         "Intl. agreements",
         "Intl. agreements",
-        get_cclw_taxonomy(),
+        _get_cclw_taxonomy(),
     )
 
     # Create Corpus

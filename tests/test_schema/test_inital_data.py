@@ -2,29 +2,29 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
-from db_client.data_migrations import (
-    populate_counters,
-    populate_document_role,
-    populate_document_type,
-    populate_document_variant,
-    populate_event_type,
-    populate_geo_statistics,
-    populate_geography,
-    populate_language,
-    populate_taxonomy,
+from db_client.data_migrations.populate_counters import _populate_counters
+from db_client.data_migrations.populate_document_role import _populate_document_role
+from db_client.data_migrations.populate_document_type import _populate_document_type
+from db_client.data_migrations.populate_document_variant import (
+    _populate_document_variant,
 )
+from db_client.data_migrations.populate_event_type import _populate_event_type
+from db_client.data_migrations.populate_geo_statistics import _populate_geo_statistics
+from db_client.data_migrations.populate_geography import _populate_geography
+from db_client.data_migrations.populate_language import _populate_language
+from db_client.data_migrations.populate_taxonomy import _populate_taxonomy
 from tests.test_schema.helpers import PytestHelpers
 
 POPULATE_FUNCS = [
-    (populate_document_type, "family_document_type", 76),
-    (populate_document_role, "family_document_role", 10),
-    (populate_document_variant, "variant", 2),
-    (populate_event_type, "family_event_type", 17),
-    (populate_geography, "geography", 212),
-    (populate_language, "language", 7893),
-    (populate_taxonomy, "metadata_taxonomy", 2),
-    (populate_counters, "entity_counter", 2),
-    (populate_geo_statistics, "geo_statistics", 201),
+    (_populate_document_type, "family_document_type", 76),
+    (_populate_document_role, "family_document_role", 10),
+    (_populate_document_variant, "variant", 2),
+    (_populate_event_type, "family_event_type", 17),
+    (_populate_geography, "geography", 212),
+    (_populate_language, "language", 7893),
+    (_populate_taxonomy, "metadata_taxonomy", 2),
+    (_populate_counters, "entity_counter", 2),
+    (_populate_geo_statistics, "geo_statistics", 201),
 ]
 
 

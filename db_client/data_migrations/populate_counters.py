@@ -1,3 +1,5 @@
+""" DO NOT CHANGE THIS FILE """
+
 from sqlalchemy.orm import Session
 
 from db_client.models.organisation.counters import (
@@ -7,7 +9,7 @@ from db_client.models.organisation.counters import (
 )
 
 
-def populate_counters(db: Session):
+def _populate_counters(db: Session):
     n_rows = db.query(EntityCounter).count()
     if n_rows == 0:
         db.add(

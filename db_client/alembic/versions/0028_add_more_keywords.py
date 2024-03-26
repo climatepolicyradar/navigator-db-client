@@ -11,20 +11,17 @@ import json
 from string import Template
 
 from alembic import op
+from data_migrations.populate_counters import _populate_counters
+from data_migrations.populate_document_role import _populate_document_role
+from data_migrations.populate_document_type import _populate_document_type
+from data_migrations.populate_document_variant import _populate_document_variant
+from data_migrations.populate_event_type import _populate_event_type
+from data_migrations.populate_geo_statistics import _populate_geo_statistics
+from data_migrations.populate_geography import _populate_geography
+from data_migrations.populate_language import _populate_language
+from data_migrations.populate_taxonomy import _populate_taxonomy
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
-
-from db_client.data_migrations import (
-    populate_counters,
-    populate_document_role,
-    populate_document_type,
-    populate_document_variant,
-    populate_event_type,
-    populate_geo_statistics,
-    populate_geography,
-    populate_language,
-    populate_taxonomy,
-)
 
 Base = automap_base()
 
@@ -77,18 +74,18 @@ def get_cclw_id_and_keywords(session):
 def do_old_init_data(session):
     # These functions were originally called in the `initial_data.py` script
     # which is now retired in favour of migrations like this
-    populate_document_type(session)
-    populate_document_role(session)
-    populate_document_variant(session)
-    populate_event_type(session)
-    populate_geography(session)
-    populate_language(session)
-    populate_taxonomy(session)
-    populate_counters(session)
+    _populate_document_type(session)
+    _populate_document_role(session)
+    _populate_document_variant(session)
+    _populate_event_type(session)
+    _populate_geography(session)
+    _populate_language(session)
+    _populate_taxonomy(session)
+    _populate_counters(session)
 
     session.flush()  # Geography data is used by geo-stats so flush
 
-    populate_geo_statistics(session)
+    _populate_geo_statistics(session)
 
 
 def upgrade():
