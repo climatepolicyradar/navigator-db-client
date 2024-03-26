@@ -11,17 +11,20 @@ import json
 from string import Template
 
 from alembic import op
-from data_migrations.populate_counters import _populate_counters
-from data_migrations.populate_document_role import _populate_document_role
-from data_migrations.populate_document_type import _populate_document_type
-from data_migrations.populate_document_variant import _populate_document_variant
-from data_migrations.populate_event_type import _populate_event_type
-from data_migrations.populate_geo_statistics import _populate_geo_statistics
-from data_migrations.populate_geography import _populate_geography
-from data_migrations.populate_language import _populate_language
-from data_migrations.populate_taxonomy import _populate_taxonomy
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
+
+from db_client.data_migrations.populate_counters import _populate_counters
+from db_client.data_migrations.populate_document_role import _populate_document_role
+from db_client.data_migrations.populate_document_type import _populate_document_type
+from db_client.data_migrations.populate_document_variant import (
+    _populate_document_variant,
+)
+from db_client.data_migrations.populate_event_type import _populate_event_type
+from db_client.data_migrations.populate_geo_statistics import _populate_geo_statistics
+from db_client.data_migrations.populate_geography import _populate_geography
+from db_client.data_migrations.populate_language import _populate_language
+from db_client.data_migrations.populate_taxonomy import _populate_taxonomy
 
 Base = automap_base()
 
