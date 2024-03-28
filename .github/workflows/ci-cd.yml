@@ -48,7 +48,7 @@ jobs:
       checks: write
       # For repo checkout
       contents: read
-    uses: climatepolicyradar/reusable-workflows/.github/workflows/python-precommit-validator.yml@main
+    uses: climatepolicyradar/reusable-workflows/.github/workflows/python-precommit-validator.yml@v2
 
   test:
     if: github.event.action != 'edited'
