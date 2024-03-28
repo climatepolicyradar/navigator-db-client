@@ -99,7 +99,7 @@ jobs:
 
       - name: Determine new tag version
         id: determine_next_tag
-        uses: climatepolicyradar/get-next-tag-from-pr-body@main
+        uses: climatepolicyradar/get-next-tag-from-pr-body@v2
 
       - name: Create Git tag and push
         run: |
@@ -112,6 +112,6 @@ jobs:
     needs: tag
     permissions:
       contents: write
-    uses: climatepolicyradar/reusable-workflows/.github/workflows/release.yml@main
+    uses: climatepolicyradar/reusable-workflows/.github/workflows/release.yml@v2
     with:
       new_tag: ${{ needs.tag.outputs.new_tag }}
