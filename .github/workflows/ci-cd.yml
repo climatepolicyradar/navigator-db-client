@@ -41,6 +41,9 @@ jobs:
           fi
 
   code-quality:
+    if: |
+      always() &&
+      (needs.check-auto-tagging-will-work.result == 'skipped' || needs.check-auto-tagging-will-work.result == 'success')
     needs:
       - check-auto-tagging-will-work
     permissions:
@@ -51,8 +54,11 @@ jobs:
     uses: climatepolicyradar/reusable-workflows/.github/workflows/python-precommit-validator.yml@v3
 
   test:
+    if: |
+      always() &&
+      (needs.check-auto-tagging-will-work.result == 'skipped' || needs.check-auto-tagging-will-work.result == 'success')
     needs:
-      - code-quality
+      - check-auto-tagging-will-work
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
