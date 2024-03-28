@@ -14,7 +14,6 @@ on:
 
 permissions: read-all
 
-# https://github.com/marketplace/actions/docker-layer-caching
 jobs:
   check-auto-tagging-will-work:
     if: |
