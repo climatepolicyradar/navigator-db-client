@@ -1,3 +1,5 @@
+""" DO NOT CHANGE THIS FILE """
+
 import json
 from typing import Union
 
@@ -19,7 +21,7 @@ def to_float(value: str) -> Union[float, None]:
     return retval
 
 
-def populate_geo_statistics(db: Session) -> None:
+def _populate_geo_statistics(db: Session) -> None:
     _populate_initial_geo_statistics(db)
     db.flush()
     _apply_geo_statistics_updates(db)

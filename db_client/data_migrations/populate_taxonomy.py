@@ -1,9 +1,11 @@
+""" DO NOT CHANGE THIS FILE """
+
 from typing import Callable
 
 from sqlalchemy.orm import Session
 
-from db_client.data_migrations.taxonomy_cclw import get_cclw_taxonomy
-from db_client.data_migrations.taxonomy_unf3c import get_unf3c_taxonomy
+from db_client.data_migrations.taxonomy_cclw import _get_cclw_taxonomy
+from db_client.data_migrations.taxonomy_unf3c import _get_unf3c_taxonomy
 from db_client.data_migrations.utils import has_rows
 from db_client.models.dfce.metadata import MetadataOrganisation, MetadataTaxonomy
 from db_client.models.organisation.counters import (
@@ -56,7 +58,7 @@ def populate_org_taxonomy(
         db.commit()
 
 
-def populate_taxonomy(db: Session) -> None:
+def _populate_taxonomy(db: Session) -> None:
     if has_rows(db, Organisation):
         return
 
@@ -65,12 +67,12 @@ def populate_taxonomy(db: Session) -> None:
         org_name=ORGANISATION_CCLW,
         org_type="Academic",
         description="Climate Change Laws of the World",
-        fn_get_taxonomy=get_cclw_taxonomy,
+        fn_get_taxonomy=_get_cclw_taxonomy,
     )
     populate_org_taxonomy(
         db,
         org_name=ORGANISATION_UNFCCC,
         org_type="UN",
         description="United Nations Framework Convention on Climate Change",
-        fn_get_taxonomy=get_unf3c_taxonomy,
+        fn_get_taxonomy=_get_unf3c_taxonomy,
     )

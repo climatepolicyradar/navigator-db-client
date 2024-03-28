@@ -1,3 +1,5 @@
+""" DO NOT CHANGE THIS FILE """
+
 from db_client.data_migrations.taxonomy_utils import read_taxonomy_values
 from db_client.utils import get_library_path
 
@@ -41,7 +43,7 @@ TAXONOMY_DATA = [
 ]
 
 
-def get_cclw_taxonomy():
+def _get_cclw_taxonomy():
     taxonomy = read_taxonomy_values(TAXONOMY_DATA)
 
     # Remove unwanted values for new taxonomy

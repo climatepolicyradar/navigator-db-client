@@ -1,3 +1,5 @@
+""" DO NOT CHANGE THIS FILE """
+
 from db_client.data_migrations.taxonomy_utils import read_taxonomy_values
 
 TAXONOMY_DATA = [
@@ -15,5 +17,5 @@ TAXONOMY_DATA = [
 ]
 
 
-def get_unf3c_taxonomy():
+def _get_unf3c_taxonomy():
     return read_taxonomy_values(TAXONOMY_DATA)
