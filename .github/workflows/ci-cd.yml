@@ -6,22 +6,40 @@ on:
     branches:
       - main
   pull_request:
+    # By default, a workflow only runs when a pull_request event's activity type is opened,
+    # synchronize, or reopened.
+    types: [opened, synchronize, reopened, edited]
     branches:
       - main
 
 permissions: read-all
 
-# https://github.com/marketplace/actions/docker-layer-caching
 jobs:
+  check-auto-tagging-will-work:
+    if: |
+      github.event_name == 'pull_request' &&
+      (! startsWith(github.ref, 'refs/tags') && ! startsWith(github.ref, 'refs/heads/main'))
+    uses: climatepolicyradar/reusable-workflows/.github/workflows/check-auto-tagging-will-work.yml@v3
+
   code-quality:
+    if: |
+      always() &&
+      (needs.check-auto-tagging-will-work.result == 'skipped' || needs.check-auto-tagging-will-work.result == 'success')
+    needs:
+      - check-auto-tagging-will-work
     permissions:
       # For trunk to post annotations
       checks: write
       # For repo checkout
       contents: read
-    uses: climatepolicyradar/reusable-workflows/.github/workflows/python-precommit-validator.yml@main
+    uses: climatepolicyradar/reusable-workflows/.github/workflows/python-precommit-validator.yml@v3
 
   test:
+    if: |
+      always() &&
+      (needs.check-auto-tagging-will-work.result == 'skipped' || needs.check-auto-tagging-will-work.result == 'success')
+    needs:
+      - check-auto-tagging-will-work
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -52,7 +70,10 @@ jobs:
 
   tag:
     runs-on: ubuntu-latest
-    if: ${{ github.ref == 'refs/heads/main' }}
+    if: |
+      always() &&
+      (needs.code-quality.result == 'success' && needs.test.result == 'success') &&
+      startsWith(github.ref, 'refs/heads/main')
     permissions:
       contents: write
 
@@ -69,19 +90,27 @@ jobs:
 
       - name: Determine new tag version
         id: determine_next_tag
-        uses: climatepolicyradar/get-next-tag-from-pr-body@main
+        uses: climatepolicyradar/get-next-tag-from-pr-body@v2
 
       - name: Create Git tag and push
         run: |
-          new_tag=${{ steps.determine_next_tag.outputs.new_tag }}
-          new_version_num=${new_tag#v}
-          git tag -a "${new_tag}" -m "Version ${new_version_num}"
-          git push --tags origin "${new_tag}"
+          new_tag="${{ steps.determine_next_tag.outputs.new_tag }}"
+          new_tag=${new_tag#v}
+          new_tag=${new_tag%-*}
+
+          if [[ -z "${new_tag}" ]]; then
+            echo "Could not determine next tag";
+            exit 1;
+          elif [[ "${new_tag}" != 'Skip' ]]; then
+            git tag -a "${new_tag}" -m "Version ${new_version_num}"
+            git push --tags origin "${new_tag}"
+          fi
 
   release:
     needs: tag
+    if: ${{ always() && (needs.tag.result == 'success' && needs.tag.outputs.new_tag != 'Skip')}}
     permissions:
       contents: write
-    uses: climatepolicyradar/reusable-workflows/.github/workflows/release.yml@main
+    uses: climatepolicyradar/reusable-workflows/.github/workflows/release.yml@v3
     with:
       new_tag: ${{ needs.tag.outputs.new_tag }}
