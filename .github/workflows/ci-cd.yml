@@ -70,7 +70,10 @@ jobs:
 
   tag:
     runs-on: ubuntu-latest
-    if: ${{ github.ref == 'refs/heads/main' }}
+    if: |
+      always() &&
+      (needs.code-quality.result == 'success' && needs.test.result == 'success') &&
+      startsWith(github.ref, 'refs/heads/main')
     permissions:
       contents: write
 
@@ -105,7 +108,7 @@ jobs:
 
   release:
     needs: tag
-    if: ${{ needs.tag.outputs.new_tag != 'Skip' }}
+    if: ${{ always() && (needs.tag.result == 'success' && needs.tag.outputs.new_tag != 'Skip')}}
     permissions:
       contents: write
     uses: climatepolicyradar/reusable-workflows/.github/workflows/release.yml@v3
