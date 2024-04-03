@@ -19,17 +19,12 @@ from db_client.models.dfce.family import (
     FamilyDocumentType,
     FamilyEvent,
     FamilyEventType,
-    FamilyOrganisation,
     FamilyStatus,
     Slug,
     Variant,
 )
 from db_client.models.dfce.geography import Geography, GeoStatistics
-from db_client.models.dfce.metadata import (
-    FamilyMetadata,
-    MetadataOrganisation,
-    MetadataTaxonomy,
-)
+from db_client.models.dfce.metadata import FamilyMetadata
 
 __all__ = (
     "Collection",
@@ -44,13 +39,10 @@ __all__ = (
     "FamilyDocumentType",
     "FamilyEvent",
     "FamilyEventType",
-    "FamilyOrganisation",
     "FamilyStatus",
     "Slug",
     "Variant",
     "Geography",
     "GeoStatistics",
     "FamilyMetadata",
-    "MetadataOrganisation",
-    "MetadataTaxonomy",
 )
