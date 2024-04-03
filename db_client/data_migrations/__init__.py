@@ -10,7 +10,6 @@ from db_client.data_migrations.populate_event_type import populate_event_type
 from db_client.data_migrations.populate_geo_statistics import populate_geo_statistics
 from db_client.data_migrations.populate_geography import populate_geography
 from db_client.data_migrations.populate_language import populate_language
-from db_client.data_migrations.populate_taxonomy import populate_taxonomy
 
 __all__ = (
     "populate_counters",
@@ -22,5 +21,4 @@ __all__ = (
     "populate_geo_statistics",
     "populate_geography",
     "populate_language",
-    "populate_taxonomy",
 )

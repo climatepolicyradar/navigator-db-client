@@ -12,17 +12,18 @@ if [[ ! -f pyrightconfig.json ]]; then
 		exit 1
 	fi
 
-	# Check if pyenv-pyright plugin is installed
-	if ! command -v pyenv pyright &>/dev/null; then
-		echo "pyenv-pyright not installed. Installing..."
-		pyenv_root=$(pyenv root)
-		git clone https://github.com/alefpereira/pyenv-pyright.git "${pyenv_root}"/plugins/pyenv-pyright
+	pyenv_root=$(pyenv root)
+	dir_path="${pyenv_root}"/plugins/pyenv-pyright
+	if [[ ! -d ${dir_path} ]]; then
+		# trunk-ignore(shellcheck/SC2312)
+		if [[ -n $(ls -A "${dir_path}") ]]; then
+			git clone https://github.com/alefpereira/pyenv-pyright.git "${dir_path}"
+		fi
 	fi
 
 	# Generate the pyrightconfig.json file.
 	pyenv pyright "${venv_name}"
 	pyenv local "${venv_name}"
-
 fi
 
 # Check whether required keys are present in pyrightconfig.json.

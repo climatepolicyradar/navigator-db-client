@@ -7,7 +7,7 @@ from sqlalchemy.orm import relationship
 
 from db_client.models.base import Base
 from db_client.models.document import PhysicalDocument
-from db_client.models.organisation import BaseModelEnum, Corpus, Organisation
+from db_client.models.organisation import BaseModelEnum, Corpus
 
 from .geography import Geography
 
@@ -228,17 +228,6 @@ class FamilyDocument(Base):
         PhysicalDocument,
         lazy="joined",
     )
-
-
-class FamilyOrganisation(Base):
-    """A link between a Family and its owning Organisation."""
-
-    __tablename__ = "family_organisation"
-
-    family_import_id = sa.Column(sa.ForeignKey(Family.import_id), nullable=False)
-    organisation_id = sa.Column(sa.ForeignKey(Organisation.id), nullable=False)
-
-    sa.PrimaryKeyConstraint(family_import_id)
 
 
 class Slug(Base):

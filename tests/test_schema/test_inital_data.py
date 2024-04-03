@@ -11,7 +11,6 @@ from db_client.data_migrations import (
     populate_geo_statistics,
     populate_geography,
     populate_language,
-    populate_taxonomy,
 )
 from tests.test_schema.helpers import PytestHelpers
 
@@ -22,7 +21,6 @@ POPULATE_FUNCS = [
     (populate_event_type, "family_event_type", 17),
     (populate_geography, "geography", 212),
     (populate_language, "language", 7893),
-    (populate_taxonomy, "metadata_taxonomy", 2),
     (populate_counters, "entity_counter", 2),
     (populate_geo_statistics, "geo_statistics", 201),
 ]
