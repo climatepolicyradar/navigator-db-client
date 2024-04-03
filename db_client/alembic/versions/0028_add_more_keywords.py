@@ -29,10 +29,7 @@ from db_client.data_migrations import (
 from db_client.data_migrations.taxonomy_cclw import get_cclw_taxonomy
 from db_client.data_migrations.taxonomy_unf3c import get_unf3c_taxonomy
 from db_client.data_migrations.utils import has_rows
-from db_client.models.organisation.counters import (
-    ORGANISATION_CCLW,
-    ORGANISATION_UNFCCC,
-)
+from db_client.models import ORGANISATION_CCLW, ORGANISATION_UNFCCC
 
 Base = automap_base()
 
