@@ -23,7 +23,7 @@ jobs:
 
   code-quality:
     if: |
-      always() &&
+      ! cancelled() && always() &&
       (needs.check-auto-tagging-will-work.result == 'skipped' || needs.check-auto-tagging-will-work.result == 'success')
     needs:
       - check-auto-tagging-will-work
@@ -36,7 +36,7 @@ jobs:
 
   test:
     if: |
-      always() &&
+      ! cancelled() && always() &&
       (needs.check-auto-tagging-will-work.result == 'skipped' || needs.check-auto-tagging-will-work.result == 'success')
     needs:
       - check-auto-tagging-will-work
@@ -71,7 +71,7 @@ jobs:
   tag:
     runs-on: ubuntu-latest
     if: |
-      always() &&
+      ! cancelled() && always() &&
       (needs.code-quality.result == 'success' && needs.test.result == 'success') &&
       startsWith(github.ref, 'refs/heads/main')
     permissions:
@@ -108,7 +108,7 @@ jobs:
 
   release:
     needs: tag
-    if: ${{ always() && (needs.tag.result == 'success' && needs.tag.outputs.new_tag != 'Skip')}}
+    if: ${{ ! cancelled() && always() && (needs.tag.result == 'success' && needs.tag.outputs.new_tag != 'Skip')}}
     permissions:
       contents: write
     uses: climatepolicyradar/reusable-workflows/.github/workflows/release.yml@v3
