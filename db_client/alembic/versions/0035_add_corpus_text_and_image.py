@@ -6,6 +6,8 @@ Create Date: 2024-04-30 11:22:43.893840
 
 """
 
+from typing import Optional
+
 import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.ext.automap import automap_base
@@ -38,13 +40,23 @@ UNFCCC_TEXT = """
 """
 
 
-def add_image_url_and_text(session: Session, org_name: str, corpus_text: str):
+def add_image_url_and_text(
+    session: Session,
+    org_name: str,
+    corpus_text: str,
+    corpus_image_url: Optional[str] = None,
+):
 
     Org = Base.classes.organisation
     Corpus = Base.classes.corpus
     org = session.query(Org).filter(Org.name == org_name).one()
     corpus = session.query(Corpus).filter(Corpus.organisation_id == org.id).one()
-    corpus.corpus_image_url = f"corpora/{corpus.import_id}/logo.png"
+
+    if corpus_image_url is None:
+        corpus.corpus_image_url = f"corpora/{corpus.import_id}/logo.png"
+    else:
+        corpus.corpus_image_url = corpus_image_url
+
     corpus.corpus_text = corpus_text
     session.add(corpus)
     session.commit()
@@ -66,8 +78,8 @@ def upgrade():
     # Add new data for CCLW
     add_image_url_and_text(session, ORGANISATION_CCLW, CCLW_TEXT)
 
-    # Add new data for UNFCCC
-    add_image_url_and_text(session, ORGANISATION_UNFCCC, UNFCCC_TEXT)
+    # Add new data for UNFCCC, no image
+    add_image_url_and_text(session, ORGANISATION_UNFCCC, UNFCCC_TEXT, "")
 
 
 def downgrade():
