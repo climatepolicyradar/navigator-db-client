@@ -25,29 +25,15 @@ Base = automap_base()
 
 CCLW_TEXT = """
         <p>
-          The summary of this document was written by researchers at the{" "}
-          <a href="http://lse.ac.uk/grantham" target="">
-            Grantham Research Institute
-          </a>
-          . If you want to use this summary, please check{" "}
-          <a href="https://www.lse.ac.uk/granthaminstitute/cclw-terms-and-conditions" target="">
-            terms of use
-          </a>{" "}
-          for citation and licensing of third party data.
+          The summary of this document was written by researchers at the <a href="http://lse.ac.uk/grantham" target=""> Grantham Research Institute </a> . 
+          If you want to use this summary, please check <a href="https://www.lse.ac.uk/granthaminstitute/cclw-terms-and-conditions" target=""> terms of use </a> for citation and licensing of third party data.
         </p>
 """
 
 UNFCCC_TEXT = """
         <p>
-          This document was downloaded from the{" "}
-          <a href="https://unfccc.int/" target="">
-            UNFCCC website
-          </a>
-          . Please check{" "}
-          <a href="https://unfccc.int/this-site/terms-of-use" target="">
-            terms of use
-          </a>{" "}
-          for citation and licensing of third party data.
+          This document was downloaded from the <a href="https://unfccc.int/" target=""> UNFCCC website </a> . 
+          Please check <a href="https://unfccc.int/this-site/terms-of-use" target=""> terms of use </a> for citation and licensing of third party data.
         </p>
 """
 
