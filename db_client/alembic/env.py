@@ -172,6 +172,8 @@ family_collection_last_modified_trigger = PGTrigger(
 
 def get_url() -> str:
     db_url = cast(str, os.getenv("DATABASE_URL"))
+    if db_url is None:
+        raise ValueError("Environment variable DATABASE_URL not set")
     return db_url
 
 
