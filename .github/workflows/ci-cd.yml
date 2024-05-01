@@ -90,7 +90,7 @@ jobs:
 
       - name: Determine new tag version
         id: determine_next_tag
-        uses: climatepolicyradar/get-next-tag-from-pr-body@v2
+        uses: climatepolicyradar/get-next-tag-from-pr-body@v3
 
       - name: Create Git tag and push
         run: |
