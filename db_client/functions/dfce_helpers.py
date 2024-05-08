@@ -22,7 +22,7 @@ from db_client.models.organisation.organisation import Organisation
 
 
 def add_organisation(db: Session, name: str, description: str, type: str) -> int:
-    org = Organisation(name=name, description=description, orgaisation_type=type)
+    org = Organisation(name=name, description=description, organisation_type=type)
     db.add(org)
     db.commit()
     db.refresh(org)

@@ -1,10 +1,15 @@
 import os
-
+from typing import Generator, cast
+import uuid
 import pytest
 from pytest_alembic.config import Config
 from pytest_mock_resources import PostgresConfig, create_postgres_fixture
-from sqlalchemy_utils import create_database, database_exists
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy_utils import create_database, database_exists, drop_database
+from sqlalchemy.engine import Connection, Engine
 
+
+from db_client import run_migrations
 from db_client.functions import add_families
 from db_client.functions.dfce_helpers import add_organisation
 from db_client.models import Base
@@ -83,12 +88,56 @@ def test_engine(test_engine_fixture):
     yield test_engine_fixture
 
 
-@pytest.fixture()
-def db_with_families(test_engine):
+@pytest.fixture(scope="session")
+def test_db_engine():
+    engine = create_postgres_fixture()
+    yield engine
 
-    # This fixture may need optimization in the future.
-    # See the test_db fixture in the navigator-backend.
-    org_id = add_organisation(test_engine, "TESTORG", "Test Org", "For testing")
-    add_families(test_engine, families=[TEST_FAMILY_1, TEST_FAMILY_2], org_id=org_id)
 
-    yield test_engine
+def get_test_db_url(url: str) -> str:
+    return f"{url}_test_{uuid.uuid4()}"
+
+
+@pytest.fixture(scope="session")
+def db_connection(test_db_engine) -> Generator[Connection, None, None]:
+    test_db_url = get_test_db_url(test_db_engine.url)
+
+    if database_exists(test_db_url):
+        drop_database(test_db_url)
+    create_database(test_db_url)
+
+    saved_db_url = test_engine_fixture.url
+    test_engine_fixture.url = test_db_url
+
+    run_migrations(test_db_engine)
+    connection = test_engine.connect()
+
+    yield connection
+    connection.close()
+
+    test_engine_fixture.url = saved_db_url
+    drop_database(test_db_url)
+
+
+@pytest.fixture(scope="function")
+def data_db(db_connection):
+    transaction = db_connection.begin()
+
+    SessionLocal = sessionmaker(
+        autocommit=False, autoflush=False, bind=db_connection
+    )
+    session = SessionLocal()
+
+    yield session
+
+    session.close()
+    transaction.rollback()
+
+
+@pytest.fixture(scope="function")
+def db_with_families(data_db):
+    org_id = add_organisation(data_db, "TESTORG", "Test Org", "For testing")
+
+    add_families(data_db, families=[TEST_FAMILY_1, TEST_FAMILY_2], org_id=org_id)
+
+    yield data_db
