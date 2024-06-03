@@ -21,12 +21,13 @@ from db_client.models.document.physical_document import (
 from db_client.models.organisation.organisation import Organisation
 
 
-def add_organisation(db: Session, name: str, description: str, type: str) -> int:
+def add_organisation(
+    db: Session, name: str, description: str, type: str
+) -> Organisation:
     org = Organisation(name=name, description=description, organisation_type=type)
     db.add(org)
     db.commit()
-    db.refresh(org)
-    return org.id
+    return org
 
 
 def add_collections(db: Session, collections, org_id=1):

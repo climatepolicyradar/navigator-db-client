@@ -9,7 +9,7 @@ packages = [{ include = "db_client" }]
 
 [tool.poetry.dependencies]
 python = "^3.9"
-sqlalchemy = "^1.4.31"
+sqlalchemy = "^1.4.31,<2.0"
 alembic = "^1.7.6"
 alembic-utils = "^0.8.2"
 psycopg2-binary = "^2.9.3"
