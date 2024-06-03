@@ -19,4 +19,4 @@ check:
 	trunk check
 
 test:
-	poetry run pytest -vvv --cov=db_client --cov-fail-under=80
+	poetry run pytest -vvv --cov=db_client --cov-fail-under=80 --cov-report=term --cov-report=html
