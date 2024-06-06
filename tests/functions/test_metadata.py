@@ -108,7 +108,7 @@ def test_validation_when_good(db):
                 "allow_any": True,
             },
         },
-        {"author_type": "Party", "animals": "sheep"},
+        {"author_type": ["Party"], "animals": ["sheep"]},
     )
 
     errors = validate_family_metadata(db, family)
@@ -125,7 +125,7 @@ def test_validation_errors_on_extra_keys(db):
                 "allowed_values": ["Party", "Non-Party"],
             }
         },
-        {"author_type": "Party", "animals": "sheep"},
+        {"author_type": ["Party"], "animals": ["sheep"]},
     )
 
     errors = validate_family_metadata(db, family)
@@ -150,7 +150,7 @@ def test_validation_errors_on_missing_keys(db):
             },
         },
         {
-            "author_type": "Party",
+            "author_type": ["Party"],
         },
     )
 
@@ -159,3 +159,93 @@ def test_validation_errors_on_missing_keys(db):
     assert errors is not None
     assert len(errors) == 1
     assert errors[0] == "Missing metadata keys: {'animals'}"
+
+
+def test_validation_errors_on_blanks(db):
+    _, family = setup_test(
+        db,
+        {
+            "animals": {
+                "allow_blanks": False,
+                "allowed_values": [],
+            },
+        },
+        {"animals": []},
+    )
+
+    errors = validate_family_metadata(db, family)
+
+    assert errors is not None
+    assert len(errors) == 1
+    assert errors[0] == "Blank value for metadata key 'animals'"
+
+
+def test_validation_allows_blanks(db):
+    _, family = setup_test(
+        db,
+        {
+            "animals": {
+                "allow_blanks": True,
+                "allowed_values": [],
+            },
+        },
+        {"animals": []},
+    )
+
+    errors = validate_family_metadata(db, family)
+
+    assert errors is None
+
+
+def test_validation_errors_on_disallowed_values(db):
+    _, family = setup_test(
+        db,
+        {
+            "animals": {
+                "allow_blanks": False,
+                "allowed_values": ["sheep", "goat"],
+            },
+        },
+        {"animals": ["cat"]},
+    )
+
+    errors = validate_family_metadata(db, family)
+
+    assert errors is not None
+    assert len(errors) == 1
+    assert errors[0] == "Invalid value '['cat']' for metadata key 'animals'"
+
+
+def test_validation_allows_values(db):
+    _, family = setup_test(
+        db,
+        {
+            "animals": {
+                "allow_blanks": False,
+                "allowed_values": ["sheep", "goat"],
+            },
+        },
+        {"animals": ["sheep"]},
+    )
+
+    errors = validate_family_metadata(db, family)
+
+    assert errors is None
+
+
+def test_validation_allows_any(db):
+    _, family = setup_test(
+        db,
+        {
+            "animals": {
+                "allow_blanks": False,
+                "allowed_values": ["sheep", "goat"],
+                "allow_any": True,
+            },
+        },
+        {"animals": ["cat"]},
+    )
+
+    errors = validate_family_metadata(db, family)
+
+    assert errors is None

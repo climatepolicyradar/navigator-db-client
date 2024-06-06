@@ -36,13 +36,20 @@ def validate_family_metadata(
     )
     taxonomy = corpus_type.valid_metadata
     try:
-        taxonomy_entries = build_valid_taxonomy(taxonomy)
+        taxonomy_entries = _build_valid_taxonomy(taxonomy)
     except TypeError as e:
         # Wrap any TypeError in a more general error
         raise TypeError("Bad Taxonomy data in database") from e
 
     family_metadata = metadata.value
 
+    errors = _validate_metadata(taxonomy_entries, family_metadata)
+
+    # TODO: validate family_metadata against taxonomy
+    return errors if len(errors) > 0 else None
+
+
+def _validate_metadata(taxonomy_entries, family_metadata) -> MetadataValidationErrors:
     errors = []
     metadata_keys = set(family_metadata.keys())
     taxonomy_keys = set(taxonomy_entries.keys())
@@ -53,11 +60,29 @@ def validate_family_metadata(
     if len(extra_keys) > 0:
         errors.append(f"Extra metadata keys: {extra_keys}")
 
-    # TODO: validate family_metadata against taxonomy
-    return errors if len(errors) > 0 else None
+    # Validate the metadata values
+    for key, value_list in family_metadata.items():
+        if key not in taxonomy_entries:
+            continue  # We've already checked for missing keys
+        taxonomy_entry = taxonomy_entries[key]
+        if not isinstance(value_list, list):
+            errors.append(
+                f"Invalid value '{value_list}' for metadata key '{key}' expected list."
+            )
+            continue
+
+        if not taxonomy_entry.allow_any:
+            if not all(item in taxonomy_entry.allowed_values for item in value_list):
+                errors.append(f"Invalid value '{value_list}' for metadata key '{key}'")
+                continue
+
+        if not taxonomy_entry.allow_blanks and value_list == []:
+            errors.append(f"Blank value for metadata key '{key}'")
+
+    return errors
 
 
-def build_valid_taxonomy(taxonomy: Mapping) -> Mapping[str, TaxonomyEntry]:
+def _build_valid_taxonomy(taxonomy: Mapping) -> Mapping[str, TaxonomyEntry]:
     """_summary_
 
     :param Sequence taxonomy: From the database model CorpusType.valid_metadata
