@@ -8,26 +8,8 @@ from tests.functions.helpers import family_build, metadata_build
 
 db = create_postgres_fixture(Base, session=True)
 
-"""
-Test Plan
 
-- Taxonomy not a list
-- Bad Taxonomy
-- Incomplete Taxonomy
-- Extra fields in Taxonomy
-
-- Blank Taxonomy allows any metadata
-
-- Good Taxonomy - bad metadata
-- Good Taxonomy - incomplete metadata
-- Good Taxonomy - extra metadata
-- Good Taxonomy - 
-
-    allow_blanks: bool
-    allowed_values: Sequence[str]
-    allow_any: bool = False
-
-"""
+EXPECTED_BAD_TAXONOMY = "Bad Taxonomy data in database"
 
 
 def setup_test(db, taxonomy, metadata):
@@ -36,34 +18,28 @@ def setup_test(db, taxonomy, metadata):
     return org, family
 
 
-def test_validation_fails_when_taxonomy_is_not_a_list(db):
-    _, family = setup_test(db, {"taxonomy": "not a list"}, {"metadata": "anything"})
-    with pytest.raises(TypeError) as e:
-        validate_family_metadata(db, family)
-    assert e.value.args[0] == "Taxonomy is not a list"
-
-
 def test_validation_fails_when_taxonomy_bad(db):
     _, family = setup_test(
-        db, [{"one": "two"}, {"three": "four"}], {"metadata": "anything"}
+        db, {"one": "two", "three": "four"}, {"metadata": "anything"}
     )
 
-    with pytest.raises(ValidationError) as e:
+    with pytest.raises(TypeError) as e:
         validate_family_metadata(db, family)
 
-    assert len(e.value.errors()) == 3
+    assert str(e.value) == EXPECTED_BAD_TAXONOMY
+    inner = e.value.__cause__
+    assert inner is not None
+    assert inner.args[0] == "Taxonomy entry for 'one' is not a dictionary"
 
 
 def test_validation_fails_when_taxonomy_missing_allow_blanks(db):
     _, family = setup_test(
         db,
-        [
-            {
-                "author_type": {
-                    "allowed_values": ["Party", "Non-Party"],
-                }
+        {
+            "author_type": {
+                "allowed_values": ["Party", "Non-Party"],
             }
-        ],
+        },
         {"metadata": "anything"},
     )
     with pytest.raises(ValidationError) as e:
@@ -79,13 +55,11 @@ def test_validation_fails_when_taxonomy_missing_allow_blanks(db):
 def test_validation_fails_when_taxonomy_missing_allowed_values(db):
     _, family = setup_test(
         db,
-        [
-            {
-                "author_type": {
-                    "allow_blanks": False,
-                }
+        {
+            "author_type": {
+                "allow_blanks": False,
             }
-        ],
+        },
         {"metadata": "anything"},
     )
     with pytest.raises(ValidationError) as e:
@@ -101,15 +75,13 @@ def test_validation_fails_when_taxonomy_missing_allowed_values(db):
 def test_validation_fails_when_taxonomy_has_extra(db):
     _, family = setup_test(
         db,
-        [
-            {
-                "author_type": {
-                    "allow_blanks": False,
-                    "allowed_values": ["Party", "Non-Party"],
-                    "extra": "field",
-                }
+        {
+            "author_type": {
+                "allow_blanks": False,
+                "allowed_values": ["Party", "Non-Party"],
+                "extra": "field",
             }
-        ],
+        },
         {"metadata": "anything"},
     )
     with pytest.raises(ValidationError) as e:
@@ -120,3 +92,70 @@ def test_validation_fails_when_taxonomy_has_extra(db):
     assert error["msg"] == "Unexpected keyword argument"
     assert error["type"] == "unexpected_keyword_argument"
     assert error["loc"] == ("extra",)
+
+
+def test_validation_when_good(db):
+    _, family = setup_test(
+        db,
+        {
+            "author_type": {
+                "allow_blanks": False,
+                "allowed_values": ["Party", "Non-Party"],
+            },
+            "animals": {
+                "allow_blanks": True,
+                "allowed_values": [],
+                "allow_any": True,
+            },
+        },
+        {"author_type": "Party", "animals": "sheep"},
+    )
+
+    errors = validate_family_metadata(db, family)
+
+    assert errors is None
+
+
+def test_validation_errors_on_extra_keys(db):
+    _, family = setup_test(
+        db,
+        {
+            "author_type": {
+                "allow_blanks": False,
+                "allowed_values": ["Party", "Non-Party"],
+            }
+        },
+        {"author_type": "Party", "animals": "sheep"},
+    )
+
+    errors = validate_family_metadata(db, family)
+
+    assert errors is not None
+    assert len(errors) == 1
+    assert errors[0] == "Extra metadata keys: {'animals'}"
+
+
+def test_validation_errors_on_missing_keys(db):
+    _, family = setup_test(
+        db,
+        {
+            "author_type": {
+                "allow_blanks": False,
+                "allowed_values": ["Party", "Non-Party"],
+            },
+            "animals": {
+                "allow_blanks": True,
+                "allowed_values": [],
+                "allow_any": True,
+            },
+        },
+        {
+            "author_type": "Party",
+        },
+    )
+
+    errors = validate_family_metadata(db, family)
+
+    assert errors is not None
+    assert len(errors) == 1
+    assert errors[0] == "Missing metadata keys: {'animals'}"
