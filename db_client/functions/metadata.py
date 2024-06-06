@@ -97,7 +97,6 @@ def _build_valid_taxonomy(taxonomy: Mapping) -> Mapping[str, TaxonomyEntry]:
     taxonomy_entries: Mapping[str, TaxonomyEntry] = {}
     for key, values in taxonomy.items():
 
-        # values = list(entry.values())[0]
         if not isinstance(values, dict):
             raise TypeError(f"Taxonomy entry for '{key}' is not a dictionary")
 
