@@ -165,29 +165,3 @@ def test_unfccc_taxonomy_value_counts_correct(test_db: Session):
         == EXPECTED_UNFCCC_AUTHOR_TYPES
     )
     assert len(unfccc_taxonomy["event_type"]["allowed_values"]) == EXPECTED_EVENT_TYPES
-
-
-# def test_language_values_correct(test_db: Session):
-#     assert isinstance(data["languages"], dict)
-#     assert len(data["languages"]) == EXPECTED_LANGUAGES
-#     # Now sanity check the data
-#     #
-#     # Languages.
-#     assert "aaa" in data["languages"].keys()
-
-
-# def test_document_values_correct(test_db: Session):
-#     assert isinstance(data["document"], dict)
-#     assert set(data["document"].keys()) == set(["roles", "types", "variants"])
-
-#     # Documents..
-#     assert "AMENDMENT" in data["document"]["roles"]
-#     assert "Action Plan" in data["document"]["types"]
-#     assert "Translation" in data["document"]["variants"]
-
-
-# def test_geography_values_correct(test_db: Session):
-#     # Now sanity check the data
-#     #
-#     # Geographies.
-#     assert data["geographies"][1]["node"]["slug"] == "south-asia"
