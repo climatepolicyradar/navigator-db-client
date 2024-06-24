@@ -1,3 +1,5 @@
+from typing import Optional
+
 from db_client.data_migrations.taxonomy_utils import read_taxonomy_values
 from db_client.utils import get_library_path
 
@@ -38,17 +40,13 @@ TAXONOMY_DATA = [
         "file_key_path": "name",
         "allow_blanks": True,
     },
-    {
-        "key": "event_type",
-        "filename": f"{get_library_path()}/data_migrations/data/law_policy/event_type_data.json",
-        "file_key_path": "name",
-        "allow_blanks": True,
-    },
 ]
 
 
-def get_cclw_taxonomy():
-    taxonomy = read_taxonomy_values(TAXONOMY_DATA)
+def get_cclw_taxonomy(taxonomy_data: Optional[list[dict]] = None):
+    if taxonomy_data is None:
+        taxonomy_data = TAXONOMY_DATA
+    taxonomy = read_taxonomy_values(taxonomy_data)
 
     # Remove unwanted values for new taxonomy
     if "sector" in taxonomy:
