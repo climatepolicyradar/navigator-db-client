@@ -15,13 +15,16 @@ def validate_family_metadata(
 ) -> Optional[MetadataValidationErrors]:
     """Validates the Family's metadata against its Corpus' Taxonomy.
 
-    NOTE: That the taxonomy is also validated. This is because the Taxonomy is stored in the database and can be mutated independently of the Family's metadata.
+    NOTE: That the taxonomy is also validated. This is because the
+    Taxonomy is stored in the database and can be mutated independently
+    of the Family's metadata.
 
     :param Session db: The db connection session.
     :param Family family: The family to validate.
     :raises TypeError: If the Taxonomy is invalid.
     :raises ValidationError: If the Taxonomy values are invalid.
-    :return Optional[MetadataValidationResult]: A list of errors or None if the metadata is valid.
+    :return Optional[MetadataValidationResult]: A list of errors or None
+        if the metadata is valid.
     """
 
     # Retrieve the Taxonomy and the Family's metadata
