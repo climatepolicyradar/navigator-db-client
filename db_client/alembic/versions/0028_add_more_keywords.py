@@ -524,10 +524,10 @@ def _populate_taxonomy(session: Session) -> None:
     )
 
 
-def get_cclw_id_and_keywords(session):
+def get_cclw_id_and_keywords(db: Session):
     Org = Base.classes.organisation
     # Get CCLW as an org
-    cclw = session.query(Org).filter(Org.name == "CCLW").one()
+    cclw = db.query(Org).filter(Org.name == "CCLW").one()
     valid_metadata = cclw.metadata_taxonomy_collection[0].valid_metadata
     id = cclw.metadata_taxonomy_collection[0].id
 
@@ -535,21 +535,21 @@ def get_cclw_id_and_keywords(session):
     return id, valid_metadata["keyword"]["allowed_values"]
 
 
-def do_old_init_data(session):
+def do_old_init_data(db: Session):
     # These functions were originally called in the `initial_data.py` script
     # which is now retired in favour of migrations like this
-    _populate_document_type(session)
-    _populate_document_role(session)
-    _populate_document_variant(session)
-    _populate_event_type(session)
-    _populate_geography(session)
+    _populate_document_type(db)
+    _populate_document_role(db)
+    _populate_document_variant(db)
+    _populate_event_type(db)
+    _populate_geography(db)
     # _populate_language(session)
-    _populate_taxonomy(session)
-    _populate_counters(session)
+    _populate_taxonomy(db)
+    _populate_counters(db)
 
-    session.flush()  # Geography data is used by geo-stats so flush
+    db.flush()  # Geography data is used by geo-stats so flush
 
-    _populate_geo_statistics(session)
+    _populate_geo_statistics(db)
 
 
 def upgrade():
