@@ -36,20 +36,26 @@ def validate_family_metadata(
     )
     taxonomy = corpus_type.valid_metadata
     try:
-        taxonomy_entries = _build_valid_taxonomy(taxonomy)
+        taxonomy_entries = build_valid_taxonomy(taxonomy)
     except TypeError as e:
         # Wrap any TypeError in a more general error
         raise TypeError("Bad Taxonomy data in database") from e
 
     family_metadata = metadata.value
 
-    errors = _validate_metadata(taxonomy_entries, family_metadata)
+    errors = validate_metadata(taxonomy_entries, family_metadata)
 
     # TODO: validate family_metadata against taxonomy
     return errors if len(errors) > 0 else None
 
 
-def _validate_metadata(taxonomy_entries, family_metadata) -> MetadataValidationErrors:
+def validate_metadata(taxonomy_entries, family_metadata) -> MetadataValidationErrors:
+    """_summary_
+
+    :param _type_ taxonomy_entries: _description_
+    :param _type_ family_metadata: _description_
+    :return MetadataValidationErrors: _description_
+    """
     errors = []
     metadata_keys = set(family_metadata.keys())
     taxonomy_keys = set(taxonomy_entries.keys())
@@ -82,8 +88,8 @@ def _validate_metadata(taxonomy_entries, family_metadata) -> MetadataValidationE
     return errors
 
 
-def _build_valid_taxonomy(taxonomy: Mapping) -> Mapping[str, TaxonomyEntry]:
-    """_summary_
+def build_valid_taxonomy(taxonomy: Mapping) -> Mapping[str, TaxonomyEntry]:
+    """Takes the taxonomy from the database and builds a dictionary of TaxonomyEntry objects, used for validation.
 
     :param Sequence taxonomy: From the database model CorpusType.valid_metadata
     :raises TypeError: If the taxonomy is not a list.
