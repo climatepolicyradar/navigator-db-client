@@ -9,7 +9,7 @@ Create Date: 2024-02-26 12:00:00
 
 import json
 from string import Template
-from typing import Callable, Union, cast
+from typing import Any, Callable, Union, cast
 
 import sqlalchemy as sa
 from alembic import op
@@ -20,17 +20,12 @@ from sqlalchemy.orm import Session
 
 from db_client.data_migrations.taxonomy_utils import read_taxonomy_values
 from db_client.data_migrations.utils import (
-    has_rows,
-    load_list,
     load_list_idempotent,
     load_tree,
 )
 from db_client.models import ORGANISATION_CCLW, ORGANISATION_UNFCCC
 from db_client.models.dfce.family import (
-    FamilyDocumentRole,
     FamilyDocumentType,
-    FamilyEventType,
-    Variant,
 )
 from db_client.models.dfce.geography import (
     CPR_DEFINED_GEOS,
@@ -38,7 +33,6 @@ from db_client.models.dfce.geography import (
     Geography,
     GeoStatistics,
 )
-from db_client.models.document.physical_document import Language
 from db_client.models.organisation.counters import EntityCounter
 from db_client.utils import get_library_path
 
@@ -127,6 +121,10 @@ CCLW_TAXONOMY_DATA = [
         "allow_blanks": True,
     },
 ]
+
+
+def has_rows(db: Session, table: str) -> bool:
+    return cast(int, db.execute(f"select count(*) from {table}").scalar()) > 0
 
 
 def _get_unf3c_taxonomy():
@@ -237,23 +235,22 @@ def _populate_initial_geo_statistics(db: Session) -> None:
 
 
 def _populate_counters(db: Session):
-    n_rows = db.query(EntityCounter).count()
-    if n_rows == 0:
-        db.add(
-            EntityCounter(
-                prefix=ORGANISATION_CCLW, description="Counter for CCLW entities"
-            )
+    if has_rows(db, "entity_counter"):
+        return
+
+    db.add(
+        EntityCounter(prefix=ORGANISATION_CCLW, description="Counter for CCLW entities")
+    )
+    db.add(
+        EntityCounter(
+            prefix=ORGANISATION_UNFCCC, description="Counter for UNFCCC entities"
         )
-        db.add(
-            EntityCounter(
-                prefix=ORGANISATION_UNFCCC, description="Counter for UNFCCC entities"
-            )
-        )
-        db.commit()
+    )
+    db.commit()
 
 
 def _populate_language(db: Session) -> None:
-    """Populates the langauge table with pre-defined data."""
+    """Populates the language table with pre-defined data."""
 
     if has_rows(db, "language"):
         return
@@ -262,7 +259,19 @@ def _populate_language(db: Session) -> None:
         f"{get_library_path()}/data_migrations/data/language_data.json"
     ) as language_file:
         language_data = json.load(language_file)
-        load_list(db, Language, language_data)
+
+        query = "insert into language (id, language_code, part1_code, part2_code, name) values"
+        for _index, _entry in enumerate(language_data):
+            query += _wrap_if_not_nullable_or_int(_index + 1, is_first=True)
+            query += _wrap_if_not_nullable_or_int(_entry["language_code"])
+            query += _wrap_if_not_nullable_or_int(_entry["part1_code"])
+            query += _wrap_if_not_nullable_or_int(_entry["part2_code"])
+            query += _wrap_if_not_nullable_or_int(_entry["name"], is_last=True)
+
+            query += _add_delimiter(_index, language_data)
+
+        print(query)
+        db.execute(query)
 
 
 def _populate_document_type(db: Session) -> None:
@@ -278,9 +287,6 @@ def _populate_document_type(db: Session) -> None:
         f"{get_library_path()}/data_migrations/data/law_policy/document_type_data.json"
     ) as submission_type_file:
         document_type_data = json.load(submission_type_file)
-        load_list_idempotent(
-            db, FamilyDocumentType, FamilyDocumentType.name, "name", document_type_data
-        )
 
     with open(
         f"{get_library_path()}/data_migrations/data/unf3c/submission_type_data.json"
@@ -304,7 +310,53 @@ def _populate_document_role(db: Session) -> None:
         f"{get_library_path()}/data_migrations/data/law_policy/document_role_data.json"
     ) as document_role_file:
         document_role_data = json.load(document_role_file)
-        load_list(db, FamilyDocumentRole, document_role_data)
+
+        query = "insert into family_document_role ( name, description) values"
+        for _index, _entry in enumerate(document_role_data):
+            query += _wrap_if_not_nullable_or_int(_entry["name"], is_first=True)
+            query += _wrap_if_not_nullable_or_int(_entry["description"], is_last=True)
+
+            query += _add_delimiter(_index, document_role_data)
+
+        db.execute(query)
+
+
+def _add_delimiter(index: int, data: dict):
+    line_ending = "),"
+    if index == len(data) - 1:
+        line_ending = ");"
+    return line_ending
+
+
+def _wrap_if_not_nullable_or_int(
+    val: Any, is_first: bool = False, is_last: bool = False
+):
+    sql_val = " "
+    if is_first:
+        sql_val += "("
+
+    if val is None or isinstance(val, int):
+        sql_val += f"{val}"
+    else:
+        # val = val.translate(
+        #     str.maketrans(
+        #         {
+        #             "-": r"\-",
+        #             "]": r"\]",
+        #             "\\": r"\\",
+        #             "^": r"\^",
+        #             "$": r"\$",
+        #             "*": r"\*",
+        #             ".": r"\.",
+        #         }
+        #     )
+        # )
+        sql_val += f"'{val}'"
+
+    if not is_last:
+        sql_val += ","
+
+    return sql_val
 
 
 def _populate_document_variant(db: Session) -> None:
@@ -317,7 +369,15 @@ def _populate_document_variant(db: Session) -> None:
         f"{get_library_path()}/data_migrations/data/law_policy/document_variant_data.json"
     ) as document_variant_file:
         document_variant_data = json.load(document_variant_file)
-        load_list(db, Variant, document_variant_data)
+
+        query = "insert into variant (variant_name, description) values"
+        for _index, _entry in enumerate(document_variant_data):
+            query += _wrap_if_not_nullable_or_int(_entry["variant_name"], is_first=True)
+            query += _wrap_if_not_nullable_or_int(_entry["description"], is_last=True)
+
+            query += _add_delimiter(_index, document_variant_data)
+
+        db.execute(query)
 
 
 def _populate_event_type(db: Session) -> None:
@@ -330,7 +390,15 @@ def _populate_event_type(db: Session) -> None:
         f"{get_library_path()}/data_migrations/data/law_policy/event_type_data.json"
     ) as event_type_file:
         event_type_data = json.load(event_type_file)
-        load_list(db, FamilyEventType, event_type_data)
+
+        query = "insert into family_event_type (name, description) values"
+        for _index, _entry in enumerate(event_type_data):
+            query += _wrap_if_not_nullable_or_int(_entry["name"], is_first=True)
+            query += _wrap_if_not_nullable_or_int(_entry["description"], is_last=True)
+
+            query += _add_delimiter(_index, event_type_data)
+
+        db.execute(query)
 
 
 def _populate_geography(db: Session) -> None:
@@ -464,7 +532,7 @@ def do_old_init_data(session):
     _populate_document_variant(session)
     _populate_event_type(session)
     _populate_geography(session)
-    _populate_language(session)
+    # _populate_language(session)
     _populate_taxonomy(session)
     _populate_counters(session)
 

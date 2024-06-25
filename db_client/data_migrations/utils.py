@@ -6,10 +6,6 @@ from sqlalchemy.orm import Session
 from db_client.models.base import AnyModel
 
 
-def has_rows(db: Session, table: str) -> bool:
-    return cast(int, db.execute(f"select count(*) from {table}").scalar()) > 0
-
-
 def load_tree(
     db: Session,
     table: AnyModel,
@@ -41,18 +37,6 @@ def _load_tree(
         if child_nodes:
             db.flush()
             _load_tree(db, table, child_nodes, parent_db_entry.id)
-
-
-def load_list(db: Session, table: AnyModel, data_list: Sequence[Mapping]) -> None:
-    """
-    Load a list of data stored as JSON into a database table
-
-    :param [Session] db: An open database session
-    :param [AnyModel] table: The table (and therefore type) of entries to create
-    :param [Sequence[Mapping]] data_list: A list of data objects to load
-    """
-    for entry in data_list:
-        db.add(table(**entry))
 
 
 def load_list_idempotent(
