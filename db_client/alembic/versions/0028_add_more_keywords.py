@@ -19,14 +19,8 @@ from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 
 from db_client.data_migrations.taxonomy_utils import read_taxonomy_values
-from db_client.data_migrations.utils import (
-    load_list_idempotent,
-    load_tree,
-)
+from db_client.data_migrations.utils import load_tree
 from db_client.models import ORGANISATION_CCLW, ORGANISATION_UNFCCC
-from db_client.models.dfce.family import (
-    FamilyDocumentType,
-)
 from db_client.models.dfce.geography import (
     CPR_DEFINED_GEOS,
     GEO_OTHER,
@@ -274,6 +268,25 @@ def _populate_language(db: Session) -> None:
         db.execute(query)
 
 
+def _load_family_document_type_data(
+    db: Session, document_type_data: Union[list, dict]
+) -> None:
+    query = "insert into family_document_type ( name, description) values"
+    for _index, _entry in enumerate(document_type_data):
+        found = db.execute(
+            f"select * from family_document_type where name = '{_entry['name']}'"
+        ).one_or_none()
+
+        if found is None:
+            query += _wrap_if_not_nullable_or_int(_entry["name"], is_first=True)
+            query += _wrap_if_not_nullable_or_int(_entry["description"], is_last=True)
+
+            query += _add_delimiter(_index, document_type_data)
+
+    db.execute(query)
+    db.flush()
+
+
 def _populate_document_type(db: Session) -> None:
     """Populates the document_type table with pre-defined data."""
 
@@ -282,11 +295,11 @@ def _populate_document_type(db: Session) -> None:
 
     # This is no longer fixed but additive,
     # meaning we will add anything here that is not present in the table
-
     with open(
         f"{get_library_path()}/data_migrations/data/law_policy/document_type_data.json"
     ) as submission_type_file:
         document_type_data = json.load(submission_type_file)
+        _load_family_document_type_data(db, document_type_data)
 
     with open(
         f"{get_library_path()}/data_migrations/data/unf3c/submission_type_data.json"
@@ -295,9 +308,7 @@ def _populate_document_type(db: Session) -> None:
         document_type_data = [
             {"name": e["name"], "description": e["name"]} for e in submission_type_data
         ]
-        load_list_idempotent(
-            db, FamilyDocumentType, FamilyDocumentType.name, "name", document_type_data
-        )
+        _load_family_document_type_data(db, document_type_data)
 
 
 def _populate_document_role(db: Session) -> None:
@@ -321,7 +332,7 @@ def _populate_document_role(db: Session) -> None:
         db.execute(query)
 
 
-def _add_delimiter(index: int, data: dict):
+def _add_delimiter(index: int, data: Union[list, dict]):
     line_ending = "),"
     if index == len(data) - 1:
         line_ending = ");"
