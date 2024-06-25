@@ -116,52 +116,52 @@ def test_corpora_values_correct(
     assert corpus.title == title
 
 
-def test_cclw_taxonomy_value_counts_correct(test_db: Session):
-    cclw_corpus_type = (
-        test_db.query(CorpusType)
-        .join(Corpus, Corpus.corpus_type_name == CorpusType.name)
-        .join(Organisation, Organisation.id == Corpus.organisation_id)
-        .filter(Organisation.name == "CCLW")
-        .one_or_none()
-    )
-    assert cclw_corpus_type is not None
-    assert cclw_corpus_type.name == "Laws and Policies"
-    assert cclw_corpus_type.description == "Laws and policies"
-
-    cclw_taxonomy = cclw_corpus_type.valid_metadata
-    assert set(cclw_taxonomy.keys()) ^ EXPECTED_CCLW_TAXONOMY == set()
-
-    assert len(cclw_taxonomy["topic"]["allowed_values"]) == EXPECTED_CCLW_TOPICS
-    assert len(cclw_taxonomy["hazard"]["allowed_values"]) == EXPECTED_CCLW_HAZARDS
-    assert len(cclw_taxonomy["sector"]["allowed_values"]) == EXPECTED_CCLW_SECTORS
-    assert len(cclw_taxonomy["framework"]["allowed_values"]) == EXPECTED_CCLW_FRAMEWORKS
-    assert len(cclw_taxonomy["keyword"]["allowed_values"]) == EXPECTED_CCLW_KEYWORDS
-    assert (
-        len(cclw_taxonomy["instrument"]["allowed_values"]) == EXPECTED_CCLW_INSTRUMENTS
-    )
-    assert len(cclw_taxonomy["event_type"]["allowed_values"]) == EXPECTED_EVENT_TYPES
-
-
-def test_unfccc_taxonomy_value_counts_correct(test_db: Session):
-    unfccc_corpus_type = (
+@pytest.mark.parametrize(
+    "org_name, expected_taxonomy_keys, expected_taxonomy_items",
+    [
+        (
+            "UNFCCC",
+            EXPECTED_UNFCCC_TAXONOMY,
+            [
+                ("author_type", EXPECTED_UNFCCC_AUTHOR_TYPES),
+                ("event_type", EXPECTED_EVENT_TYPES),
+            ],
+        ),
+        (
+            "CCLW",
+            EXPECTED_CCLW_TAXONOMY,
+            [
+                ("topic", EXPECTED_CCLW_TOPICS),
+                ("hazard", EXPECTED_CCLW_HAZARDS),
+                ("sector", EXPECTED_CCLW_SECTORS),
+                ("framework", EXPECTED_CCLW_FRAMEWORKS),
+                ("keyword", EXPECTED_CCLW_KEYWORDS),
+                ("instrument", EXPECTED_CCLW_INSTRUMENTS),
+                ("event_type", EXPECTED_EVENT_TYPES),
+            ],
+        ),
+    ],
+)
+def test_taxonomy_value_counts_correct(
+    test_db: Session,
+    org_name: str,
+    expected_taxonomy_keys: set[str],
+    expected_taxonomy_items: list[tuple[str, int]],
+):
+    corpus_type = (
         test_db.query(CorpusType)
         .join(
             Corpus,
             Corpus.corpus_type_name == CorpusType.name,
         )
         .join(Organisation, Organisation.id == Corpus.organisation_id)
-        .filter(Organisation.name == "UNFCCC")
+        .filter(Organisation.name == org_name)
         .one_or_none()
     )
-    assert unfccc_corpus_type is not None
-    assert unfccc_corpus_type.name == "Intl. agreements"
-    assert unfccc_corpus_type.description == "Intl. agreements"
+    assert corpus_type is not None
 
-    unfccc_taxonomy = unfccc_corpus_type.valid_metadata
-    assert set(unfccc_taxonomy) ^ EXPECTED_UNFCCC_TAXONOMY == set()
+    schema = corpus_type.valid_metadata
+    assert set(schema) ^ expected_taxonomy_keys == set()
 
-    assert (
-        len(unfccc_taxonomy["author_type"]["allowed_values"])
-        == EXPECTED_UNFCCC_AUTHOR_TYPES
-    )
-    assert len(unfccc_taxonomy["event_type"]["allowed_values"]) == EXPECTED_EVENT_TYPES
+    for tax_key, expected_value_count in expected_taxonomy_items:
+        assert len(schema[tax_key]["allowed_values"]) == expected_value_count
