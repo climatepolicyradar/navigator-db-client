@@ -39,22 +39,30 @@ def validate_family_metadata(
     )
     taxonomy = corpus_type.valid_metadata
     try:
-        taxonomy_entries = _build_valid_taxonomy(taxonomy)
+        taxonomy_entries = build_valid_taxonomy(taxonomy)
     except TypeError as e:
         # Wrap any TypeError in a more general error
         raise TypeError("Bad Taxonomy data in database") from e
 
     family_metadata = metadata.value
 
-    errors = _validate_metadata(taxonomy_entries, family_metadata)
+    errors = validate_metadata(taxonomy_entries, family_metadata)
 
     # TODO: validate family_metadata against taxonomy
     return errors if len(errors) > 0 else None
 
 
-def _validate_metadata(taxonomy_entries, family_metadata) -> MetadataValidationErrors:
+def validate_metadata(
+    taxonomy_entries: Mapping[str, TaxonomyEntry], metadata: Mapping
+) -> MetadataValidationErrors:
+    """Validates the metadata against the taxonomy.
+
+    :param _type_ taxonomy_entries: The built entries from the CorpusType.valid_metadata.
+    :param _type_ metadata: The metadata to validate.
+    :return MetadataValidationErrors: a list of errors if the metadata is invalid.
+    """
     errors = []
-    metadata_keys = set(family_metadata.keys())
+    metadata_keys = set(metadata.keys())
     taxonomy_keys = set(taxonomy_entries.keys())
     missing_keys = taxonomy_keys - metadata_keys
     if len(missing_keys) > 0:
@@ -64,7 +72,7 @@ def _validate_metadata(taxonomy_entries, family_metadata) -> MetadataValidationE
         errors.append(f"Extra metadata keys: {extra_keys}")
 
     # Validate the metadata values
-    for key, value_list in family_metadata.items():
+    for key, value_list in metadata.items():
         if key not in taxonomy_entries:
             continue  # We've already checked for missing keys
         taxonomy_entry = taxonomy_entries[key]
@@ -85,8 +93,8 @@ def _validate_metadata(taxonomy_entries, family_metadata) -> MetadataValidationE
     return errors
 
 
-def _build_valid_taxonomy(taxonomy: Mapping) -> Mapping[str, TaxonomyEntry]:
-    """_summary_
+def build_valid_taxonomy(taxonomy: Mapping) -> Mapping[str, TaxonomyEntry]:
+    """Takes the taxonomy from the database and builds a dictionary of TaxonomyEntry objects, used for validation.
 
     :param Sequence taxonomy: From the database model CorpusType.valid_metadata
     :raises TypeError: If the taxonomy is not a list.
