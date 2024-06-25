@@ -3,8 +3,11 @@ import os
 import pytest
 from pytest_alembic.config import Config
 from pytest_mock_resources import PostgresConfig, create_postgres_fixture
-from sqlalchemy_utils import create_database, database_exists
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy_utils import create_database, database_exists, drop_database
 
+from db_client import run_migrations
 from db_client.models import Base
 from db_client.utils import get_library_path
 
@@ -49,3 +52,40 @@ def test_engine(test_engine_fixture):
 
     # Run the tests
     yield test_engine_fixture
+
+
+@pytest.fixture(scope="function")
+def test_db(test_engine_fixture):
+    """Create a fresh test database for each test."""
+
+    test_db_url = test_engine_fixture.url
+
+    # Create the test database
+    if database_exists(test_db_url):
+        drop_database(test_db_url)
+    create_database(test_db_url)
+
+    test_session = None
+    connection = None
+    try:
+        test_engine = create_engine(test_db_url)
+        connection = test_engine.connect()
+
+        run_migrations(test_engine)  # type: ignore for MockConnection
+        test_session_maker = sessionmaker(
+            autocommit=False,
+            autoflush=False,
+            bind=test_engine,
+        )
+        test_session = test_session_maker()
+
+        # Run the tests
+        yield test_session
+    finally:
+        if test_session is not None:
+            test_session.close()
+
+        if connection is not None:
+            connection.close()  # type: ignore for MockConnection
+        # Drop the test database
+        drop_database(test_db_url)
