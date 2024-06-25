@@ -129,11 +129,11 @@ CCLW_TAXONOMY_DATA = [
 ]
 
 
-def get_unf3c_taxonomy():
+def _get_unf3c_taxonomy():
     return read_taxonomy_values(UNFCCC_TAXONOMY_DATA)
 
 
-def get_cclw_taxonomy():
+def _get_cclw_taxonomy():
     taxonomy = read_taxonomy_values(CCLW_TAXONOMY_DATA)
 
     # Remove unwanted values for new taxonomy
@@ -236,7 +236,7 @@ def _populate_initial_geo_statistics(db: Session) -> None:
             db.add(GeoStatistics(**args))
 
 
-def populate_counters(db: Session):
+def _populate_counters(db: Session):
     n_rows = db.query(EntityCounter).count()
     if n_rows == 0:
         db.add(
@@ -252,7 +252,7 @@ def populate_counters(db: Session):
         db.commit()
 
 
-def populate_language(db: Session) -> None:
+def _populate_language(db: Session) -> None:
     """Populates the langauge table with pre-defined data."""
 
     if has_rows(db, Language):
@@ -265,7 +265,7 @@ def populate_language(db: Session) -> None:
         load_list(db, Language, language_data)
 
 
-def populate_document_type(db: Session) -> None:
+def _populate_document_type(db: Session) -> None:
     """Populates the document_type table with pre-defined data."""
 
     if has_rows(db, FamilyDocumentType):
@@ -294,7 +294,7 @@ def populate_document_type(db: Session) -> None:
         )
 
 
-def populate_document_role(db: Session) -> None:
+def _populate_document_role(db: Session) -> None:
     """Populates the document_type table with pre-defined data."""
 
     if has_rows(db, FamilyDocumentRole):
@@ -307,7 +307,7 @@ def populate_document_role(db: Session) -> None:
         load_list(db, FamilyDocumentRole, document_role_data)
 
 
-def populate_document_variant(db: Session) -> None:
+def _populate_document_variant(db: Session) -> None:
     """Populates the document_type table with pre-defined data."""
 
     if has_rows(db, Variant):
@@ -320,7 +320,7 @@ def populate_document_variant(db: Session) -> None:
         load_list(db, Variant, document_variant_data)
 
 
-def populate_event_type(db: Session) -> None:
+def _populate_event_type(db: Session) -> None:
     """Populates the family_event_type table with pre-defined data."""
 
     if has_rows(db, FamilyEventType):
@@ -333,7 +333,7 @@ def populate_event_type(db: Session) -> None:
         load_list(db, FamilyEventType, event_type_data)
 
 
-def populate_geography(db: Session) -> None:
+def _populate_geography(db: Session) -> None:
     """Populates the geography table with pre-defined data."""
 
     geo_populated = has_rows(db, Geography)
@@ -380,13 +380,13 @@ def populate_geography(db: Session) -> None:
         load_tree(db, Geography, geo_data)
 
 
-def populate_geo_statistics(db: Session) -> None:
+def _populate_geo_statistics(db: Session) -> None:
     _populate_initial_geo_statistics(db)
     db.flush()
     _apply_geo_statistics_updates(db)
 
 
-def populate_org_taxonomy(
+def _populate_org_taxonomy(
     session: Session,
     org_name: str,
     org_type: str,
@@ -425,24 +425,24 @@ def populate_org_taxonomy(
         session.commit()
 
 
-def populate_taxonomy(session: Session) -> None:
+def _populate_taxonomy(session: Session) -> None:
     Org = Base.classes.organisation
     if has_rows(session, Org):
         return
 
-    populate_org_taxonomy(
+    _populate_org_taxonomy(
         session,
         org_name=ORGANISATION_CCLW,
         org_type="Academic",
         description="Climate Change Laws of the World",
-        fn_get_taxonomy=get_cclw_taxonomy,
+        fn_get_taxonomy=_get_cclw_taxonomy,
     )
-    populate_org_taxonomy(
+    _populate_org_taxonomy(
         session,
         org_name=ORGANISATION_UNFCCC,
         org_type="UN",
         description="United Nations Framework Convention on Climate Change",
-        fn_get_taxonomy=get_unf3c_taxonomy,
+        fn_get_taxonomy=_get_unf3c_taxonomy,
     )
 
 
@@ -460,18 +460,18 @@ def get_cclw_id_and_keywords(session):
 def do_old_init_data(session):
     # These functions were originally called in the `initial_data.py` script
     # which is now retired in favour of migrations like this
-    populate_document_type(session)
-    populate_document_role(session)
-    populate_document_variant(session)
-    populate_event_type(session)
-    populate_geography(session)
-    populate_language(session)
-    populate_taxonomy(session)
-    populate_counters(session)
+    _populate_document_type(session)
+    _populate_document_role(session)
+    _populate_document_variant(session)
+    _populate_event_type(session)
+    _populate_geography(session)
+    _populate_language(session)
+    _populate_taxonomy(session)
+    _populate_counters(session)
 
     session.flush()  # Geography data is used by geo-stats so flush
 
-    populate_geo_statistics(session)
+    _populate_geo_statistics(session)
 
 
 def upgrade():
