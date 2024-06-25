@@ -49,15 +49,17 @@ def validate_family_metadata(
     return errors if len(errors) > 0 else None
 
 
-def validate_metadata(taxonomy_entries, family_metadata) -> MetadataValidationErrors:
-    """_summary_
+def validate_metadata(
+    taxonomy_entries: Mapping[str, TaxonomyEntry], metadata: Mapping
+) -> MetadataValidationErrors:
+    """Validates the metadata against the taxonomy.
 
-    :param _type_ taxonomy_entries: _description_
-    :param _type_ family_metadata: _description_
-    :return MetadataValidationErrors: _description_
+    :param _type_ taxonomy_entries: The built entries from the CorpusType.valid_metadata.
+    :param _type_ metadata: The metadata to validate.
+    :return MetadataValidationErrors: a list of errors if the metadata is invalid.
     """
     errors = []
-    metadata_keys = set(family_metadata.keys())
+    metadata_keys = set(metadata.keys())
     taxonomy_keys = set(taxonomy_entries.keys())
     missing_keys = taxonomy_keys - metadata_keys
     if len(missing_keys) > 0:
@@ -67,7 +69,7 @@ def validate_metadata(taxonomy_entries, family_metadata) -> MetadataValidationEr
         errors.append(f"Extra metadata keys: {extra_keys}")
 
     # Validate the metadata values
-    for key, value_list in family_metadata.items():
+    for key, value_list in metadata.items():
         if key not in taxonomy_entries:
             continue  # We've already checked for missing keys
         taxonomy_entry = taxonomy_entries[key]
