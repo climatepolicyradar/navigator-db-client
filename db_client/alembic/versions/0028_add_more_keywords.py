@@ -216,7 +216,7 @@ def _apply_geo_statistics_updates(db: Session) -> None:
 def _populate_initial_geo_statistics(db: Session) -> None:
     """Populates the geo_statistics table with pre-defined data."""
 
-    if has_rows(db, GeoStatistics):
+    if has_rows(db, "geo_statistics"):
         return
 
     # Load geo_stats data from structured data file
@@ -255,7 +255,7 @@ def _populate_counters(db: Session):
 def _populate_language(db: Session) -> None:
     """Populates the langauge table with pre-defined data."""
 
-    if has_rows(db, Language):
+    if has_rows(db, "language"):
         return
 
     with open(
@@ -268,7 +268,7 @@ def _populate_language(db: Session) -> None:
 def _populate_document_type(db: Session) -> None:
     """Populates the document_type table with pre-defined data."""
 
-    if has_rows(db, FamilyDocumentType):
+    if has_rows(db, "family_document_type"):
         return
 
     # This is no longer fixed but additive,
@@ -297,7 +297,7 @@ def _populate_document_type(db: Session) -> None:
 def _populate_document_role(db: Session) -> None:
     """Populates the document_type table with pre-defined data."""
 
-    if has_rows(db, FamilyDocumentRole):
+    if has_rows(db, "family_document_role"):
         return
 
     with open(
@@ -310,7 +310,7 @@ def _populate_document_role(db: Session) -> None:
 def _populate_document_variant(db: Session) -> None:
     """Populates the document_type table with pre-defined data."""
 
-    if has_rows(db, Variant):
+    if has_rows(db, "variant"):
         return
 
     with open(
@@ -323,7 +323,7 @@ def _populate_document_variant(db: Session) -> None:
 def _populate_event_type(db: Session) -> None:
     """Populates the family_event_type table with pre-defined data."""
 
-    if has_rows(db, FamilyEventType):
+    if has_rows(db, "family_event_type"):
         return
 
     with open(
@@ -336,7 +336,7 @@ def _populate_event_type(db: Session) -> None:
 def _populate_geography(db: Session) -> None:
     """Populates the geography table with pre-defined data."""
 
-    geo_populated = has_rows(db, Geography)
+    geo_populated = has_rows(db, "geography")
     if geo_populated:
         return
 
@@ -426,8 +426,7 @@ def _populate_org_taxonomy(
 
 
 def _populate_taxonomy(session: Session) -> None:
-    Org = Base.classes.organisation
-    if has_rows(session, Org):
+    if has_rows(session, "organisation"):
         return
 
     _populate_org_taxonomy(

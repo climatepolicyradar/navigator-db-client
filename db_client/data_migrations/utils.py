@@ -6,8 +6,8 @@ from sqlalchemy.orm import Session
 from db_client.models.base import AnyModel
 
 
-def has_rows(db: Session, table: AnyModel) -> bool:
-    return db.query(table).count() > 0
+def has_rows(db: Session, table: str) -> bool:
+    return cast(int, db.execute(f"select count(*) from {table}").scalar()) > 0
 
 
 def load_tree(
