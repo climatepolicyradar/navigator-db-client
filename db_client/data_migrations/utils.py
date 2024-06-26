@@ -1,6 +1,5 @@
 from typing import Mapping, Optional, Sequence, cast
 
-from sqlalchemy import Column
 from sqlalchemy.orm import Session
 
 from db_client.models.base import AnyModel
@@ -37,27 +36,3 @@ def _load_tree(
         if child_nodes:
             db.flush()
             _load_tree(db, table, child_nodes, parent_db_entry.id)
-
-
-def load_list_idempotent(
-    db: Session,
-    table: AnyModel,
-    unique_column: Column,
-    data_key: str,
-    data_list: Sequence[Mapping],
-) -> None:
-    """
-    Load a list of data stored as JSON into a database table
-
-    :param [Session] db: An open database session
-    :param [AnyModel] table: The table (and therefore type) of entries to create
-    :param [Column] unique_column: The column on the table that has the unique value
-    :param [str] data_key: The key in the `data_list` objects that relates to the
-                            unique_column.
-    :param [Sequence[Mapping]] data_list: A list of data objects to load
-    """
-    for entry in data_list:
-        found = db.query(table).filter(unique_column == entry[data_key]).one_or_none()
-        if found is None:
-            db.add(table(**entry))
-            db.flush()
