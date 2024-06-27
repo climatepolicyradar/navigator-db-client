@@ -234,7 +234,6 @@ def upgrade():
             ["event_type_name"],
             ["family_event_type.name"],
             name=op.f("fk_family_event__event_type_name__family_event_type"),
-            ondelete="CASCADE",
         ),
         sa.ForeignKeyConstraint(
             ["family_document_import_id"],
