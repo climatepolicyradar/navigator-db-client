@@ -8,8 +8,10 @@ concept of "data source" is not yet implemented, see PDCT-431.
 
 import logging
 from enum import Enum
+from typing import Optional, cast
 
 import sqlalchemy as sa
+from sqlalchemy.orm import Session
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.sql import text
 
@@ -79,14 +81,14 @@ class EntityCounter(Base):
         :return str: The next counter value.
         """
         try:
-            db = object_session(self)
+            db: Optional[Session] = object_session(self)
 
             if db is None:
                 _LOGGER.exception("When creating object session")
                 raise
 
             cmd = self._get_and_increment.bindparams(id=self.id)
-            value = db.execute(cmd).scalar()
+            value = cast(str, db.execute(cmd).scalar())
             db.commit()
             return value
         except:
