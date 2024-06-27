@@ -62,7 +62,7 @@ class EntityCounter(Base):
     _get_and_increment = text(
         """
         WITH updated AS (
-        UPDATE entity_counter SET counter = COALESCE(0, counter) + 1
+        UPDATE entity_counter SET counter = COALESCE(counter, 0) + 1
         WHERE id = :id RETURNING counter
         )
         SELECT counter FROM updated;
