@@ -260,14 +260,6 @@ class EventStatus(BaseModelEnum):
     DUPLICATED = "Duplicated"
 
 
-class FamilyEventType(Base):
-    """Defines the types that can be associated with a law/policy event."""
-
-    __tablename__ = "family_event_type"
-    name = sa.Column(sa.Text, primary_key=True)
-    description = sa.Column(sa.Text, nullable=False)
-
-
 class FamilyEvent(Base):
     """An event associated with a Family timeline with optional link to a document."""
 
@@ -276,7 +268,7 @@ class FamilyEvent(Base):
     import_id = sa.Column(sa.Text, primary_key=True)
     title = sa.Column(sa.Text, nullable=False)
     date = sa.Column(sa.DateTime(timezone=True), nullable=False)
-    event_type_name = sa.Column(sa.ForeignKey(FamilyEventType.name), nullable=False)
+    event_type_name = sa.Column(sa.Text, nullable=False)
     family_import_id = sa.Column(sa.ForeignKey(Family.import_id), nullable=False)
     family_document_import_id = sa.Column(
         sa.ForeignKey(FamilyDocument.import_id),
