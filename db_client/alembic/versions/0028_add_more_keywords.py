@@ -9,25 +9,18 @@ Create Date: 2024-02-26 12:00:00
 
 import json
 from string import Template
-from typing import Any, Callable, Union, cast
+from typing import Callable, Mapping, Optional, Sequence, Union, cast
 
 import sqlalchemy as sa
 from alembic import op
 from slugify import slugify
-from sqlalchemy import update
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
+from sqlalchemy.sql import text
 
 from db_client.data_migrations.taxonomy_utils import read_taxonomy_values
-from db_client.data_migrations.utils import load_tree
 from db_client.models import ORGANISATION_CCLW, ORGANISATION_UNFCCC
-from db_client.models.dfce.geography import (
-    CPR_DEFINED_GEOS,
-    GEO_OTHER,
-    Geography,
-    GeoStatistics,
-)
-from db_client.models.organisation.counters import EntityCounter
+from db_client.models.dfce.geography import CPR_DEFINED_GEOS, GEO_OTHER
 from db_client.utils import get_library_path
 
 Base = automap_base()
@@ -118,6 +111,9 @@ CCLW_TAXONOMY_DATA = [
 
 
 def has_rows(db: Session, table: str) -> bool:
+    # We can't bind the params to db execute here as parameterising the table name is
+    # not an option, so we'll ignore the bandit warning here.
+    # trunk-ignore(bandit/B608)
     return cast(int, db.execute(f"select count(*) from {table}").scalar()) > 0
 
 
@@ -150,19 +146,22 @@ def _add_geo_slugs(geo_tree: list[dict[str, dict]]):
 
 
 def remove_old_international_geo(db: Session) -> None:
-    db_international = (
-        db.query(Geography).filter(Geography.value == "INT").one_or_none()
-    )
+    db_international = db.execute(
+        "select id from geography where value = 'INT'"
+    ).scalar_one_or_none()
     if db_international is not None:
-        db_stats = (
-            db.query(GeoStatistics)
-            .filter(GeoStatistics.geography_id == db_international.id)
-            .one_or_none()
-        )
+        db_stats = db.execute(
+            "select * from geo_statistics where geography_id =  :geo_id",
+            params={"geo_id": db_international},
+        ).one_or_none()
+
         if db_stats is not None:
-            db.delete(db_stats)
+            db.execute(
+                "delete from geo_statistics where geography_id =  :geo_id",
+                params={"geo_id": db_international},
+            )
             db.flush()
-        db.delete(db_international)
+        db.execute("delete from geography where value =  'INT'")
         db.flush()
 
 
@@ -182,21 +181,39 @@ def _apply_geo_statistics_updates(db: Session) -> None:
     ) as geo_stats_file:
         geo_stats_data = json.load(geo_stats_file)
         for geo_stat in geo_stats_data:
-            geography_id = (
-                db.query(Geography.id)
-                .filter_by(value=geo_stat["iso"], display_value=geo_stat["name"])
-                .scalar()
-            )
-            geo_stats_id = (
-                db.query(GeoStatistics.id).filter_by(geography_id=geography_id).scalar()
-            )
+            geography_id = db.execute(
+                text(
+                    "select id from geography where value = :iso and display_value = :name"
+                ),
+                params={"iso": geo_stat["iso"], "name": geo_stat["name"]},
+            ).scalar()
+
+            geo_stats_id = db.execute(
+                text(
+                    "select id from geo_statistics where geography_id = :geography_id"
+                ),
+                params={"geography_id": geography_id},
+            ).scalar()
+
             args = {**geo_stat}
             args["geography_id"] = geography_id
             del args["iso"]
+
             result = db.execute(
-                update(GeoStatistics)
-                .values(**args)
-                .where(GeoStatistics.geography_id == geography_id)
+                text(
+                    "update geo_statistics set "
+                    "name = :name, "
+                    "legislative_process = :legislative_process, "
+                    "federal = :federal, "
+                    "federal_details = :federal_details, "
+                    "political_groups = :political_groups, "
+                    "global_emissions_percent = :global_emissions_percent, "
+                    "climate_risk_index = :climate_risk_index, "
+                    "worldbank_income_group = :worldbank_income_group, "
+                    "visibility_status = :visibility_status "
+                    "where geography_id = :geography_id"
+                ),
+                params=args,
             )
 
             if result.rowcount == 0:  # type: ignore
@@ -216,29 +233,54 @@ def _populate_initial_geo_statistics(db: Session) -> None:
         f"{get_library_path()}/data_migrations/data/geo_stats_data.json"
     ) as geo_stats_file:
         geo_stats_data = json.load(geo_stats_file)
+
         for geo_stat in geo_stats_data:
-            geography_id = (
-                db.query(Geography.id)
-                .filter_by(value=geo_stat["iso"], display_value=geo_stat["name"])
-                .scalar()
-            )
+            geography_id = db.execute(
+                text(
+                    "select id from geography where value = :iso and display_value = :name"
+                ),
+                params={"iso": geo_stat["iso"], "name": geo_stat["name"]},
+            ).scalar()
+
             args = {**geo_stat}
             args["geography_id"] = geography_id
             del args["iso"]
-            db.add(GeoStatistics(**args))
+
+            db.execute(
+                text(
+                    "insert into geo_statistics ("
+                    "name, legislative_process, federal, federal_details, "
+                    "political_groups, global_emissions_percent, "
+                    "climate_risk_index, worldbank_income_group, visibility_status, "
+                    "geography_id "
+                    ") values "
+                    "("
+                    ":name, :legislative_process, :federal, :federal_details, "
+                    ":political_groups, :global_emissions_percent, "
+                    ":climate_risk_index, :worldbank_income_group, :visibility_status, "
+                    ":geography_id"
+                    ")"
+                ),
+                params=args,
+            )
 
 
 def _populate_counters(db: Session):
     if has_rows(db, "entity_counter"):
         return
 
-    db.add(
-        EntityCounter(prefix=ORGANISATION_CCLW, description="Counter for CCLW entities")
+    statement = text(
+        "insert into entity_counter (prefix, description) values (:prefix, :description)"
     )
-    db.add(
-        EntityCounter(
-            prefix=ORGANISATION_UNFCCC, description="Counter for UNFCCC entities"
-        )
+    db.execute(
+        statement,
+        params=[
+            {"prefix": ORGANISATION_CCLW, "description": "Counter for CCLW entities"},
+            {
+                "prefix": ORGANISATION_UNFCCC,
+                "description": "Counter for UNFCCC entities",
+            },
+        ],
     )
     db.commit()
 
@@ -254,36 +296,29 @@ def _populate_language(db: Session) -> None:
     ) as language_file:
         language_data = json.load(language_file)
 
-        query = "insert into language (id, language_code, part1_code, part2_code, name) values"
-        for _index, _entry in enumerate(language_data):
-            query += _wrap_if_not_nullable_or_int(_index + 1, is_first=True)
-            query += _wrap_if_not_nullable_or_int(_entry["language_code"])
-            query += _wrap_if_not_nullable_or_int(_entry["part1_code"])
-            query += _wrap_if_not_nullable_or_int(_entry["part2_code"])
-            query += _wrap_if_not_nullable_or_int(_entry["name"], is_last=True)
-
-            query += _add_delimiter(_index, language_data)
-
-        print(query)
-        db.execute(query)
+        query = text(
+            "insert into language (language_code, part1_code, part2_code, name) values "
+            "(:language_code, :part1_code, :part2_code, :name)"
+        )
+        db.execute(query, params=language_data)
 
 
-def _load_family_document_type_data(
-    db: Session, document_type_data: Union[list, dict]
-) -> None:
-    query = "insert into family_document_type ( name, description) values"
-    for _index, _entry in enumerate(document_type_data):
+def _load_family_document_type_data(db: Session, document_type_data: list) -> None:
+    query = text(
+        "insert into family_document_type (name, description) values "
+        "(:name, :description)"
+    )
+    for _entry in document_type_data:
         found = db.execute(
-            f"select * from family_document_type where name = '{_entry['name']}'"
+            "select * from family_document_type where name = :name",
+            params={"name": _entry["name"]},
         ).one_or_none()
 
-        if found is None:
-            query += _wrap_if_not_nullable_or_int(_entry["name"], is_first=True)
-            query += _wrap_if_not_nullable_or_int(_entry["description"], is_last=True)
+        if found is not None:
+            document_type_data.remove(_entry)
+            break
 
-            query += _add_delimiter(_index, document_type_data)
-
-    db.execute(query)
+    db.execute(query, params=document_type_data)
     db.flush()
 
 
@@ -322,52 +357,11 @@ def _populate_document_role(db: Session) -> None:
     ) as document_role_file:
         document_role_data = json.load(document_role_file)
 
-        query = "insert into family_document_role ( name, description) values"
-        for _index, _entry in enumerate(document_role_data):
-            query += _wrap_if_not_nullable_or_int(_entry["name"], is_first=True)
-            query += _wrap_if_not_nullable_or_int(_entry["description"], is_last=True)
-
-            query += _add_delimiter(_index, document_role_data)
-
-        db.execute(query)
-
-
-def _add_delimiter(index: int, data: Union[list, dict]):
-    line_ending = "),"
-    if index == len(data) - 1:
-        line_ending = ");"
-    return line_ending
-
-
-def _wrap_if_not_nullable_or_int(
-    val: Any, is_first: bool = False, is_last: bool = False
-):
-    sql_val = " "
-    if is_first:
-        sql_val += "("
-
-    if val is None or isinstance(val, int):
-        sql_val += f"{val}"
-    else:
-        # val = val.translate(
-        #     str.maketrans(
-        #         {
-        #             "-": r"\-",
-        #             "]": r"\]",
-        #             "\\": r"\\",
-        #             "^": r"\^",
-        #             "$": r"\$",
-        #             "*": r"\*",
-        #             ".": r"\.",
-        #         }
-        #     )
-        # )
-        sql_val += f"'{val}'"
-
-    if not is_last:
-        sql_val += ","
-
-    return sql_val
+        query = text(
+            "insert into family_document_role ( name, description) values "
+            "(:name, :description)"
+        )
+        db.execute(query, params=document_role_data)
 
 
 def _populate_document_variant(db: Session) -> None:
@@ -381,14 +375,11 @@ def _populate_document_variant(db: Session) -> None:
     ) as document_variant_file:
         document_variant_data = json.load(document_variant_file)
 
-        query = "insert into variant (variant_name, description) values"
-        for _index, _entry in enumerate(document_variant_data):
-            query += _wrap_if_not_nullable_or_int(_entry["variant_name"], is_first=True)
-            query += _wrap_if_not_nullable_or_int(_entry["description"], is_last=True)
-
-            query += _add_delimiter(_index, document_variant_data)
-
-        db.execute(query)
+        query = text(
+            "insert into variant (variant_name, description) values "
+            "(:variant_name, :description)"
+        )
+        db.execute(query, params=document_variant_data)
 
 
 def _populate_event_type(db: Session) -> None:
@@ -402,14 +393,60 @@ def _populate_event_type(db: Session) -> None:
     ) as event_type_file:
         event_type_data = json.load(event_type_file)
 
-        query = "insert into family_event_type (name, description) values"
-        for _index, _entry in enumerate(event_type_data):
-            query += _wrap_if_not_nullable_or_int(_entry["name"], is_first=True)
-            query += _wrap_if_not_nullable_or_int(_entry["description"], is_last=True)
+        query = text(
+            "insert into family_event_type (name, description) values "
+            "(:name, :description)"
+        )
+        db.execute(query, params=event_type_data)
 
-            query += _add_delimiter(_index, event_type_data)
 
-        db.execute(query)
+def _load_tree(
+    db: Session,
+    data_tree_list: Sequence[Mapping[str, Mapping]],
+    parent_id: Optional[int] = None,
+    start_id: int = 1,
+) -> None:
+    current_id = start_id
+    for entry in data_tree_list:
+        geo_id = current_id
+        data = entry["node"]
+
+        db.execute(
+            text(
+                "insert into geography (display_value, slug, value, type, parent_id) values "
+                "(:display_value, :slug, :value, :type, :parent_id)"
+            ),
+            params={
+                "display_value": data["display_value"],
+                "slug": data["slug"],
+                "value": data["value"],
+                "type": data["type"],
+                "parent_id": parent_id,
+            },
+        )
+
+        child_nodes = cast(Sequence[Mapping[str, Mapping]], entry["children"])
+        if child_nodes:
+            db.flush()
+            # Increment the start_id for the next sibling node in the current level
+            current_id += len(child_nodes) + 1
+            _load_tree(db, child_nodes, geo_id, start_id=geo_id + 1)
+        else:
+            current_id += 1
+
+
+def load_tree(
+    db: Session,
+    data_tree_list: Sequence[Mapping[str, Mapping]],
+) -> None:
+    """
+    Load a tree of data stored as JSON into a database table
+
+    :param [Session] db: An open database session
+    :param [AnyModel] table: The table (and therefore type) of entries to create
+    :param [Sequence[Mapping[str, Mapping]]] data_tree_list: A tree-list of data to load
+    """
+    _load_tree(db=db, data_tree_list=data_tree_list, parent_id=None)
 
 
 def _populate_geography(db: Session) -> None:
@@ -422,41 +459,69 @@ def _populate_geography(db: Session) -> None:
     # First ensure our defined entries are present
     remove_old_international_geo(db)
 
-    # Add the Other region
-    other = db.query(Geography).filter(Geography.value == GEO_OTHER).one_or_none()
-    if other is None:
-        other = Geography(
-            display_value=GEO_OTHER,
-            slug=slugify(GEO_OTHER),
-            value=GEO_OTHER,
-            type="ISO-3166 CPR Extension",
-        )
-        db.add(other)
-        db.flush()
-
-    # Add the CPR geo definitions in Other
-    for value, description in CPR_DEFINED_GEOS.items():
-        db_geo = db.query(Geography).filter(Geography.value == value).one_or_none()
-        if db_geo is None:
-            db.add(
-                Geography(
-                    display_value=description,
-                    slug=slugify(value),
-                    value=value,
-                    type="ISO-3166 CPR Extension",
-                    parent_id=other.id,
-                )
-            )
-
-    if geo_populated:
-        return
-
     with open(
         f"{get_library_path()}/data_migrations/data/geography_data.json"
     ) as geo_data_file:
         geo_data = json.loads(geo_data_file.read())
         _add_geo_slugs(geo_data)
-        load_tree(db, Geography, geo_data)
+        load_tree(db, geo_data)
+
+    db.flush()
+
+    # Add the Other region
+    other = db.execute(
+        text("select * from geography where value = :other_geo"),
+        params={"other_geo": GEO_OTHER},
+    ).one_or_none()
+    if other is None:
+        other_geo_id = db.execute(
+            text("select id from geography order by id desc limit 1"),
+        ).one()
+
+        other_geo_id = cast(int, other_geo_id[0])
+        other_geo_id += 1
+
+        db.execute(
+            text(
+                "insert into geography (id, display_value, slug, value, type) values "
+                "(:other_geo_id, :other_geo, :other_geo_slug, :other_geo, :other_type)"
+            ),
+            params={
+                "other_geo_id": other_geo_id,
+                "other_geo": GEO_OTHER,
+                "other_geo_slug": slugify(GEO_OTHER),
+                "other_type": "ISO-3166 CPR Extension",
+            },
+        )
+        db.flush()
+
+    else:
+        other_geo_id = other[0]
+
+    # Add the CPR geo definitions in Other
+    for index, cpr_defined_geo in enumerate(CPR_DEFINED_GEOS.items()):
+        value, description = cpr_defined_geo
+        db_geo = db.execute(
+            text("select * from geography where value = :value"),
+            params={"value": value},
+        ).one_or_none()
+        if db_geo is None:
+            db.execute(
+                text(
+                    "insert into geography ("
+                    "id, display_value, slug, value, type, parent_id"
+                    ") values "
+                    "(:id, :display_value, :slug, :value, :type, :parent_id)"
+                ),
+                params={
+                    "id": other_geo_id + index + 1,
+                    "display_value": description,
+                    "slug": slugify(value),
+                    "value": value,
+                    "type": "ISO-3166 CPR Extension",
+                    "parent_id": other_geo_id,
+                },
+            )
 
 
 def _populate_geo_statistics(db: Session) -> None:
@@ -543,7 +608,7 @@ def do_old_init_data(db: Session):
     _populate_document_variant(db)
     _populate_event_type(db)
     _populate_geography(db)
-    # _populate_language(session)
+    _populate_language(db)
     _populate_taxonomy(db)
     _populate_counters(db)
 
