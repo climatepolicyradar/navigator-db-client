@@ -60,7 +60,7 @@ class EntityCounter(Base):
     _get_and_increment = text(
         """
         WITH updated AS (
-        UPDATE entity_counter SET counter = counter + 1
+        UPDATE entity_counter SET counter = COALESCE(0, counter) + 1
         WHERE id = :id RETURNING counter
         )
         SELECT counter FROM updated;
@@ -80,6 +80,11 @@ class EntityCounter(Base):
         """
         try:
             db = object_session(self)
+
+            if db is None:
+                _LOGGER.exception("When creating object session")
+                raise
+
             cmd = self._get_and_increment.bindparams(id=self.id)
             value = db.execute(cmd).scalar()
             db.commit()
