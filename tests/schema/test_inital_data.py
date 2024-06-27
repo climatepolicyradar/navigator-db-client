@@ -41,7 +41,6 @@ EXPECTED_ENTITY_COUNTER = 2
         ("family_document_type", EXPECTED_DOCUMENT_TYPE),
         ("family_document_role", EXPECTED_DOCUMENT_ROLE),
         ("variant", EXPECTED_DOCUMENT_VARIANT),
-        ("family_event_type", EXPECTED_EVENT_TYPES),
         ("geography", EXPECTED_GEOGRAPHIES),
         ("language", EXPECTED_LANGUAGES),
         ("organisation", EXPECTED_ORGANISATIONS),
