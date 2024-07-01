@@ -72,7 +72,7 @@ class EntityCounter(Base):
     id = sa.Column(sa.Integer, primary_key=True)
     description = sa.Column(sa.String, nullable=False, default="")
     prefix = sa.Column(sa.String, unique=True, nullable=False)  # Organisation.name
-    counter = sa.Column(sa.Integer, default=0)
+    counter = sa.Column(sa.Integer, nullable=False, server_default="0")
 
     def get_next_count(self) -> str:
         """
