@@ -28,7 +28,7 @@ loaded:
 
     {
         "key": "sector",
-        "filename": f"{get_library_path()}/alembic/versions/0028/data/cclw/sector_data.json",
+        "filename": f"{get_library_path()}/alembic/versions/data/0028/cclw/sector_data.json",
         "file_key_path": "node.name",
         "allow_blanks": True,
     },
