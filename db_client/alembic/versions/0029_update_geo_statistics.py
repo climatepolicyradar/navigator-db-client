@@ -50,7 +50,9 @@ def upgrade():
 
     # Update with new values
     root = get_library_path()
-    with open(f"{root}/alembic/versions/0029/geo_stats.csv", newline="") as csvfile:
+    with open(
+        f"{root}/alembic/versions/data/0029/geo_stats.csv", newline=""
+    ) as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             sql = UPDATE_COMMAND.substitute(

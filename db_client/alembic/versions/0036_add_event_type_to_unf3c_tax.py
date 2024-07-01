@@ -38,7 +38,7 @@ TAXONOMY_DATA = [
     },
     {
         "key": "event_type",
-        "filename": f"{get_library_path()}/alembic/versions/0036/event_type_data.json",
+        "filename": f"{get_library_path()}/alembic/versions/data/0036/event_type_data.json",
         "file_key_path": "name",
         "allow_blanks": True,
     },

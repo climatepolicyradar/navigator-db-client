@@ -25,37 +25,37 @@ Base = automap_base()
 TAXONOMY_DATA = [
     {
         "key": "topic",
-        "filename": f"{get_library_path()}/alembic/versions/0032/topic_data.json",
+        "filename": f"{get_library_path()}/alembic/versions/data/0032/topic_data.json",
         "file_key_path": "name",
         "allow_blanks": True,
     },
     {
         "key": "sector",
-        "filename": f"{get_library_path()}/alembic/versions/0032/sector_data.json",
+        "filename": f"{get_library_path()}/alembic/versions/data/0032/sector_data.json",
         "file_key_path": "node.name",
         "allow_blanks": True,
     },
     {
         "key": "keyword",
-        "filename": f"{get_library_path()}/alembic/versions/0032/keyword_data.json",
+        "filename": f"{get_library_path()}/alembic/versions/data/0032/keyword_data.json",
         "file_key_path": "name",
         "allow_blanks": True,
     },
     {
         "key": "instrument",
-        "filename": f"{get_library_path()}/alembic/versions/0032/instrument_data.json",
+        "filename": f"{get_library_path()}/alembic/versions/data/0032/instrument_data.json",
         "file_key_path": "node.name",
         "allow_blanks": True,
     },
     {
         "key": "hazard",
-        "filename": f"{get_library_path()}/alembic/versions/0032/hazard_data.json",
+        "filename": f"{get_library_path()}/alembic/versions/data/0032/hazard_data.json",
         "file_key_path": "name",
         "allow_blanks": True,
     },
     {
         "key": "framework",
-        "filename": f"{get_library_path()}/alembic/versions/0032/framework_data.json",
+        "filename": f"{get_library_path()}/alembic/versions/data/0032/framework_data.json",
         "file_key_path": "name",
         "allow_blanks": True,
     },
