@@ -73,37 +73,37 @@ UNFCCC_TAXONOMY_DATA = [
 CCLW_TAXONOMY_DATA = [
     {
         "key": "topic",
-        "filename": f"{get_library_path()}/data_migrations/data/cclw/topic_data.json",
+        "filename": f"{get_library_path()}/alembic/versions/data/0028/cclw/topic_data.json",
         "file_key_path": "name",
         "allow_blanks": True,
     },
     {
         "key": "sector",
-        "filename": f"{get_library_path()}/data_migrations/data/cclw/sector_data.json",
+        "filename": f"{get_library_path()}/alembic/versions/data/0028/cclw/sector_data.json",
         "file_key_path": "node.name",
         "allow_blanks": True,
     },
     {
         "key": "keyword",
-        "filename": f"{get_library_path()}/data_migrations/data/cclw/keyword_data.json",
+        "filename": f"{get_library_path()}/alembic/versions/data/0028/cclw/keyword_data.json",
         "file_key_path": "name",
         "allow_blanks": True,
     },
     {
         "key": "instrument",
-        "filename": f"{get_library_path()}/data_migrations/data/cclw/instrument_data.json",
+        "filename": f"{get_library_path()}/alembic/versions/data/0028/cclw/instrument_data.json",
         "file_key_path": "node.name",
         "allow_blanks": True,
     },
     {
         "key": "hazard",
-        "filename": f"{get_library_path()}/data_migrations/data/cclw/hazard_data.json",
+        "filename": f"{get_library_path()}/alembic/versions/data/0028/cclw/hazard_data.json",
         "file_key_path": "name",
         "allow_blanks": True,
     },
     {
         "key": "framework",
-        "filename": f"{get_library_path()}/data_migrations/data/cclw/framework_data.json",
+        "filename": f"{get_library_path()}/alembic/versions/data/0028/cclw/framework_data.json",
         "file_key_path": "name",
         "allow_blanks": True,
     },
@@ -177,7 +177,7 @@ def to_float(value: str) -> Union[float, None]:
 
 def _apply_geo_statistics_updates(db: Session) -> None:
     with open(
-        f"{get_library_path()}/data_migrations/data/geo_stats_updates.json"
+        f"{get_library_path()}/alembic/versions/data/0028/geo_stats_updates.json"
     ) as geo_stats_file:
         geo_stats_data = json.load(geo_stats_file)
         for geo_stat in geo_stats_data:
@@ -230,7 +230,7 @@ def _populate_initial_geo_statistics(db: Session) -> None:
 
     # Load geo_stats data from structured data file
     with open(
-        f"{get_library_path()}/data_migrations/data/geo_stats_data.json"
+        f"{get_library_path()}/alembic/versions/data/0028/geo_stats_data.json"
     ) as geo_stats_file:
         geo_stats_data = json.load(geo_stats_file)
 
@@ -292,7 +292,7 @@ def _populate_language(db: Session) -> None:
         return
 
     with open(
-        f"{get_library_path()}/data_migrations/data/language_data.json"
+        f"{get_library_path()}/alembic/versions/data/0028/language_data.json"
     ) as language_file:
         language_data = json.load(language_file)
 
@@ -331,13 +331,13 @@ def _populate_document_type(db: Session) -> None:
     # This is no longer fixed but additive,
     # meaning we will add anything here that is not present in the table
     with open(
-        f"{get_library_path()}/data_migrations/data/law_policy/document_type_data.json"
+        f"{get_library_path()}/alembic/versions/data/0028/document_type_data.json"
     ) as submission_type_file:
         document_type_data = json.load(submission_type_file)
         _load_family_document_type_data(db, document_type_data)
 
     with open(
-        f"{get_library_path()}/data_migrations/data/unf3c/submission_type_data.json"
+        f"{get_library_path()}/alembic/versions/data/0028/unfccc/submission_type_data.json"
     ) as submission_type_file:
         submission_type_data = json.load(submission_type_file)
         document_type_data = [
@@ -353,7 +353,7 @@ def _populate_document_role(db: Session) -> None:
         return
 
     with open(
-        f"{get_library_path()}/data_migrations/data/law_policy/document_role_data.json"
+        f"{get_library_path()}/alembic/versions/data/0028/document_role_data.json"
     ) as document_role_file:
         document_role_data = json.load(document_role_file)
 
@@ -371,7 +371,7 @@ def _populate_document_variant(db: Session) -> None:
         return
 
     with open(
-        f"{get_library_path()}/data_migrations/data/law_policy/document_variant_data.json"
+        f"{get_library_path()}/alembic/versions/data/0028/document_variant_data.json"
     ) as document_variant_file:
         document_variant_data = json.load(document_variant_file)
 
@@ -389,7 +389,7 @@ def _populate_event_type(db: Session) -> None:
         return
 
     with open(
-        f"{get_library_path()}/data_migrations/data/law_policy/event_type_data.json"
+        f"{get_library_path()}/alembic/versions/data/0028/event_type_data.json"
     ) as event_type_file:
         event_type_data = json.load(event_type_file)
 
@@ -460,7 +460,7 @@ def _populate_geography(db: Session) -> None:
     remove_old_international_geo(db)
 
     with open(
-        f"{get_library_path()}/data_migrations/data/geography_data.json"
+        f"{get_library_path()}/alembic/versions/data/0028/geography_data.json"
     ) as geo_data_file:
         geo_data = json.loads(geo_data_file.read())
         _add_geo_slugs(geo_data)
