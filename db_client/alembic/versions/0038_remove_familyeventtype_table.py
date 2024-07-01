@@ -29,7 +29,7 @@ def _populate_event_type(db: Session) -> None:
     """Populates the family_event_type table with pre-defined data."""
 
     with open(
-        f"{get_library_path()}/data_migrations/data/law_policy/event_type_data.json"
+        f"{get_library_path()}/alembic/versions/0037/event_type_data.json"
     ) as event_type_file:
         event_type_data = json.load(event_type_file)
 
