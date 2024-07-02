@@ -230,7 +230,7 @@ class FamilyDocument(Base):
         lazy="joined",
     )
 
-    metadata_value = sa.Column(postgresql.JSONB)
+    valid_metadata = sa.Column(postgresql.JSONB)
 
 
 class Slug(Base):
