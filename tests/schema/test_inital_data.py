@@ -11,6 +11,7 @@ EXPECTED_CCLW_TAXONOMY = {
     "sector",
     "instrument",
     "event_type",
+    "_document",
 }
 EXPECTED_CCLW_TOPICS = 4
 EXPECTED_CCLW_HAZARDS = 81
@@ -19,8 +20,10 @@ EXPECTED_CCLW_KEYWORDS = 219
 EXPECTED_CCLW_FRAMEWORKS = 3
 EXPECTED_CCLW_INSTRUMENTS = 25
 
-EXPECTED_UNFCCC_TAXONOMY = {"author", "author_type", "event_type"}
+EXPECTED_UNFCCC_TAXONOMY = {"author", "author_type", "event_type", "_document"}
 EXPECTED_UNFCCC_AUTHOR_TYPES = 2
+
+EXPECTED_DOCUMENT_TAXONOMY_KEYS = 1
 
 EXPECTED_ORGANISATIONS = 2
 EXPECTED_EVENT_TYPES = 17
@@ -124,6 +127,7 @@ def test_corpora_values_correct(
             [
                 ("author_type", EXPECTED_UNFCCC_AUTHOR_TYPES),
                 ("event_type", EXPECTED_EVENT_TYPES),
+                ("_document", EXPECTED_DOCUMENT_TAXONOMY_KEYS),
             ],
         ),
         (
@@ -137,6 +141,7 @@ def test_corpora_values_correct(
                 ("keyword", EXPECTED_CCLW_KEYWORDS),
                 ("instrument", EXPECTED_CCLW_INSTRUMENTS),
                 ("event_type", EXPECTED_EVENT_TYPES),
+                ("_document", EXPECTED_DOCUMENT_TAXONOMY_KEYS),
             ],
         ),
     ],
