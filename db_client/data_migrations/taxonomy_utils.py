@@ -78,6 +78,8 @@ def _maybe_read(data: dict[str, Any]) -> TaxonomyEntry:
 def read_taxonomy_values(taxonomy_data: list[dict[str, Any]]) -> Mapping[str, dict]:
     taxonomy = {}
     for data in taxonomy_data:
-        taxonomy.update({data["key"]: asdict(_maybe_read(data))})
-
+        if "taxonomy" in data:
+            taxonomy.update({data["key"]: read_taxonomy_values(data["taxonomy"])})
+        else:
+            taxonomy.update({data["key"]: asdict(_maybe_read(data))})
     return taxonomy
