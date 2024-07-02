@@ -1,3 +1,5 @@
+import logging
+
 import pytest
 from sqlalchemy.orm import Session
 
@@ -168,4 +170,101 @@ def test_taxonomy_value_counts_correct(
     assert set(schema) ^ expected_taxonomy_keys == set()
 
     for tax_key, expected_value_count in expected_taxonomy_items:
-        assert len(schema[tax_key]["allowed_values"]) == expected_value_count
+        if tax_key.startswith("_"):
+            assert len(schema[tax_key].keys()) == expected_value_count
+        else:
+            assert len(schema[tax_key]["allowed_values"]) == expected_value_count
+
+
+@pytest.mark.parametrize(
+    "org_name, expected_taxonomy_items",
+    [
+        (
+            "UNFCCC",
+            [
+                ("_document", [("role", EXPECTED_DOCUMENT_ROLE)]),
+            ],
+        ),
+        (
+            "CCLW",
+            [
+                ("_document", [("role", EXPECTED_DOCUMENT_ROLE)]),
+            ],
+        ),
+    ],
+)
+def test_entity_specific_taxonomy_value_counts_correct(
+    test_db: Session,
+    org_name: str,
+    expected_taxonomy_items: list[tuple[str, list[tuple[str, int]]]],
+):
+    corpus_type = (
+        test_db.query(CorpusType)
+        .join(
+            Corpus,
+            Corpus.corpus_type_name == CorpusType.name,
+        )
+        .join(Organisation, Organisation.id == Corpus.organisation_id)
+        .filter(Organisation.name == org_name)
+        .one_or_none()
+    )
+    assert corpus_type is not None
+
+    # This will make sure that the exact entity keys are present in both the actual and
+    # expected entity_keys.
+    #
+    # This will give us _document, _event, _family etc
+    entity_keys = [ek for ek in corpus_type.valid_metadata if ek.startswith("_")]
+    expected_entity_keys = [_entity_key for _entity_key, _ in expected_taxonomy_items]
+
+    test_a = set(entity_keys).difference(set(expected_entity_keys))
+    if test_a != set():
+        logging.error(
+            f"Actual entity key(s) {test_a} not present "
+            f"in list of expected entity keys {expected_entity_keys}"
+        )
+
+    test_b = set(expected_entity_keys).difference(set(entity_keys))
+    if test_b != set():
+        logging.error(
+            f"Expected entity key(s) {test_b} not present "
+            f"in list of actual entity keys {entity_keys}"
+        )
+    assert set(entity_keys) ^ set(expected_entity_keys) == set()
+
+    for entity_specific_key, entity_specific_taxonomy_items in expected_taxonomy_items:
+        schema = corpus_type.valid_metadata[entity_specific_key]
+
+        # This will make sure that the exact entity specific keys are present in both the
+        # actual and expected entity_specific_keys.
+        #
+        # This will give us _document taxonomy keys such as role, type etc
+        entity_specific_keys = schema.keys()
+        expected_entity_specific_keys = [
+            _entity_specific_key
+            for _, _entity_specific_keys in expected_taxonomy_items
+            for _entity_specific_key, __ in _entity_specific_keys
+        ]
+
+        test_c = set(entity_specific_keys).difference(
+            set(expected_entity_specific_keys)
+        )
+        if test_c != set():
+            logging.error(
+                f"Actual entity specific key(s) {test_c} not present "
+                f"in list of expected entity specific keys {expected_entity_specific_keys}"
+            )
+
+        test_d = set(expected_entity_specific_keys).difference(
+            set(entity_specific_keys)
+        )
+        if test_d != set():
+            logging.error(
+                f"Expected entity specific key(s) {test_d} not present "
+                f"in list of actual entity specific keys {entity_specific_keys}"
+            )
+
+        assert set(entity_specific_keys) ^ set(expected_entity_specific_keys) == set()
+
+        for tax_key, expected_value_count in entity_specific_taxonomy_items:
+            assert len(schema[tax_key]["allowed_values"]) == expected_value_count
