@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Literal, Optional, cast
 
 import sqlalchemy as sa
+from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 
@@ -228,6 +229,8 @@ class FamilyDocument(Base):
         PhysicalDocument,
         lazy="joined",
     )
+
+    valid_metadata = sa.Column(postgresql.JSONB)
 
 
 class Slug(Base):
