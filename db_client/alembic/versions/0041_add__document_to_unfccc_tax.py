@@ -22,6 +22,7 @@ depends_on = None
 Base = automap_base()
 
 INTL_AGREEMENTS = "Intl. agreements"
+
 TAXONOMY_DATA = [
     {
         "key": "author_type",
@@ -42,12 +43,14 @@ TAXONOMY_DATA = [
     },
     {
         "key": "_document",
-        "taxonomy": {
-            "key": "role",
-            "filename": f"{get_library_path()}/alembic/versions/data/0041/document_role_data.json",
-            "file_key_path": "name",
-            "allow_blanks": False,
-        },
+        "taxonomy": [
+            {
+                "key": "role",
+                "filename": f"{get_library_path()}/alembic/versions/data/0041/document_role_data.json",
+                "file_key_path": "name",
+                "allow_blanks": False,
+            },
+        ],
     },
 ]
 
