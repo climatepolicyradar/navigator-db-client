@@ -56,18 +56,23 @@ def _load_metadata_type(filename: str, key_path: str) -> Sequence[str]:
 
 
 def _maybe_read(data: dict[str, Any]) -> TaxonomyEntry:
-    if "filename" in data:
-        return TaxonomyEntry(
-            allowed_values=_load_metadata_type(data["filename"], data["file_key_path"]),
-            allow_blanks=data["allow_blanks"],
-            allow_any=False,
-        )
-    else:
-        return TaxonomyEntry(
-            allowed_values=data["allowed_values"],
-            allow_blanks=data["allow_blanks"],
-            allow_any=data.get("allow_any", False),
-        )
+    if not data["key"].startswith("_"):
+        if "filename" in data:
+            return TaxonomyEntry(
+                allowed_values=_load_metadata_type(
+                    data["filename"], data["file_key_path"]
+                ),
+                allow_blanks=data["allow_blanks"],
+                allow_any=False,
+            )
+        else:
+            return TaxonomyEntry(
+                allowed_values=data["allowed_values"],
+                allow_blanks=data["allow_blanks"],
+                allow_any=data.get("allow_any", False),
+            )
+
+    return _maybe_read(data["taxonomy"])
 
 
 def read_taxonomy_values(taxonomy_data: list[dict[str, Any]]) -> Mapping[str, dict]:
