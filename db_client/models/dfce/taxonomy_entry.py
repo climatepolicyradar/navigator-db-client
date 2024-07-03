@@ -19,10 +19,17 @@ The fields define how metadata gets validated:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 
+from enum import Enum
 from typing import Mapping, Sequence
 
 from pydantic.config import ConfigDict
 from pydantic.dataclasses import dataclass as pydantic_dataclass
+
+
+class EntitySpecificTaxonomyKeys(str, Enum):
+    """Entities that are to be counted."""
+
+    Document = "_document"
 
 
 @pydantic_dataclass(config=ConfigDict(validate_assignment=True, extra="forbid"))
