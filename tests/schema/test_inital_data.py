@@ -25,7 +25,7 @@ EXPECTED_CCLW_INSTRUMENTS = 25
 EXPECTED_UNFCCC_TAXONOMY = {"author", "author_type", "event_type", "_document"}
 EXPECTED_UNFCCC_AUTHOR_TYPES = 2
 
-EXPECTED_DOCUMENT_TAXONOMY_KEYS = 1
+EXPECTED_DOCUMENT_TAXONOMY_KEYS = 2
 
 EXPECTED_ORGANISATIONS = 2
 EXPECTED_EVENT_TYPES = 17
@@ -182,13 +182,25 @@ def test_taxonomy_value_counts_correct(
         (
             "UNFCCC",
             [
-                ("_document", [("role", EXPECTED_DOCUMENT_ROLE)]),
+                (
+                    "_document",
+                    [
+                        ("role", EXPECTED_DOCUMENT_ROLE),
+                        ("type", EXPECTED_DOCUMENT_TYPE),
+                    ],
+                ),
             ],
         ),
         (
             "CCLW",
             [
-                ("_document", [("role", EXPECTED_DOCUMENT_ROLE)]),
+                (
+                    "_document",
+                    [
+                        ("role", EXPECTED_DOCUMENT_ROLE),
+                        ("type", EXPECTED_DOCUMENT_TYPE),
+                    ],
+                ),
             ],
         ),
     ],
