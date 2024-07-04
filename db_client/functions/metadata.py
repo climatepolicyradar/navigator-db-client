@@ -2,16 +2,17 @@ from typing import Mapping, Optional, Sequence
 
 from sqlalchemy.orm import Session
 
-from db_client.models.dfce.family import Family, FamilyCorpus
-from db_client.models.dfce.metadata import FamilyMetadata
+from db_client.functions.corpus_helpers import (
+    get_entity_specific_taxonomy,
+    get_taxonomy_from_corpus,
+)
 from db_client.models.dfce.taxonomy_entry import TaxonomyEntry
-from db_client.models.organisation.corpus import Corpus, CorpusType
 
 MetadataValidationErrors = Sequence[str]
 
 
 def validate_family_metadata(
-    db: Session, family: Family
+    db: Session, corpus_id: str, metadata
 ) -> Optional[MetadataValidationErrors]:
     """Validates the Family's metadata against its Corpus' Taxonomy.
 
@@ -19,36 +20,69 @@ def validate_family_metadata(
     Taxonomy is stored in the database and can be mutated independently
     of the Family's metadata.
 
-    :param Session db: The db connection session.
-    :param Family family: The family to validate.
-    :raises TypeError: If the Taxonomy is invalid.
-    :raises ValidationError: If the Taxonomy values are invalid.
+    :param Session db: The Session to query.
+    :param str corpus_id: The corpus import ID to retrieve the taxonomy
+        for.
+    :param dict metadata: The family metadata to validate.
     :return Optional[MetadataValidationResult]: A list of errors or None
         if the metadata is valid.
     """
+    taxonomy = get_taxonomy_from_corpus(db, corpus_id)
+    if taxonomy is None:
+        raise TypeError("No taxonomy found for corpus")
 
-    # Retrieve the Taxonomy and the Family's metadata
-    corpus_type, metadata = (
-        db.query(CorpusType, FamilyMetadata)
-        .join(Corpus, CorpusType.name == Corpus.corpus_type_name)
-        .join(FamilyCorpus, FamilyCorpus.corpus_import_id == Corpus.import_id)
-        .join(Family, family.import_id == FamilyCorpus.family_import_id)
-        .join(FamilyMetadata, FamilyMetadata.family_import_id == family.import_id)
-        .filter(Family.import_id == family.import_id)
-        .one()
-    )
-    taxonomy = corpus_type.valid_metadata
+    # Make sure we only get the family taxonomy keys.
+    # TODO: When we move the family schema under _family we can consolidate these entity
+    # specific validation functions.
+    taxonomy = {
+        k: v for (k, v) in taxonomy.items() if k not in ["_document", "event_type"]
+    }
+    return _validate_metadata_against_taxonomy(taxonomy, metadata)
+
+
+def validate_document_metadata(
+    db, corpus_id: str, metadata
+) -> Optional[MetadataValidationErrors]:
+    """Validates the Document's metadata against its Corpus' Taxonomy.
+
+    NOTE: That the taxonomy is also validated. This is because the
+    Taxonomy is stored in the database and can be mutated independently
+    of the Family's metadata.
+
+    :param Session db: The Session to query.
+    :param str corpus_id: The corpus import ID to retrieve the taxonomy
+        for.
+    :param dict metadata: The document metadata to validate.
+    :return Optional[MetadataValidationResult]: A list of errors or None
+        if the metadata is valid.
+    """
+    taxonomy = get_taxonomy_from_corpus(db, corpus_id)
+    if taxonomy is None:
+        raise TypeError("No taxonomy found for corpus")
+
+    # Make sure we only get the document taxonomy keys.
+    # TODO: When we move the family schema under _family we can consolidate these entity
+    # specific validation functions.
+    taxonomy = get_entity_specific_taxonomy(taxonomy, "_document")
+    return _validate_metadata_against_taxonomy(taxonomy, metadata)
+
+
+def _validate_metadata_against_taxonomy(taxonomy, metadata):
+    """Build the Corpus taxonomy for the entity & validate against it.
+
+    :param dict taxonomy: The Corpus taxonomy to validate against.
+    :param dict metadata: The metadata to validate.
+    :raises TypeError: If the Taxonomy is invalid.
+    :return Optional[MetadataValidationResult]: A list of errors or None
+        if the metadata is valid.
+    """
     try:
         taxonomy_entries = build_valid_taxonomy(taxonomy)
     except TypeError as e:
         # Wrap any TypeError in a more general error
         raise TypeError("Bad Taxonomy data in database") from e
 
-    family_metadata = metadata.value
-
-    errors = validate_metadata(taxonomy_entries, family_metadata)
-
-    # TODO: validate family_metadata against taxonomy
+    errors = validate_metadata(taxonomy_entries, metadata)
     return errors if len(errors) > 0 else None
 
 
@@ -57,9 +91,11 @@ def validate_metadata(
 ) -> MetadataValidationErrors:
     """Validates the metadata against the taxonomy.
 
-    :param _type_ taxonomy_entries: The built entries from the CorpusType.valid_metadata.
+    :param _type_ taxonomy_entries: The built entries from the
+        CorpusType.valid_metadata.
     :param _type_ metadata: The metadata to validate.
-    :return MetadataValidationErrors: a list of errors if the metadata is invalid.
+    :return MetadataValidationErrors: a list of errors if the metadata
+        is invalid.
     """
     errors = []
     metadata_keys = set(metadata.keys())
@@ -94,13 +130,20 @@ def validate_metadata(
 
 
 def build_valid_taxonomy(taxonomy: Mapping) -> Mapping[str, TaxonomyEntry]:
-    """Takes the taxonomy from the database and builds a dictionary of TaxonomyEntry objects, used for validation.
+    """Build valid taxonomy used to validate metadata against.
 
-    :param Sequence taxonomy: From the database model CorpusType.valid_metadata
+    Takes the taxonomy from the database and builds a dictionary of
+    TaxonomyEntry objects, used for validation.
+
+    :param Sequence taxonomy: From the database model
+        CorpusType.valid_metadata and potentially filtered by entity key
     :raises TypeError: If the taxonomy is not a list.
     :raises TypeError: If the taxonomy entry is not a dictionary.
-    :raises TypeError: If the values within the taxonomy entry are not dictionaries.
-    :return Mapping[str, TaxonomyEntry]: a dictionary of TaxonomyEntry objects (contains property constraints) keyed by the taxonomy entry name (property).
+    :raises TypeError: If the values within the taxonomy entry are not
+        dictionaries.
+    :return Mapping[str, TaxonomyEntry]: a dictionary of TaxonomyEntry
+        objects (contains property constraints) keyed by the taxonomy
+        entry name (property).
     """
     if not isinstance(taxonomy, dict):
         raise TypeError("Taxonomy is not a dictionary")
