@@ -35,6 +35,7 @@ class AuthEndpoint(str, enum.Enum):
     CONFIG = "CONFIG"
     ANALYTICS = "ANALYTICS"
     EVENT = "EVENTS"
+    CORPUS = "CORPORA"
 
 
 class AuthAccess(str, enum.Enum):
@@ -50,24 +51,24 @@ AuthMap = Mapping[AuthEndpoint, Mapping[AuthOperation, AuthAccess]]
 AUTH_TABLE: AuthMap = {
     # Family
     AuthEndpoint.FAMILY: {
-        AuthOperation.CREATE: AuthAccess.USER,
+        AuthOperation.CREATE: AuthAccess.ADMIN,
         AuthOperation.READ: AuthAccess.USER,
-        AuthOperation.UPDATE: AuthAccess.USER,
-        AuthOperation.DELETE: AuthAccess.USER,
+        AuthOperation.UPDATE: AuthAccess.ADMIN,
+        AuthOperation.DELETE: AuthAccess.ADMIN,
     },
     # Collection
     AuthEndpoint.COLLECTION: {
-        AuthOperation.CREATE: AuthAccess.USER,
+        AuthOperation.CREATE: AuthAccess.ADMIN,
         AuthOperation.READ: AuthAccess.USER,
-        AuthOperation.UPDATE: AuthAccess.USER,
-        AuthOperation.DELETE: AuthAccess.USER,
+        AuthOperation.UPDATE: AuthAccess.ADMIN,
+        AuthOperation.DELETE: AuthAccess.ADMIN,
     },
     # Collection
     AuthEndpoint.DOCUMENT: {
-        AuthOperation.CREATE: AuthAccess.USER,
+        AuthOperation.CREATE: AuthAccess.ADMIN,
         AuthOperation.READ: AuthAccess.USER,
-        AuthOperation.UPDATE: AuthAccess.USER,
-        AuthOperation.DELETE: AuthAccess.USER,
+        AuthOperation.UPDATE: AuthAccess.ADMIN,
+        AuthOperation.DELETE: AuthAccess.ADMIN,
     },
     # Config
     AuthEndpoint.CONFIG: {
@@ -79,9 +80,16 @@ AUTH_TABLE: AuthMap = {
     },
     # Event
     AuthEndpoint.EVENT: {
-        AuthOperation.CREATE: AuthAccess.USER,
+        AuthOperation.CREATE: AuthAccess.ADMIN,
         AuthOperation.READ: AuthAccess.USER,
-        AuthOperation.UPDATE: AuthAccess.USER,
-        AuthOperation.DELETE: AuthAccess.USER,
+        AuthOperation.UPDATE: AuthAccess.ADMIN,
+        AuthOperation.DELETE: AuthAccess.ADMIN,
+    },
+    # Corpus
+    AuthEndpoint.CORPUS: {
+        AuthOperation.CREATE: AuthAccess.SUPER,
+        AuthOperation.READ: AuthAccess.SUPER,
+        AuthOperation.UPDATE: AuthAccess.SUPER,
+        AuthOperation.DELETE: AuthAccess.SUPER,
     },
 }
