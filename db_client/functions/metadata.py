@@ -20,6 +20,10 @@ def validate_family_metadata(
     Taxonomy is stored in the database and can be mutated independently
     of the Family's metadata.
 
+    NOTE: This function will become deprecated once we have moved all of
+    the entity taxonomies under their _document, _collection, _family or
+    _event taxonomy keys in the future.
+
     :param Session db: The Session to query.
     :param str corpus_id: The corpus import ID to retrieve the taxonomy
         for.
@@ -49,6 +53,10 @@ def validate_document_metadata(
     Taxonomy is stored in the database and can be mutated independently
     of the Family's metadata.
 
+    NOTE: This function will become deprecated once we have moved all of
+    the entity taxonomies under their _document, _collection, _family or
+    _event taxonomy keys in the future.
+
     :param Session db: The Session to query.
     :param str corpus_id: The corpus import ID to retrieve the taxonomy
         for.
@@ -61,9 +69,36 @@ def validate_document_metadata(
         raise TypeError("No taxonomy found for corpus")
 
     # Make sure we only get the document taxonomy keys.
-    # TODO: When we move the family schema under _family we can consolidate these entity
-    # specific validation functions.
     taxonomy = get_entity_specific_taxonomy(taxonomy, "_document")
+    return _validate_metadata_against_taxonomy(taxonomy, metadata)
+
+
+def validate_event_metadata(
+    db, corpus_id: str, metadata
+) -> Optional[MetadataValidationErrors]:
+    """Validates the Event's metadata against its Corpus' Taxonomy.
+
+    NOTE: That the taxonomy is also validated. This is because the
+    Taxonomy is stored in the database and can be mutated independently
+    of the Event's metadata.
+
+    NOTE: This function will become deprecated once we have moved all of
+    the entity taxonomies under their _document, _collection, _family or
+    _event taxonomy keys in the future.
+
+    :param Session db: The Session to query.
+    :param str corpus_id: The corpus import ID to retrieve the taxonomy
+        for.
+    :param dict metadata: The event metadata to validate.
+    :return Optional[MetadataValidationResult]: A list of errors or None
+        if the metadata is valid.
+    """
+    taxonomy = get_taxonomy_from_corpus(db, corpus_id)
+    if taxonomy is None:
+        raise TypeError("No taxonomy found for corpus")
+
+    # Make sure we only get the event taxonomy keys.
+    taxonomy = get_entity_specific_taxonomy(taxonomy, "event_type")
     return _validate_metadata_against_taxonomy(taxonomy, metadata)
 
 
