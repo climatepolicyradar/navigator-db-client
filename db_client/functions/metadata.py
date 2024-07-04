@@ -82,11 +82,38 @@ def _validate_metadata_against_taxonomy(taxonomy, metadata):
         # Wrap any TypeError in a more general error
         raise TypeError("Bad Taxonomy data in database") from e
 
-    errors = validate_metadata(taxonomy_entries, metadata)
+    errors = _validate_metadata(taxonomy_entries, metadata)
     return errors if len(errors) > 0 else None
 
 
 def validate_metadata(
+    db: Session, corpus_id: str, metadata, _entity_key: str
+) -> Optional[MetadataValidationErrors]:
+    """Validates the metadata against its Corpus' Taxonomy.
+
+    NOTE: That the taxonomy is also validated. This is because the
+    Taxonomy is stored in the database and can be mutated independently
+    of the metadata.
+
+    :param Session db: The Session to query.
+    :param str corpus_id: The corpus import ID to retrieve the taxonomy
+        for.
+    :param dict metadata: The event metadata to validate.
+    :param str _entity_key: The entity specific key to filter taxonomy
+        by.
+    :return Optional[MetadataValidationResult]: A list of errors or None
+        if the metadata is valid.
+    """
+    taxonomy = get_taxonomy_from_corpus(db, corpus_id)
+    if taxonomy is None:
+        raise TypeError("No taxonomy found for corpus")
+
+    # Make sure we only get the entity specific taxonomy keys.
+    taxonomy = get_entity_specific_taxonomy(taxonomy, _entity_key)
+    return _validate_metadata_against_taxonomy(taxonomy, metadata)
+
+
+def _validate_metadata(
     taxonomy_entries: Mapping[str, TaxonomyEntry], metadata: Mapping
 ) -> MetadataValidationErrors:
     """Validates the metadata against the taxonomy.

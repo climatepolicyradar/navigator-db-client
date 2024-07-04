@@ -27,7 +27,9 @@ def get_taxonomy_from_corpus(db: Session, corpus_id: str) -> Optional[TaxonomyDa
     )
 
 
-def get_entity_specific_taxonomy(taxonomy, _entity_key: Optional[str] = None):
+def get_entity_specific_taxonomy(
+    taxonomy, _entity_key: Optional[str] = None
+) -> Optional[TaxonomyData]:
     """Validates the Family's metadata against its Corpus' Taxonomy.
 
     :param dict taxonomy: The Corpus taxonomy to validate against.
