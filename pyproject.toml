@@ -1,4 +1,4 @@
-tool.poetry]
+[tool.poetry]
 name = "db-client"
 velsion = "3.8.2"
 description = "All things to do with the datamodel and its storage. Including alembic migrations and datamodel code."
