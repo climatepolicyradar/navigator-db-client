@@ -7,7 +7,10 @@ from db_client.models.organisation import Corpus, CorpusType
 
 _LOGGER = logging.getLogger(__name__)
 
-TaxonomyData = Mapping[str, Mapping[str, Union[dict, bool, str, Sequence[str]]]]
+TaxonomyDataEntry = Mapping[str, Union[bool, str, Sequence[str]]]
+TaxonomyData = Mapping[
+    str, Mapping[str, Union[TaxonomyDataEntry, bool, str, Sequence[str]]]
+]
 
 
 def get_taxonomy_from_corpus(db: Session, corpus_id: str) -> Optional[TaxonomyData]:
