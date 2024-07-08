@@ -20,7 +20,7 @@ def validate_metadata(
     db: Session,
     corpus_id: str,
     metadata: TaxonomyDataEntry,
-    entity_key: Optional[EntitySpecificTaxonomyKeys] = None,
+    entity_key: Optional[str] = None,
 ) -> Optional[MetadataValidationErrors]:
     """Validates the metadata against its Corpus' Taxonomy.
 

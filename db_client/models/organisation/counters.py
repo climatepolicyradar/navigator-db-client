@@ -16,6 +16,7 @@ from sqlalchemy.orm.session import object_session
 from sqlalchemy.sql import text
 
 from db_client.models.base import Base
+from db_client.models.organisation.organisation import Organisation
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -52,12 +53,6 @@ class EntityCounter(Base):
     """
 
     __tablename__ = "entity_counter"
-    __table_args__ = (
-        sa.CheckConstraint(
-            "prefix IN ('CCLW','UNFCCC')",
-            name="prefix_allowed_orgs",
-        ),
-    )
 
     _get_and_increment = text(
         """
@@ -71,7 +66,7 @@ class EntityCounter(Base):
 
     id = sa.Column(sa.Integer, primary_key=True)
     description = sa.Column(sa.String, nullable=False, default="")
-    prefix = sa.Column(sa.String, unique=True, nullable=False)  # Organisation.name
+    prefix = sa.Column(sa.ForeignKey(Organisation.name), nullable=False)
     counter = sa.Column(sa.Integer, nullable=False, server_default="0")
 
     def get_next_count(self) -> str:
