@@ -2,7 +2,7 @@ import pytest
 from pydantic import ValidationError
 from pytest_mock_resources import create_postgres_fixture
 
-from db_client.functions.metadata import validate_family_metadata
+from db_client.functions.metadata import validate_metadata_against_taxonomy
 from db_client.models.base import Base
 from tests.functions.helpers import family_build, metadata_build
 
@@ -13,18 +13,17 @@ EXPECTED_BAD_TAXONOMY = "Bad Taxonomy data in database"
 
 
 def setup_test(db, taxonomy, metadata):
-    org, corpus, corpus_type = metadata_build(db, taxonomy)
-    family = family_build(db, org, corpus, metadata)
-    return org, family
+    org, corpus, _ = metadata_build(db, taxonomy)
+    family_build(db, org, corpus, metadata)
 
 
 def test_validation_fails_when_taxonomy_bad(db):
-    _, family = setup_test(
-        db, {"one": "two", "three": "four"}, {"metadata": "anything"}
-    )
+    taxonomy = {"one": "two", "three": "four"}
+    metadata = {"metadata": "anything"}
+    setup_test(db, taxonomy, metadata)
 
     with pytest.raises(TypeError) as e:
-        validate_family_metadata(db, family)
+        validate_metadata_against_taxonomy(taxonomy, metadata)
 
     assert str(e.value) == EXPECTED_BAD_TAXONOMY
     inner = e.value.__cause__
@@ -33,17 +32,15 @@ def test_validation_fails_when_taxonomy_bad(db):
 
 
 def test_validation_fails_when_taxonomy_missing_allow_blanks(db):
-    _, family = setup_test(
-        db,
-        {
-            "author_type": {
-                "allowed_values": ["Party", "Non-Party"],
-            }
-        },
-        {"metadata": "anything"},
-    )
+    taxonomy = {
+        "author_type": {
+            "allowed_values": ["Party", "Non-Party"],
+        }
+    }
+    metadata = {"metadata": "anything"}
+    setup_test(db, taxonomy, metadata)
     with pytest.raises(ValidationError) as e:
-        validate_family_metadata(db, family)
+        validate_metadata_against_taxonomy(taxonomy, metadata)
 
     assert len(e.value.errors()) == 1
     error = e.value.errors()[0]
@@ -53,17 +50,15 @@ def test_validation_fails_when_taxonomy_missing_allow_blanks(db):
 
 
 def test_validation_fails_when_taxonomy_missing_allowed_values(db):
-    _, family = setup_test(
-        db,
-        {
-            "author_type": {
-                "allow_blanks": False,
-            }
-        },
-        {"metadata": "anything"},
-    )
+    taxonomy = {
+        "author_type": {
+            "allow_blanks": False,
+        }
+    }
+    metadata = {"metadata": "anything"}
+    setup_test(db, taxonomy, metadata)
     with pytest.raises(ValidationError) as e:
-        validate_family_metadata(db, family)
+        validate_metadata_against_taxonomy(taxonomy, metadata)
 
     assert len(e.value.errors()) == 1
     error = e.value.errors()[0]
@@ -73,19 +68,17 @@ def test_validation_fails_when_taxonomy_missing_allowed_values(db):
 
 
 def test_validation_fails_when_taxonomy_has_extra(db):
-    _, family = setup_test(
-        db,
-        {
-            "author_type": {
-                "allow_blanks": False,
-                "allowed_values": ["Party", "Non-Party"],
-                "extra": "field",
-            }
-        },
-        {"metadata": "anything"},
-    )
+    taxonomy = {
+        "author_type": {
+            "allow_blanks": False,
+            "allowed_values": ["Party", "Non-Party"],
+            "extra": "field",
+        }
+    }
+    metadata = {"metadata": "anything"}
+    setup_test(db, taxonomy, metadata)
     with pytest.raises(ValidationError) as e:
-        validate_family_metadata(db, family)
+        validate_metadata_against_taxonomy(taxonomy, metadata)
 
     assert len(e.value.errors()) == 1
     error = e.value.errors()[0]
@@ -95,40 +88,36 @@ def test_validation_fails_when_taxonomy_has_extra(db):
 
 
 def test_validation_when_good(db):
-    _, family = setup_test(
-        db,
-        {
-            "author_type": {
-                "allow_blanks": False,
-                "allowed_values": ["Party", "Non-Party"],
-            },
-            "animals": {
-                "allow_blanks": True,
-                "allowed_values": [],
-                "allow_any": True,
-            },
+    taxonomy = {
+        "author_type": {
+            "allow_blanks": False,
+            "allowed_values": ["Party", "Non-Party"],
         },
-        {"author_type": ["Party"], "animals": ["sheep"]},
-    )
+        "animals": {
+            "allow_blanks": True,
+            "allowed_values": [],
+            "allow_any": True,
+        },
+    }
+    metadata = {"author_type": ["Party"], "animals": ["sheep"]}
+    setup_test(db, taxonomy, metadata)
 
-    errors = validate_family_metadata(db, family)
+    errors = validate_metadata_against_taxonomy(taxonomy, metadata)
 
     assert errors is None
 
 
 def test_validation_errors_on_extra_keys(db):
-    _, family = setup_test(
-        db,
-        {
-            "author_type": {
-                "allow_blanks": False,
-                "allowed_values": ["Party", "Non-Party"],
-            }
-        },
-        {"author_type": ["Party"], "animals": ["sheep"]},
-    )
+    taxonomy = {
+        "author_type": {
+            "allow_blanks": False,
+            "allowed_values": ["Party", "Non-Party"],
+        }
+    }
+    metadata = {"author_type": ["Party"], "animals": ["sheep"]}
+    setup_test(db, taxonomy, metadata)
 
-    errors = validate_family_metadata(db, family)
+    errors = validate_metadata_against_taxonomy(taxonomy, metadata)
 
     assert errors is not None
     assert len(errors) == 1
@@ -136,25 +125,21 @@ def test_validation_errors_on_extra_keys(db):
 
 
 def test_validation_errors_on_missing_keys(db):
-    _, family = setup_test(
-        db,
-        {
-            "author_type": {
-                "allow_blanks": False,
-                "allowed_values": ["Party", "Non-Party"],
-            },
-            "animals": {
-                "allow_blanks": True,
-                "allowed_values": [],
-                "allow_any": True,
-            },
+    taxonomy = {
+        "author_type": {
+            "allow_blanks": False,
+            "allowed_values": ["Party", "Non-Party"],
         },
-        {
-            "author_type": ["Party"],
+        "animals": {
+            "allow_blanks": True,
+            "allowed_values": [],
+            "allow_any": True,
         },
-    )
+    }
+    metadata = {"author_type": ["Party"]}
+    setup_test(db, taxonomy, metadata)
 
-    errors = validate_family_metadata(db, family)
+    errors = validate_metadata_against_taxonomy(taxonomy, metadata)
 
     assert errors is not None
     assert len(errors) == 1
@@ -162,18 +147,16 @@ def test_validation_errors_on_missing_keys(db):
 
 
 def test_validation_errors_on_blanks(db):
-    _, family = setup_test(
-        db,
-        {
-            "animals": {
-                "allow_blanks": False,
-                "allowed_values": [],
-            },
+    taxonomy = {
+        "animals": {
+            "allow_blanks": False,
+            "allowed_values": [],
         },
-        {"animals": []},
-    )
+    }
+    metadata = {"animals": []}
+    setup_test(db, taxonomy, metadata)
 
-    errors = validate_family_metadata(db, family)
+    errors = validate_metadata_against_taxonomy(taxonomy, metadata)
 
     assert errors is not None
     assert len(errors) == 1
@@ -181,35 +164,31 @@ def test_validation_errors_on_blanks(db):
 
 
 def test_validation_allows_blanks(db):
-    _, family = setup_test(
-        db,
-        {
-            "animals": {
-                "allow_blanks": True,
-                "allowed_values": [],
-            },
+    taxonomy = {
+        "animals": {
+            "allow_blanks": True,
+            "allowed_values": [],
         },
-        {"animals": []},
-    )
+    }
+    metadata = {"animals": []}
+    setup_test(db, taxonomy, metadata)
 
-    errors = validate_family_metadata(db, family)
+    errors = validate_metadata_against_taxonomy(taxonomy, metadata)
 
     assert errors is None
 
 
 def test_validation_errors_on_disallowed_values(db):
-    _, family = setup_test(
-        db,
-        {
-            "animals": {
-                "allow_blanks": False,
-                "allowed_values": ["sheep", "goat"],
-            },
+    taxonomy = {
+        "animals": {
+            "allow_blanks": False,
+            "allowed_values": ["sheep", "goat"],
         },
-        {"animals": ["cat"]},
-    )
+    }
+    metadata = {"animals": ["cat"]}
+    setup_test(db, taxonomy, metadata)
 
-    errors = validate_family_metadata(db, family)
+    errors = validate_metadata_against_taxonomy(taxonomy, metadata)
 
     assert errors is not None
     assert len(errors) == 1
@@ -217,35 +196,31 @@ def test_validation_errors_on_disallowed_values(db):
 
 
 def test_validation_allows_values(db):
-    _, family = setup_test(
-        db,
-        {
-            "animals": {
-                "allow_blanks": False,
-                "allowed_values": ["sheep", "goat"],
-            },
+    taxonomy = {
+        "animals": {
+            "allow_blanks": False,
+            "allowed_values": ["sheep", "goat"],
         },
-        {"animals": ["sheep"]},
-    )
+    }
+    metadata = {"animals": ["sheep"]}
+    setup_test(db, taxonomy, metadata)
 
-    errors = validate_family_metadata(db, family)
+    errors = validate_metadata_against_taxonomy(taxonomy, metadata)
 
     assert errors is None
 
 
 def test_validation_allows_any(db):
-    _, family = setup_test(
-        db,
-        {
-            "animals": {
-                "allow_blanks": False,
-                "allowed_values": ["sheep", "goat"],
-                "allow_any": True,
-            },
+    taxonomy = {
+        "animals": {
+            "allow_blanks": False,
+            "allowed_values": ["sheep", "goat"],
+            "allow_any": True,
         },
-        {"animals": ["cat"]},
-    )
+    }
+    metadata = {"animals": ["cat"]}
+    setup_test(db, taxonomy, metadata)
 
-    errors = validate_family_metadata(db, family)
+    errors = validate_metadata_against_taxonomy(taxonomy, metadata)
 
     assert errors is None
