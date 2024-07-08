@@ -8,7 +8,10 @@ from db_client.functions.corpus_helpers import (
     get_entity_specific_taxonomy,
     get_taxonomy_from_corpus,
 )
-from db_client.models.dfce.taxonomy_entry import TaxonomyEntry
+from db_client.models.dfce.taxonomy_entry import (
+    EntitySpecificTaxonomyKeys,
+    TaxonomyEntry,
+)
 
 MetadataValidationErrors = Sequence[str]
 
@@ -37,7 +40,13 @@ def validate_family_metadata(
     # TODO: When we move the family schema under _family we can consolidate these entity
     # specific validation functions.
     taxonomy = {
-        k: v for (k, v) in taxonomy.items() if k not in ["_document", "event_type"]
+        k: v
+        for (k, v) in taxonomy.items()
+        if k
+        not in [
+            EntitySpecificTaxonomyKeys.DOCUMENT.value,
+            EntitySpecificTaxonomyKeys.EVENT.value,
+        ]
     }
     return validate_metadata_against_taxonomy(taxonomy, metadata)
 
@@ -65,7 +74,9 @@ def validate_document_metadata(
     # Make sure we only get the document taxonomy keys.
     # TODO: When we move the family schema under _family we can consolidate these entity
     # specific validation functions.
-    taxonomy = get_entity_specific_taxonomy(taxonomy, "_document")
+    taxonomy = get_entity_specific_taxonomy(
+        taxonomy, EntitySpecificTaxonomyKeys.DOCUMENT.value
+    )
     return validate_metadata_against_taxonomy(taxonomy, metadata)
 
 
