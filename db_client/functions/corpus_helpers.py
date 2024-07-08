@@ -7,7 +7,10 @@ from db_client.models.organisation import Corpus, CorpusType
 
 _LOGGER = logging.getLogger(__name__)
 
-TaxonomyData = Mapping[str, Mapping[str, Union[dict, bool, str, Sequence[str]]]]
+TaxonomyDataEntry = Mapping[str, Union[bool, str, Sequence[str]]]
+TaxonomyData = Mapping[
+    str, Mapping[str, Union[TaxonomyDataEntry, bool, str, Sequence[str]]]
+]
 
 
 def get_taxonomy_from_corpus(db: Session, corpus_id: str) -> Optional[TaxonomyData]:
@@ -29,7 +32,7 @@ def get_taxonomy_from_corpus(db: Session, corpus_id: str) -> Optional[TaxonomyDa
 
 def get_entity_specific_taxonomy(
     taxonomy, _entity_key: Optional[str] = None
-) -> Optional[TaxonomyData]:
+) -> TaxonomyDataEntry:
     """Validates the Family's metadata against its Corpus' Taxonomy.
 
     :param dict taxonomy: The Corpus taxonomy to validate against.

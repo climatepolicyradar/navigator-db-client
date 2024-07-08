@@ -19,10 +19,18 @@ The fields define how metadata gets validated:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 
+from enum import Enum
 from typing import Mapping, Sequence
 
 from pydantic.config import ConfigDict
 from pydantic.dataclasses import dataclass as pydantic_dataclass
+
+
+class EntitySpecificTaxonomyKeys(str, Enum):
+    """The entity specific taxonomy keys."""
+
+    DOCUMENT = "_document"
+    EVENT = "event_type"
 
 
 @pydantic_dataclass(config=ConfigDict(validate_assignment=True, extra="forbid"))
