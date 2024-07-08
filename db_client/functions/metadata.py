@@ -1,7 +1,7 @@
 from typing import Mapping, Optional, Sequence, Union
 
 from sqlalchemy.orm import Session
-from 
+
 from db_client.functions.corpus_helpers import (
     TaxonomyData,
     TaxonomyDataEntry,
@@ -17,7 +17,10 @@ MetadataValidationErrors = Sequence[str]
 
 
 def validate_metadata(
-    db: Session, corpus_id: str, metadata: TaxonomyDataEntry, _entity_key: EntitySpecificTaxonomyKeys
+    db: Session,
+    corpus_id: str,
+    metadata: TaxonomyDataEntry,
+    _entity_key: EntitySpecificTaxonomyKeys,
 ) -> Optional[MetadataValidationErrors]:
     """Validates the metadata against its Corpus' Taxonomy.
 
@@ -82,9 +85,6 @@ def validate_family_metadata(
     return validate_metadata_against_taxonomy(taxonomy, metadata)
 
 
-
-
-
 def validate_metadata_against_taxonomy(
     taxonomy: Union[TaxonomyData, TaxonomyDataEntry], metadata: TaxonomyDataEntry
 ) -> Optional[MetadataValidationErrors]:
@@ -104,9 +104,6 @@ def validate_metadata_against_taxonomy(
 
     errors = _validate_metadata(taxonomy_entries, metadata)
     return errors if len(errors) > 0 else None
-
-
-
 
 
 def _validate_metadata(
