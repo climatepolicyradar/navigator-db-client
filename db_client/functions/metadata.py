@@ -20,7 +20,7 @@ def validate_metadata(
     db: Session,
     corpus_id: str,
     metadata: TaxonomyDataEntry,
-    _entity_key: EntitySpecificTaxonomyKeys,
+    entity_key: EntitySpecificTaxonomyKeys,
 ) -> Optional[MetadataValidationErrors]:
     """Validates the metadata against its Corpus' Taxonomy.
 
@@ -31,9 +31,9 @@ def validate_metadata(
     :param Session db: The Session to query.
     :param str corpus_id: The corpus import ID to retrieve the taxonomy
         for.
-    :param dict metadata: The event metadata to validate.
-    :param str _entity_key: The entity specific key to filter taxonomy
-        by.
+    :param TaxonomyDataEntry metadata: The event metadata to validate.
+    :param EntitySpecificTaxonomyKeys _entity_key: The entity specific
+        key to filter taxonomy by.
     :return Optional[MetadataValidationResult]: A list of errors or None
         if the metadata is valid.
     """
@@ -42,7 +42,7 @@ def validate_metadata(
         raise TypeError("No taxonomy found for corpus")
 
     # Make sure we only get the entity specific taxonomy keys.
-    taxonomy = get_entity_specific_taxonomy(taxonomy, _entity_key)
+    taxonomy = get_entity_specific_taxonomy(taxonomy, entity_key)
     return validate_metadata_against_taxonomy(taxonomy, metadata)
 
 
