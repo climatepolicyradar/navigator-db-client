@@ -16,19 +16,24 @@ from db_client.models.dfce.taxonomy_entry import (
 MetadataValidationErrors = Sequence[str]
 
 
-def validate_family_metadata(
-    db: Session, corpus_id: str, metadata: TaxonomyDataEntry
+def validate_metadata(
+    db: Session,
+    corpus_id: str,
+    metadata: TaxonomyDataEntry,
+    entity_key: Optional[EntitySpecificTaxonomyKeys] = None,
 ) -> Optional[MetadataValidationErrors]:
-    """Validates the Family's metadata against its Corpus' Taxonomy.
+    """Validates the metadata against its Corpus' Taxonomy.
 
     NOTE: That the taxonomy is also validated. This is because the
     Taxonomy is stored in the database and can be mutated independently
-    of the Family's metadata.
+    of the metadata.
 
     :param Session db: The Session to query.
     :param str corpus_id: The corpus import ID to retrieve the taxonomy
         for.
-    :param dict metadata: The family metadata to validate.
+    :param TaxonomyDataEntry metadata: The event metadata to validate.
+    :param EntitySpecificTaxonomyKeys _entity_key: The entity specific
+        key to filter taxonomy by.
     :return Optional[MetadataValidationResult]: A list of errors or None
         if the metadata is valid.
     """
@@ -36,47 +41,20 @@ def validate_family_metadata(
     if taxonomy is None:
         raise TypeError("No taxonomy found for corpus")
 
-    # Make sure we only get the family taxonomy keys.
-    # TODO: When we move the family schema under _family we can consolidate these entity
-    # specific validation functions.
-    taxonomy = {
-        k: v
-        for (k, v) in taxonomy.items()
-        if k
-        not in [
-            EntitySpecificTaxonomyKeys.DOCUMENT.value,
-            EntitySpecificTaxonomyKeys.EVENT.value,
-        ]
-    }
-    return validate_metadata_against_taxonomy(taxonomy, metadata)
-
-
-def validate_document_metadata(
-    db, corpus_id: str, metadata: TaxonomyDataEntry
-) -> Optional[MetadataValidationErrors]:
-    """Validates the Document's metadata against its Corpus' Taxonomy.
-
-    NOTE: That the taxonomy is also validated. This is because the
-    Taxonomy is stored in the database and can be mutated independently
-    of the Family's metadata.
-
-    :param Session db: The Session to query.
-    :param str corpus_id: The corpus import ID to retrieve the taxonomy
-        for.
-    :param TaxonomyDataEntry metadata: The document metadata to validate.
-    :return Optional[MetadataValidationResult]: A list of errors or None
-        if the metadata is valid.
-    """
-    taxonomy = get_taxonomy_from_corpus(db, corpus_id)
-    if taxonomy is None:
-        raise TypeError("No taxonomy found for corpus")
-
-    # Make sure we only get the document taxonomy keys.
-    # TODO: When we move the family schema under _family we can consolidate these entity
-    # specific validation functions.
-    taxonomy = get_entity_specific_taxonomy(
-        taxonomy, EntitySpecificTaxonomyKeys.DOCUMENT.value
-    )
+    # Make sure we only get the entity specific taxonomy keys.
+    if entity_key is None:
+        # Assume that we are validating family metadata.
+        taxonomy = {
+            k: v
+            for (k, v) in taxonomy.items()
+            if k
+            not in [
+                EntitySpecificTaxonomyKeys.DOCUMENT.value,
+                EntitySpecificTaxonomyKeys.EVENT.value,
+            ]
+        }
+    else:
+        taxonomy = get_entity_specific_taxonomy(taxonomy, entity_key)
     return validate_metadata_against_taxonomy(taxonomy, metadata)
 
 
@@ -97,11 +75,11 @@ def validate_metadata_against_taxonomy(
         # Wrap any TypeError in a more general error
         raise TypeError("Bad Taxonomy data in database") from e
 
-    errors = validate_metadata(taxonomy_entries, metadata)
+    errors = _validate_metadata(taxonomy_entries, metadata)
     return errors if len(errors) > 0 else None
 
 
-def validate_metadata(
+def _validate_metadata(
     taxonomy_entries: Mapping[str, TaxonomyEntry], metadata: Mapping
 ) -> MetadataValidationErrors:
     """Validates the metadata against the taxonomy.
