@@ -2,7 +2,7 @@ import pytest
 from pydantic import ValidationError
 from pytest_mock_resources import create_postgres_fixture
 
-from db_client.functions.metadata import _validate_metadata_against_taxonomy
+from db_client.functions.metadata import validate_metadata_against_taxonomy
 from db_client.models.base import Base
 from tests.functions.helpers import family_build, metadata_build
 
@@ -23,7 +23,7 @@ def test_validation_fails_when_taxonomy_bad(db):
     setup_test(db, taxonomy, metadata)
 
     with pytest.raises(TypeError) as e:
-        _validate_metadata_against_taxonomy(taxonomy, metadata)
+        validate_metadata_against_taxonomy(taxonomy, metadata)
 
     assert str(e.value) == EXPECTED_BAD_TAXONOMY
     inner = e.value.__cause__
@@ -40,7 +40,7 @@ def test_validation_fails_when_taxonomy_missing_allow_blanks(db):
     metadata = {"metadata": "anything"}
     setup_test(db, taxonomy, metadata)
     with pytest.raises(ValidationError) as e:
-        _validate_metadata_against_taxonomy(taxonomy, metadata)
+        validate_metadata_against_taxonomy(taxonomy, metadata)
 
     assert len(e.value.errors()) == 1
     error = e.value.errors()[0]
@@ -58,7 +58,7 @@ def test_validation_fails_when_taxonomy_missing_allowed_values(db):
     metadata = {"metadata": "anything"}
     setup_test(db, taxonomy, metadata)
     with pytest.raises(ValidationError) as e:
-        _validate_metadata_against_taxonomy(taxonomy, metadata)
+        validate_metadata_against_taxonomy(taxonomy, metadata)
 
     assert len(e.value.errors()) == 1
     error = e.value.errors()[0]
@@ -78,7 +78,7 @@ def test_validation_fails_when_taxonomy_has_extra(db):
     metadata = {"metadata": "anything"}
     setup_test(db, taxonomy, metadata)
     with pytest.raises(ValidationError) as e:
-        _validate_metadata_against_taxonomy(taxonomy, metadata)
+        validate_metadata_against_taxonomy(taxonomy, metadata)
 
     assert len(e.value.errors()) == 1
     error = e.value.errors()[0]
@@ -102,7 +102,7 @@ def test_validation_when_good(db):
     metadata = {"author_type": ["Party"], "animals": ["sheep"]}
     setup_test(db, taxonomy, metadata)
 
-    errors = _validate_metadata_against_taxonomy(taxonomy, metadata)
+    errors = validate_metadata_against_taxonomy(taxonomy, metadata)
 
     assert errors is None
 
@@ -117,7 +117,7 @@ def test_validation_errors_on_extra_keys(db):
     metadata = {"author_type": ["Party"], "animals": ["sheep"]}
     setup_test(db, taxonomy, metadata)
 
-    errors = _validate_metadata_against_taxonomy(taxonomy, metadata)
+    errors = validate_metadata_against_taxonomy(taxonomy, metadata)
 
     assert errors is not None
     assert len(errors) == 1
@@ -139,7 +139,7 @@ def test_validation_errors_on_missing_keys(db):
     metadata = {"author_type": ["Party"]}
     setup_test(db, taxonomy, metadata)
 
-    errors = _validate_metadata_against_taxonomy(taxonomy, metadata)
+    errors = validate_metadata_against_taxonomy(taxonomy, metadata)
 
     assert errors is not None
     assert len(errors) == 1
@@ -156,7 +156,7 @@ def test_validation_errors_on_blanks(db):
     metadata = {"animals": []}
     setup_test(db, taxonomy, metadata)
 
-    errors = _validate_metadata_against_taxonomy(taxonomy, metadata)
+    errors = validate_metadata_against_taxonomy(taxonomy, metadata)
 
     assert errors is not None
     assert len(errors) == 1
@@ -173,7 +173,7 @@ def test_validation_allows_blanks(db):
     metadata = {"animals": []}
     setup_test(db, taxonomy, metadata)
 
-    errors = _validate_metadata_against_taxonomy(taxonomy, metadata)
+    errors = validate_metadata_against_taxonomy(taxonomy, metadata)
 
     assert errors is None
 
@@ -188,7 +188,7 @@ def test_validation_errors_on_disallowed_values(db):
     metadata = {"animals": ["cat"]}
     setup_test(db, taxonomy, metadata)
 
-    errors = _validate_metadata_against_taxonomy(taxonomy, metadata)
+    errors = validate_metadata_against_taxonomy(taxonomy, metadata)
 
     assert errors is not None
     assert len(errors) == 1
@@ -205,7 +205,7 @@ def test_validation_allows_values(db):
     metadata = {"animals": ["sheep"]}
     setup_test(db, taxonomy, metadata)
 
-    errors = _validate_metadata_against_taxonomy(taxonomy, metadata)
+    errors = validate_metadata_against_taxonomy(taxonomy, metadata)
 
     assert errors is None
 
@@ -221,6 +221,6 @@ def test_validation_allows_any(db):
     metadata = {"animals": ["cat"]}
     setup_test(db, taxonomy, metadata)
 
-    errors = _validate_metadata_against_taxonomy(taxonomy, metadata)
+    errors = validate_metadata_against_taxonomy(taxonomy, metadata)
 
     assert errors is None

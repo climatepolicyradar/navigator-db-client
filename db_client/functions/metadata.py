@@ -1,8 +1,10 @@
-from typing import Mapping, Optional, Sequence
+from typing import Mapping, Optional, Sequence, Union
 
 from sqlalchemy.orm import Session
 
 from db_client.functions.corpus_helpers import (
+    TaxonomyData,
+    TaxonomyDataEntry,
     get_entity_specific_taxonomy,
     get_taxonomy_from_corpus,
 )
@@ -12,7 +14,7 @@ MetadataValidationErrors = Sequence[str]
 
 
 def validate_family_metadata(
-    db: Session, corpus_id: str, metadata
+    db: Session, corpus_id: str, metadata: TaxonomyDataEntry
 ) -> Optional[MetadataValidationErrors]:
     """Validates the Family's metadata against its Corpus' Taxonomy.
 
@@ -37,11 +39,11 @@ def validate_family_metadata(
     taxonomy = {
         k: v for (k, v) in taxonomy.items() if k not in ["_document", "event_type"]
     }
-    return _validate_metadata_against_taxonomy(taxonomy, metadata)
+    return validate_metadata_against_taxonomy(taxonomy, metadata)
 
 
 def validate_document_metadata(
-    db, corpus_id: str, metadata
+    db, corpus_id: str, metadata: TaxonomyDataEntry
 ) -> Optional[MetadataValidationErrors]:
     """Validates the Document's metadata against its Corpus' Taxonomy.
 
@@ -52,7 +54,7 @@ def validate_document_metadata(
     :param Session db: The Session to query.
     :param str corpus_id: The corpus import ID to retrieve the taxonomy
         for.
-    :param dict metadata: The document metadata to validate.
+    :param TaxonomyDataEntry metadata: The document metadata to validate.
     :return Optional[MetadataValidationResult]: A list of errors or None
         if the metadata is valid.
     """
@@ -64,14 +66,16 @@ def validate_document_metadata(
     # TODO: When we move the family schema under _family we can consolidate these entity
     # specific validation functions.
     taxonomy = get_entity_specific_taxonomy(taxonomy, "_document")
-    return _validate_metadata_against_taxonomy(taxonomy, metadata)
+    return validate_metadata_against_taxonomy(taxonomy, metadata)
 
 
-def _validate_metadata_against_taxonomy(taxonomy, metadata):
+def validate_metadata_against_taxonomy(
+    taxonomy: Union[TaxonomyData, TaxonomyDataEntry], metadata: TaxonomyDataEntry
+) -> Optional[MetadataValidationErrors]:
     """Build the Corpus taxonomy for the entity & validate against it.
 
-    :param dict taxonomy: The Corpus taxonomy to validate against.
-    :param dict metadata: The metadata to validate.
+    :param TaxonomyDataEntry taxonomy: The Corpus taxonomy to validate against.
+    :param TaxonomyDataEntry metadata: The metadata to validate.
     :raises TypeError: If the Taxonomy is invalid.
     :return Optional[MetadataValidationResult]: A list of errors or None
         if the metadata is valid.
