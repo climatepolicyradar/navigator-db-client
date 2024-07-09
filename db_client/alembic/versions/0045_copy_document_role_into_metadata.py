@@ -6,7 +6,9 @@ Create Date: 2024-07-09 14:01:33.721363
 
 """
 
+import sqlalchemy as sa
 from alembic import op
+from sqlalchemy.dialects import postgresql
 
 revision = "0045"
 down_revision = "0044"
@@ -26,6 +28,12 @@ FROM (
 ) AS subquery
 WHERE family_document.import_id = subquery.import_id
 AND family_document.valid_metadata IS NULL"""
+    )
+    op.alter_column(
+        "family_document",
+        "valid_metadata",
+        existing_type=postgresql.JSONB(astext_type=sa.Text()),
+        nullable=False,
     )
 
 
