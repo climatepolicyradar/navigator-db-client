@@ -1,0 +1,273 @@
+[
+  {
+    "name": "Accord",
+    "description": "Accord"
+  },
+  {
+    "name": "Act",
+    "description": "Act"
+  },
+  {
+    "name": "Action Plan",
+    "description": "Action Plan"
+  },
+  {
+    "name": "Agenda",
+    "description": "Agenda"
+  },
+  {
+    "name": "Annex",
+    "description": "Annex"
+  },
+  {
+    "name": "Assessment",
+    "description": "Assessment"
+  },
+  {
+    "name": "Bill",
+    "description": "Bill"
+  },
+  {
+    "name": "Constitution",
+    "description": "Constitution"
+  },
+  {
+    "name": "Criteria",
+    "description": "Criteria"
+  },
+  {
+    "name": "Decision",
+    "description": "Decision"
+  },
+  {
+    "name": "Decision and Plan",
+    "description": "Decision and Plan"
+  },
+  {
+    "name": "Decree",
+    "description": "Decree"
+  },
+  {
+    "name": "Decree Law",
+    "description": "Decree Law"
+  },
+  {
+    "name": "Directive",
+    "description": "Directive"
+  },
+  {
+    "name": "Discussion Paper",
+    "description": "Discussion Paper"
+  },
+  {
+    "name": "Edict",
+    "description": "Edict"
+  },
+  {
+    "name": "EU Decision",
+    "description": "EU Decision"
+  },
+  {
+    "name": "EU Directive",
+    "description": "EU Directive"
+  },
+  {
+    "name": "EU Regulation",
+    "description": "EU Regulation"
+  },
+  {
+    "name": "Executive Order",
+    "description": "Executive Order"
+  },
+  {
+    "name": "Framework",
+    "description": "Framework"
+  },
+  {
+    "name": "Law",
+    "description": "Law"
+  },
+  {
+    "name": "Law and Plan",
+    "description": "Law and Plan"
+  },
+  {
+    "name": "Order",
+    "description": "Order"
+  },
+  {
+    "name": "Ordinance",
+    "description": "Ordinance"
+  },
+  {
+    "name": "Plan",
+    "description": "Plan"
+  },
+  {
+    "name": "Policy",
+    "description": "Policy"
+  },
+  {
+    "name": "Press Release",
+    "description": "Press Release"
+  },
+  {
+    "name": "Programme",
+    "description": "Programme"
+  },
+  {
+    "name": "Protocol",
+    "description": "Protocol"
+  },
+  {
+    "name": "Roadmap",
+    "description": "Roadmap"
+  },
+  {
+    "name": "Regulation",
+    "description": "Regulation"
+  },
+  {
+    "name": "Resolution",
+    "description": "Resolution"
+  },
+  {
+    "name": "Royal Decree",
+    "description": "Royal Decree"
+  },
+  {
+    "name": "Rules",
+    "description": "Rules"
+  },
+  {
+    "name": "Statement",
+    "description": "Statement"
+  },
+  {
+    "name": "Strategic Assessment",
+    "description": "Strategic Assessment"
+  },
+  {
+    "name": "Strategy",
+    "description": "Strategy"
+  },
+  {
+    "name": "Summary",
+    "description": "Summary"
+  },
+  {
+    "name": "Vision",
+    "description": "Vision"
+  },
+  {
+    "name": "Biennial Report"
+  },
+  {
+    "name": "Biennial Update Report"
+  },
+  {
+    "name": "Facilitative Sharing of Views Report"
+  },
+  {
+    "name": "Global Stocktake Synthesis Report"
+  },
+  {
+    "name": "Industry Report"
+  },
+  {
+    "name": "Intersessional Document"
+  },
+  {
+    "name": "Long-Term Low-Emission Development Strategy"
+  },
+  {
+    "name": "National Communication"
+  },
+  {
+    "name": "National Inventory Report"
+  },
+  {
+    "name": "Pre-Session Document"
+  },
+  {
+    "name": "Progress Report"
+  },
+  {
+    "name": "Publication"
+  },
+  {
+    "name": "Report"
+  },
+  {
+    "name": "Statement"
+  },
+  {
+    "name": "Submission to the Global Stocktake"
+  },
+  {
+    "name": "Summary Report"
+  },
+  {
+    "name": "Synthesis Report"
+  },
+  {
+    "name": "Technical Analysis Summary Report"
+  },
+  {
+    "name": "Nationally Determined Contribution"
+  },
+  {
+    "name": "Adaptation Communication"
+  },
+  {
+    "name": "National Adaptation Plan"
+  },
+  {
+    "name": "Technology Needs Assessment"
+  },
+  {
+    "name": "Fast-Start Finance Report"
+  },
+  {
+    "name": "IPCC Report"
+  },
+  {
+    "name": "Annual Compilation and Accounting Report"
+  },
+  {
+    "name": "Biennial Report,National Communication"
+  },
+  {
+    "name": "Biennial Update Report,National Communication"
+  },
+  {
+    "name": "National Adaptation Plan,Adaptation Communication"
+  },
+  {
+    "name": "National Communication,Biennial Report"
+  },
+  {
+    "name": "National Communication,Biennial Update Report"
+  },
+  {
+    "name": "Nationally Determined Contribution,Adaptation Communication"
+  },
+  {
+    "name": "Nationally Determined Contribution,National Communication"
+  },
+  {
+    "name": "Pre-Session Document,Annual Compilation and Accounting Report"
+  },
+  {
+    "name": "Pre-Session Document,Progress Report"
+  },
+  {
+    "name": "Pre-Session Document,Synthesis Report"
+  },
+  {
+    "name": "Publication,Report"
+  },
+  {
+    "name": "Technical Analysis Technical Report"
+  }
+]
