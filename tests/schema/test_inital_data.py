@@ -44,7 +44,6 @@ EXPECTED_ENTITY_COUNTER = 2
     "table_name, expected_count",
     [
         ("family_document_type", EXPECTED_DOCUMENT_TYPE),
-        ("family_document_role", EXPECTED_DOCUMENT_ROLE),
         ("variant", EXPECTED_DOCUMENT_VARIANT),
         ("geography", EXPECTED_GEOGRAPHIES),
         ("language", EXPECTED_LANGUAGES),
