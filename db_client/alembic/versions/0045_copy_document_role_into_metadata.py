@@ -1,7 +1,7 @@
 """Copy document role into metadata.
 
 Revision ID: 0045
-Revises: 0043
+Revises: 0044
 Create Date: 2024-07-09 14:01:33.721363
 
 """
