@@ -168,18 +168,6 @@ class DocumentStatus(BaseModelEnum):
     DELETED = "Deleted"
 
 
-class FamilyDocumentType(Base):
-    """
-    A document type.
-
-    E.g. strategy, plan, law
-    """
-
-    __tablename__ = "family_document_type"
-    name = sa.Column(sa.Text, primary_key=True)
-    description = sa.Column(sa.Text, nullable=False)
-
-
 class FamilyDocument(Base):
     """A link between a Family and a PhysicalDocument."""
 
@@ -198,7 +186,6 @@ class FamilyDocument(Base):
     document_status = sa.Column(
         sa.Enum(DocumentStatus), default=DocumentStatus.CREATED, nullable=False
     )
-    document_type = sa.Column(sa.ForeignKey(FamilyDocumentType.name), nullable=True)
     created = sa.Column(
         sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
     )
