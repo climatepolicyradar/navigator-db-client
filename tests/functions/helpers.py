@@ -21,7 +21,7 @@ def metadata_build(db, taxonomy):
     """
 
     # First add the dummy Organisation to the database
-    dummy_org = add_organisation(db, "Org1", "", "")
+    dummy_org = add_organisation(db, "Org1", "", "", "Org1")
 
     # now add a dummy CorpusType with the taxonomy passed in
     # NOTE: this is normally done with a data migration
