@@ -16,8 +16,7 @@ depends_on = None
 
 
 def upgrade():
-    with op.get_context().autocommit_block():
-        op.execute("ALTER TYPE familycategory ADD VALUE 'MCF'")
+    op.execute("ALTER TYPE familycategory ADD VALUE 'MCF'")
 
 
 def downgrade():
