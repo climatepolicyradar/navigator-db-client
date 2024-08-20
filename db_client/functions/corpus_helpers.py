@@ -30,6 +30,21 @@ def get_taxonomy_from_corpus(db: Session, corpus_id: str) -> Optional[TaxonomyDa
     )
 
 
+def get_taxonomy_by_corpus_type_name(db: Session, corpus_type_name: str):
+    """Get the taxonomy of a corpus by type name.
+    :param Session db: The DB session to connect to.
+    :param str corpus_type_name: The name of the corpus type we want to get the
+        taxonomy for.
+    :return Optional[TaxonomyData]: The taxonomy of the given corpus or
+        None.
+    """
+    return (
+        db.query(CorpusType.valid_metadata)
+        .filter(CorpusType.name == corpus_type_name)
+        .scalar()
+    )
+
+
 def get_entity_specific_taxonomy(
     taxonomy, _entity_key: Optional[str] = None
 ) -> TaxonomyDataEntry:
