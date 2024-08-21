@@ -62,6 +62,14 @@ class Family(Base):
     slugs: list["Slug"] = relationship(
         "Slug", lazy="joined", order_by="desc(Slug.created)"
     )
+    # Define the relationship to Geography through the FamilyGeography link table
+    geographies = relationship(
+        "Geography",
+        secondary="family_geography",
+        primaryjoin="Family.import_id == FamilyGeography.family_import_id",
+        secondaryjoin="Geography.id == FamilyGeography.geography_id",
+        order_by="Geography.slug",
+    )
     events: list["FamilyEvent"] = relationship(
         "FamilyEvent",
         lazy="joined",
@@ -206,6 +214,16 @@ class FamilyDocument(Base):
     )
 
     valid_metadata = sa.Column(postgresql.JSONB, nullable=False)
+
+
+class FamilyGeography(Base):  # noqa: D101
+    """Database model for a Family's Geographys"""
+
+    __tablename__ = "family_geography"
+
+    geography_id = sa.Column(sa.ForeignKey(Geography.id), nullable=False)
+    family_import_id = sa.Column(sa.ForeignKey(Family.import_id), nullable=False)
+    sa.PrimaryKeyConstraint(geography_id, family_import_id)
 
 
 class Slug(Base):
