@@ -55,13 +55,6 @@ def validate_metadata(
                 EntitySpecificTaxonomyKeys.EVENT.value,
             ]
         }
-    elif entity_key == EntitySpecificTaxonomyKeys.EVENT.value:
-        _LOGGER.info("event")
-        taxonomy = {
-            k: v
-            for (k, v) in taxonomy.items()
-            if k == EntitySpecificTaxonomyKeys.EVENT.value
-        }
     else:
         taxonomy = get_entity_specific_taxonomy(taxonomy, entity_key)
     return validate_metadata_against_taxonomy(taxonomy, metadata)
