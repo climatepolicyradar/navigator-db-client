@@ -1,5 +1,5 @@
 import logging
-from typing import Mapping, Optional, Sequence, Union, cast
+from typing import Mapping, Optional, Sequence, Union
 
 from sqlalchemy.orm import Session
 
@@ -56,7 +56,12 @@ def validate_metadata(
             ]
         }
     elif entity_key == EntitySpecificTaxonomyKeys.EVENT.value:
-        taxonomy = cast(TaxonomyDataEntry, taxonomy[entity_key])
+        _LOGGER.info("event")
+        taxonomy = {
+            k: v
+            for (k, v) in taxonomy.items()
+            if k == EntitySpecificTaxonomyKeys.EVENT.value
+        }
     else:
         taxonomy = get_entity_specific_taxonomy(taxonomy, entity_key)
     return validate_metadata_against_taxonomy(taxonomy, metadata)
