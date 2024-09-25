@@ -1,3 +1,4 @@
+import logging
 from typing import Mapping, Optional, Sequence, Union
 
 from sqlalchemy.orm import Session
@@ -14,6 +15,7 @@ from db_client.models.dfce.taxonomy_entry import (
 )
 
 MetadataValidationErrors = Sequence[str]
+_LOGGER = logging.getLogger(__name__)
 
 
 def validate_metadata(
@@ -72,6 +74,7 @@ def validate_metadata_against_taxonomy(
     try:
         taxonomy_entries = build_valid_taxonomy(taxonomy)
     except TypeError as e:
+        _LOGGER.error(e)
         # Wrap any TypeError in a more general error
         raise TypeError("Bad Taxonomy data in database") from e
 
@@ -143,7 +146,6 @@ def build_valid_taxonomy(taxonomy: Mapping) -> Mapping[str, TaxonomyEntry]:
 
     taxonomy_entries: Mapping[str, TaxonomyEntry] = {}
     for key, values in taxonomy.items():
-
         if not isinstance(values, dict):
             raise TypeError(f"Taxonomy entry for '{key}' is not a dictionary")
 
