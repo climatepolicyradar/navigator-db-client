@@ -52,8 +52,6 @@ class Family(Base):
     title = sa.Column(sa.Text, nullable=False)
     import_id = sa.Column(sa.Text, primary_key=True)
     description = sa.Column(sa.Text, nullable=False)
-    # TODO Remove geography_id once we have the family_geography table
-    geography_id = sa.Column(sa.ForeignKey(Geography.id), nullable=True, default=None)
     family_category = sa.Column(sa.Enum(FamilyCategory), nullable=False)
 
     family_documents: list["FamilyDocument"] = relationship(
