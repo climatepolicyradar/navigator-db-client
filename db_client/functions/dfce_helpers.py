@@ -9,6 +9,7 @@ from db_client.models.dfce import (
     Family,
     FamilyDocument,
     FamilyEvent,
+    FamilyGeography,
     FamilyMetadata,
     Slug,
 )
@@ -61,17 +62,25 @@ def add_families(db: Session, families, org_id=1):
                 import_id=f["import_id"],
                 title=f["title"],
                 description=f["description"],
-                geography_id=f["geography_id"],
                 family_category=f["category"],
             )
         )
         db.flush()
+
         new_slug = Slug(
             family_import_id=f["import_id"],
             family_document_import_id=None,
             name=f["slug"],
         )
         db.add(new_slug)
+
+        db.add(
+            FamilyGeography(
+                family_import_id=f["import_id"],
+                geography_id=f["geography_id"],
+            )
+        )
+
         for d in f["documents"]:
             add_document(db, f["import_id"], d)
 
