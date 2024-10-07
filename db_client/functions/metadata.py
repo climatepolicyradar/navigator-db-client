@@ -1,3 +1,4 @@
+import logging
 from typing import Mapping, Optional, Sequence, Union
 
 from sqlalchemy.orm import Session
@@ -14,6 +15,7 @@ from db_client.models.dfce.taxonomy_entry import (
 )
 
 MetadataValidationErrors = Sequence[str]
+_LOGGER = logging.getLogger(__name__)
 
 
 def validate_metadata(
@@ -70,8 +72,9 @@ def validate_metadata_against_taxonomy(
         if the metadata is valid.
     """
     try:
-        taxonomy_entries = build_valid_taxonomy(taxonomy)
+        taxonomy_entries = build_valid_taxonomy(taxonomy, metadata)
     except TypeError as e:
+        _LOGGER.error(e)
         # Wrap any TypeError in a more general error
         raise TypeError("Bad Taxonomy data in database") from e
 
@@ -122,7 +125,9 @@ def _validate_metadata(
     return errors
 
 
-def build_valid_taxonomy(taxonomy: Mapping) -> Mapping[str, TaxonomyEntry]:
+def build_valid_taxonomy(
+    taxonomy: Mapping, metadata: Optional[TaxonomyDataEntry] = None
+) -> Mapping[str, TaxonomyEntry]:
     """Build valid taxonomy used to validate metadata against.
 
     Takes the taxonomy from the database and builds a dictionary of
@@ -130,6 +135,8 @@ def build_valid_taxonomy(taxonomy: Mapping) -> Mapping[str, TaxonomyEntry]:
 
     :param Sequence taxonomy: From the database model
         CorpusType.valid_metadata and potentially filtered by entity key
+    :param Optional[TaxonomyDataEntry] metadata: The metadata to
+        validate.
     :raises TypeError: If the taxonomy is not a list.
     :raises TypeError: If the taxonomy entry is not a dictionary.
     :raises TypeError: If the values within the taxonomy entry are not
@@ -142,8 +149,22 @@ def build_valid_taxonomy(taxonomy: Mapping) -> Mapping[str, TaxonomyEntry]:
         raise TypeError("Taxonomy is not a dictionary")
 
     taxonomy_entries: Mapping[str, TaxonomyEntry] = {}
-    for key, values in taxonomy.items():
 
+    # TODO: Remove as part of PDCT-1435.
+    if (
+        all(
+            k in ["allow_any", "allow_blanks", "allowed_values"]
+            for k in list(taxonomy.keys())
+        )
+        and metadata is not None
+        and list(metadata.keys()) == [EntitySpecificTaxonomyKeys.EVENT.value]
+    ):
+        taxonomy_entries[EntitySpecificTaxonomyKeys.EVENT.value] = TaxonomyEntry(
+            **taxonomy
+        )
+        return taxonomy_entries
+
+    for key, values in taxonomy.items():
         if not isinstance(values, dict):
             raise TypeError(f"Taxonomy entry for '{key}' is not a dictionary")
 
