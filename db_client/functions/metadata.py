@@ -171,6 +171,7 @@ def build_valid_taxonomy(
                 f"metadata {metadata}, "
                 f"{all(k in list(taxonomy.keys()) for k in ['allow_any', 'allow_blanks', 'allowed_values'])}"
                 f"{all(k in ['allow_any', 'allow_blanks', 'allowed_values'] for k in list(taxonomy.keys()))}"
+                f"{metadata.keys() == [EntitySpecificTaxonomyKeys.EVENT.value] if metadata is not None else None}"
             )
 
         # We rely on pydantic to validate the values here
