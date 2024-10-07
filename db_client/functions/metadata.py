@@ -151,6 +151,7 @@ def build_valid_taxonomy(
     taxonomy_entries: Mapping[str, TaxonomyEntry] = {}
 
     # TODO: Remove as part of PDCT-1435.
+    _LOGGER.info(taxonomy.keys())
     if (
         all(
             k in ["allow_any", "allow_blanks", "allowed_values"]
