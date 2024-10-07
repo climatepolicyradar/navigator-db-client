@@ -168,7 +168,7 @@ def build_valid_taxonomy(
     for key, values in taxonomy.items():
         if not isinstance(values, dict):
             raise TypeError(
-                f"Taxonomy entry for '{key}' is not a dictionary: {taxonomy.keys()}"
+                f"Taxonomy entry for '{key}' is not a dictionary: {taxonomy.keys()}, metadata {metadata}"
             )
 
         # We rely on pydantic to validate the values here
