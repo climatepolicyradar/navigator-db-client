@@ -154,8 +154,8 @@ def build_valid_taxonomy(
     _LOGGER.info(taxonomy.keys())
     if (
         all(
-            k in ["allow_any", "allow_blanks", "allowed_values"]
-            for k in taxonomy.keys()
+            k in taxonomy.keys()
+            for k in ["allow_any", "allow_blanks", "allowed_values"]
         )
         and metadata is not None
         and metadata.keys() == [EntitySpecificTaxonomyKeys.EVENT.value]
