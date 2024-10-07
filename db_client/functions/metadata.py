@@ -142,9 +142,13 @@ def build_valid_taxonomy(taxonomy: Mapping) -> Mapping[str, TaxonomyEntry]:
         raise TypeError("Taxonomy is not a dictionary")
 
     taxonomy_entries: Mapping[str, TaxonomyEntry] = {}
-    for key, values in taxonomy.items():
 
-        if not isinstance(values, dict):
+    for key, values in taxonomy.items():
+        if key not in [
+            "allow_any",
+            "allow_blanks",
+            "allowed_values",
+        ] and not isinstance(values, dict):
             raise TypeError(f"Taxonomy entry for '{key}' is not a dictionary")
 
         # We rely on pydantic to validate the values here
