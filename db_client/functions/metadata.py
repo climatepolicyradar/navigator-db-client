@@ -151,10 +151,9 @@ def build_valid_taxonomy(
     taxonomy_entries: Mapping[str, TaxonomyEntry] = {}
 
     # TODO: Remove as part of PDCT-1435.
-    _LOGGER.info(taxonomy.keys())
     if (
         all(
-            k in taxonomy.keys()
+            k in list(taxonomy.keys())
             for k in ["allow_any", "allow_blanks", "allowed_values"]
         )
         and metadata is not None
@@ -168,7 +167,10 @@ def build_valid_taxonomy(
     for key, values in taxonomy.items():
         if not isinstance(values, dict):
             raise TypeError(
-                f"Taxonomy entry for '{key}' is not a dictionary: {taxonomy.keys()}, metadata {metadata}"
+                f"Taxonomy entry for '{key}' is not a dictionary: {taxonomy.keys()}, "
+                f"metadata {metadata}, "
+                f"{all(k in list(taxonomy.keys()) for k in ['allow_any', 'allow_blanks', 'allowed_values'])}"
+                f"{all(k in ['allow_any', 'allow_blanks', 'allowed_values'] for k in list(taxonomy.keys()))}"
             )
 
         # We rely on pydantic to validate the values here
