@@ -153,11 +153,11 @@ def build_valid_taxonomy(
     # TODO: Remove as part of PDCT-1435.
     if (
         all(
-            k in list(taxonomy.keys())
-            for k in ["allow_any", "allow_blanks", "allowed_values"]
+            k in ["allow_any", "allow_blanks", "allowed_values"]
+            for k in list(taxonomy.keys())
         )
         and metadata is not None
-        and metadata.keys() == [EntitySpecificTaxonomyKeys.EVENT.value]
+        and list(metadata.keys()) == [EntitySpecificTaxonomyKeys.EVENT.value]
     ):
         taxonomy_entries[EntitySpecificTaxonomyKeys.EVENT.value] = TaxonomyEntry(
             **taxonomy
@@ -166,14 +166,7 @@ def build_valid_taxonomy(
 
     for key, values in taxonomy.items():
         if not isinstance(values, dict):
-            raise TypeError(
-                f"Taxonomy entry for '{key}' is not a dictionary: {taxonomy.keys()}, "
-                f"metadata {metadata}, "
-                f"{all(k in list(taxonomy.keys()) for k in ['allow_any', 'allow_blanks', 'allowed_values'])}"
-                f"{all(k in ['allow_any', 'allow_blanks', 'allowed_values'] for k in list(taxonomy.keys()))}"
-                f"{metadata.keys() == [EntitySpecificTaxonomyKeys.EVENT.value] if metadata is not None else None},"
-                f"{list(metadata.keys()) == [EntitySpecificTaxonomyKeys.EVENT.value] if metadata is not None else None}"
-            )
+            raise TypeError(f"Taxonomy entry for '{key}' is not a dictionary")
 
         # We rely on pydantic to validate the values here
         taxonomy_entries[key] = TaxonomyEntry(**values)
