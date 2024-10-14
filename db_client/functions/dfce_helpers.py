@@ -74,12 +74,18 @@ def add_families(db: Session, families, org_id=1):
         )
         db.add(new_slug)
 
-        db.add(
-            FamilyGeography(
-                family_import_id=f["import_id"],
-                geography_id=f["geography_id"],
-            )
+        geo_ids = (
+            f["geography_id"]
+            if isinstance(f["geography_id"], list)
+            else [f["geography_id"]]
         )
+        for geo_id in geo_ids:
+            db.add(
+                FamilyGeography(
+                    family_import_id=f["import_id"],
+                    geography_id=geo_id,
+                )
+            )
 
         for d in f["documents"]:
             add_document(db, f["import_id"], d)
