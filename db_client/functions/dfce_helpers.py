@@ -87,6 +87,8 @@ def add_families(db: Session, families, org_id=1):
                 )
             )
 
+        db.flush()
+
         for d in f["documents"]:
             add_document(db, f["import_id"], d)
 
