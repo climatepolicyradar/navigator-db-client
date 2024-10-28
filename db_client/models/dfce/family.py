@@ -281,6 +281,8 @@ class FamilyEvent(Base):
         nullable=False,
     )
 
+    valid_metadata = sa.Column(postgresql.JSONB, nullable=True)
+
 
 class FamilyCorpus(Base):
     __tablename__ = "family_corpus"
