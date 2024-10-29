@@ -150,21 +150,11 @@ def build_valid_taxonomy(
 
     taxonomy_entries: Mapping[str, TaxonomyEntry] = {}
 
-    # TODO: Remove as part of PDCT-1435.
-    if (
-        all(
-            k in ["allow_any", "allow_blanks", "allowed_values"]
-            for k in list(taxonomy.keys())
-        )
-        and metadata is not None
-        and list(metadata.keys()) == [EntitySpecificTaxonomyKeys.EVENT.value]
-    ):
-        taxonomy_entries[EntitySpecificTaxonomyKeys.EVENT.value] = TaxonomyEntry(
-            **taxonomy
-        )
-        return taxonomy_entries
-
     for key, values in taxonomy.items():
+        # TODO: Can we do extra validation of the taxonomy here - e.g., compare the
+        # metadata datetime_event_name value against the list of allowed event types in
+        # the taxonomy. In fact - split any conditionals under this for loop into a
+        # separate validate_taxonomy function that we can isolate to test against.
         if not isinstance(values, dict):
             raise TypeError(f"Taxonomy entry for '{key}' is not a dictionary")
 
