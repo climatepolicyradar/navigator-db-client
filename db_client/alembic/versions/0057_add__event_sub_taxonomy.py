@@ -39,4 +39,10 @@ def upgrade():
 
 
 def downgrade():
-    pass  # No way back
+    op.execute(
+        sa.text(
+            "UPDATE corpus_type "
+            "SET valid_metadata = valid_metadata - '_event' "
+            "WHERE valid_metadata ? '_event';"
+        )
+    )
