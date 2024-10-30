@@ -34,6 +34,36 @@ EXPECTED_UNFCCC_TAXONOMY = {
             "Updated",
         ],
     },
+    "_event": {
+        "event_type": {
+            "allow_any": False,
+            "allow_blanks": True,
+            "allowed_values": [
+                "Amended",
+                "Appealed",
+                "Closed",
+                "Declaration Of Climate Emergency",
+                "Dismissed",
+                "Entered Into Force",
+                "Filing",
+                "Granted",
+                "Implementation Details",
+                "International Agreement",
+                "Net Zero Pledge",
+                "Other",
+                "Passed/Approved",
+                "Repealed/Replaced",
+                "Set",
+                "Settled",
+                "Updated",
+            ],
+        },
+        "datetime_event_name": {
+            "allow_any": False,
+            "allow_blanks": False,
+            "allowed_values": ["Passed/Approved"],
+        },
+    },
     "_document": {
         "role": {
             "allow_any": False,

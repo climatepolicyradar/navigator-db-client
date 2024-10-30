@@ -14,6 +14,7 @@ EXPECTED_CCLW_TAXONOMY = {
     "instrument",
     "event_type",
     "_document",
+    "_event",
 }
 EXPECTED_CCLW_TOPICS = 4
 EXPECTED_CCLW_HAZARDS = 81
@@ -22,10 +23,17 @@ EXPECTED_CCLW_KEYWORDS = 219
 EXPECTED_CCLW_FRAMEWORKS = 3
 EXPECTED_CCLW_INSTRUMENTS = 25
 
-EXPECTED_UNFCCC_TAXONOMY = {"author", "author_type", "event_type", "_document"}
+EXPECTED_UNFCCC_TAXONOMY = {
+    "author",
+    "author_type",
+    "event_type",
+    "_document",
+    "_event",
+}
 EXPECTED_UNFCCC_AUTHOR_TYPES = 2
 
 EXPECTED_DOCUMENT_TAXONOMY_KEYS = 2
+EXPECTED_EVENT_TAXONOMY_KEYS = 2
 
 EXPECTED_ORGANISATIONS = 2
 EXPECTED_EVENT_TYPES = 17
@@ -128,6 +136,7 @@ def test_corpora_values_correct(
                 ("author_type", EXPECTED_UNFCCC_AUTHOR_TYPES),
                 ("event_type", EXPECTED_EVENT_TYPES),
                 ("_document", EXPECTED_DOCUMENT_TAXONOMY_KEYS),
+                ("_event", EXPECTED_EVENT_TAXONOMY_KEYS),
             ],
         ),
         (
@@ -142,6 +151,7 @@ def test_corpora_values_correct(
                 ("instrument", EXPECTED_CCLW_INSTRUMENTS),
                 ("event_type", EXPECTED_EVENT_TYPES),
                 ("_document", EXPECTED_DOCUMENT_TAXONOMY_KEYS),
+                ("_event", EXPECTED_EVENT_TAXONOMY_KEYS),
             ],
         ),
     ],
@@ -187,6 +197,13 @@ def test_taxonomy_value_counts_correct(
                         ("type", EXPECTED_DOCUMENT_TYPE),
                     ],
                 ),
+                (
+                    "_event",
+                    [
+                        ("datetime_event_name", 1),
+                        ("event_type", EXPECTED_EVENT_TYPES),
+                    ],
+                ),
             ],
         ),
         (
@@ -197,6 +214,13 @@ def test_taxonomy_value_counts_correct(
                     [
                         ("role", EXPECTED_DOCUMENT_ROLE),
                         ("type", EXPECTED_DOCUMENT_TYPE),
+                    ],
+                ),
+                (
+                    "_event",
+                    [
+                        ("datetime_event_name", 1),
+                        ("event_type", EXPECTED_EVENT_TYPES),
                     ],
                 ),
             ],
@@ -251,9 +275,7 @@ def test_entity_specific_taxonomy_value_counts_correct(
         # This will give us _document taxonomy keys such as role, type etc
         entity_specific_keys = schema.keys()
         expected_entity_specific_keys = [
-            _entity_specific_key
-            for _, _entity_specific_keys in expected_taxonomy_items
-            for _entity_specific_key, __ in _entity_specific_keys
+            key for key, _ in entity_specific_taxonomy_items
         ]
 
         test_c = set(entity_specific_keys).difference(
@@ -261,8 +283,8 @@ def test_entity_specific_taxonomy_value_counts_correct(
         )
         if test_c != set():
             logging.error(
-                f"Actual entity specific key(s) {test_c} not present "
-                f"in list of expected entity specific keys {expected_entity_specific_keys}"
+                f"Actual {entity_specific_key} specific key(s) {test_c} not present "
+                f"in list of expected {entity_specific_key} specific keys {expected_entity_specific_keys}"
             )
 
         test_d = set(expected_entity_specific_keys).difference(
@@ -270,8 +292,8 @@ def test_entity_specific_taxonomy_value_counts_correct(
         )
         if test_d != set():
             logging.error(
-                f"Expected entity specific key(s) {test_d} not present "
-                f"in list of actual entity specific keys {entity_specific_keys}"
+                f"Expected {entity_specific_key} specific key(s) {test_d} not present "
+                f"in list of actual {entity_specific_key} specific keys {entity_specific_keys}"
             )
 
         assert set(entity_specific_keys) ^ set(expected_entity_specific_keys) == set()
