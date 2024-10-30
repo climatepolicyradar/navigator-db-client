@@ -30,7 +30,7 @@ class EntitySpecificTaxonomyKeys(str, Enum):
     """The entity specific taxonomy keys."""
 
     DOCUMENT = "_document"
-    EVENT = "event_type"
+    EVENT = "_event"
 
 
 @pydantic_dataclass(config=ConfigDict(validate_assignment=True, extra="forbid"))
