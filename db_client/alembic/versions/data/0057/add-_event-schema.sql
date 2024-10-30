@@ -21,7 +21,7 @@ SET valid_metadata = jsonb_set(
             valid_metadata->'_event'->'event_type',
             jsonb_build_object(
                 'allow_any', false,
-                'allow_blanks', false,
+                'allow_blanks', true,
                 'allowed_values', (
                     SELECT jsonb_agg(value)
                     FROM jsonb_array_elements_text(

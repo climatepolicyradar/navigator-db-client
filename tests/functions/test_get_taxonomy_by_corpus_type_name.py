@@ -60,7 +60,7 @@ EXPECTED_UNFCCC_TAXONOMY = {
         },
         "datetime_event_name": {
             "allow_any": False,
-            "allow_blanks": True,
+            "allow_blanks": False,
             "allowed_values": ["Passed/Approved"],
         },
     },
