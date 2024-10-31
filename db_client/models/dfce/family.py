@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Literal, Optional, cast
 
 import sqlalchemy as sa
+from sqlalchemy import func
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
@@ -140,10 +141,11 @@ class Family(Base):
         ).label("family_status")
 
     @hybrid_property
-    def published_date(self) -> Optional[datetime]:
+    def published_date(self) -> Optional[datetime]:  # type: ignore
         """A date to use for filtering by published date."""
         if not self.events:
             return None
+
         date = None
         for event in self.events:
             event_meta = cast(dict, event.valid_metadata)
@@ -161,6 +163,38 @@ class Family(Base):
             else:
                 date = min(cast(datetime, event.date), date)
         return date
+
+    @published_date.expression
+    def published_date(cls):
+        # Subquery to check if the event_type_name matches the first value of datetime_event_name
+        matching_event_date = (
+            sa.select([cls.events.date])
+            .where(
+                sa.and_(
+                    cls.events.valid_metadata.has_key("_event"),
+                    cls.events.valid_metadata["_event"].has_key("datetime_event_name"),
+                    cls.events.event_type_name
+                    == cls.events.valid_metadata["_event"]["datetime_event_name"][0],
+                )
+            )
+            .order_by(cls.events.date)
+            .limit(1)
+            .as_scalar()
+        )
+
+        # Subquery to get the earliest date from all events
+        earliest_event_date = (
+            sa.select([func.min(cls.events.date)]).where(cls.events.any()).as_scalar()
+        )
+
+        # Main expression logic
+        return sa.case(
+            [
+                (cls.events == None, None),  # noqa: E711  No events, return NULL
+                (matching_event_date != None, matching_event_date),  # noqa: E711 Matching event found
+            ],
+            else_=earliest_event_date,  # Otherwise, return the earliest date
+        ).label("published_date")
 
     @hybrid_property
     def last_updated_date(self) -> Optional[datetime]:
