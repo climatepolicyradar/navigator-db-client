@@ -183,10 +183,7 @@ def _validate_taxonomy(taxonomy: Mapping, key: str, values: Any) -> None:
             raise ValueError(f"Too many values for taxonomy '{key}'")
 
         datetime_event_name_value = datetime_event_name_values[0]
-        if (
-            datetime_event_name_value
-            not in taxonomy["_event"]["event_type"]["allowed_values"]
-        ):
+        if datetime_event_name_value not in taxonomy["event_type"]["allowed_values"]:
             raise ValueError(
                 f"Invalid value '{datetime_event_name_value}' for taxonomy '{key}'"
             )
