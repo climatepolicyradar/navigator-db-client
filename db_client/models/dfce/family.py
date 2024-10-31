@@ -155,6 +155,12 @@ class Family(Base):
                 _LOGGER.error(event_meta)
                 return None
 
+            if not isinstance(event_meta["datetime_event_name"], list):
+                _LOGGER.error(
+                    f"datetime_event_name is type {type(event_meta['datetime_event_name'])}"
+                )
+                return None
+
             datetime_event_name = event_meta["datetime_event_name"][0]
             if event.event_type_name == datetime_event_name:
                 return cast(datetime, event.date)
