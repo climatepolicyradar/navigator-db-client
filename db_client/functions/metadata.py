@@ -152,10 +152,11 @@ def build_valid_taxonomy(
     taxonomy_entries: Mapping[str, TaxonomyEntry] = {}
 
     for key, values in taxonomy.items():
-        # TODO: Can we do extra validation of the taxonomy here - e.g., compare the
-        # metadata datetime_event_name value against the list of allowed event types in
-        # the taxonomy. In fact - split any conditionals under this for loop into a
-        # separate validate_taxonomy function that we can isolate to test against.
+        # FIXME: Can we do extra validation of the taxonomy here - e.g., compare the
+        # metadata datetime_event_name value against the list of allowed event_ypes
+        # under _event in the taxonomy. In fact - split any conditionals under this for
+        # loop into a separate validate_taxonomy function that we can isolate to test
+        # against.
         if not isinstance(values, dict):
             raise TypeError(f"Taxonomy entry for '{key}' is not a dictionary")
 

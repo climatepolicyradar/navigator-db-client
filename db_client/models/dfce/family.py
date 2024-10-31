@@ -146,7 +146,7 @@ class Family(Base):
             return None
         date = None
         for event in self.events:
-            if event.event_type_name == "Passed/Approved":
+            if event.event_type_name == "Passed/Approved":  # FIXME
                 return cast(datetime, event.date)
             if date is None:
                 date = cast(datetime, event.date)
