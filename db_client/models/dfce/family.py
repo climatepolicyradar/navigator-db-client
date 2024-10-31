@@ -1,8 +1,8 @@
+import logging
 from datetime import datetime
 from typing import Literal, Optional, cast
 
 import sqlalchemy as sa
-from sqlalchemy import func
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
@@ -12,6 +12,8 @@ from db_client.models.document import PhysicalDocument
 from db_client.models.organisation import BaseModelEnum, Corpus
 
 from .geography import Geography
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class FamilyCategory(BaseModelEnum):
@@ -149,11 +151,13 @@ class Family(Base):
         date = None
         for event in self.events:
             event_meta = cast(dict, event.valid_metadata)
+            _LOGGER.error(event_meta)
             if (
                 "_event" not in event_meta
                 or "datetime_event_name" not in event_meta["_event"]
             ):
-                return None
+                _LOGGER.error(event_meta)
+                # return None
 
             datetime_event_name = event_meta["_event"]["datetime_event_name"][0]
             if event.event_type_name == datetime_event_name:
@@ -163,38 +167,6 @@ class Family(Base):
             else:
                 date = min(cast(datetime, event.date), date)
         return date
-
-    @published_date.expression
-    def published_date(cls):
-        # Subquery to check if the event_type_name matches the first value of datetime_event_name
-        matching_event_date = (
-            sa.select([cls.events.date])
-            .where(
-                sa.and_(
-                    cls.events.valid_metadata.has_key("_event"),
-                    cls.events.valid_metadata["_event"].has_key("datetime_event_name"),
-                    cls.events.event_type_name
-                    == cls.events.valid_metadata["_event"]["datetime_event_name"][0],
-                )
-            )
-            .order_by(cls.events.date)
-            .limit(1)
-            .as_scalar()
-        )
-
-        # Subquery to get the earliest date from all events
-        earliest_event_date = (
-            sa.select([func.min(cls.events.date)]).where(cls.events.any()).as_scalar()
-        )
-
-        # Main expression logic
-        return sa.case(
-            [
-                (cls.events == None, None),  # noqa: E711  No events, return NULL
-                (matching_event_date != None, matching_event_date),  # noqa: E711 Matching event found
-            ],
-            else_=earliest_event_date,  # Otherwise, return the earliest date
-        ).label("published_date")
 
     @hybrid_property
     def last_updated_date(self) -> Optional[datetime]:
