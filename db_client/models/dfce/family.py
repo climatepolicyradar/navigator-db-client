@@ -143,7 +143,7 @@ class Family(Base):
         ).label("family_status")
 
     @hybrid_property
-    def published_date(self) -> Optional[datetime]:  # type: ignore
+    def published_date(self) -> Optional[datetime]:
         """A date to use for filtering by published date."""
         if not self.events:
             return None
