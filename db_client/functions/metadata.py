@@ -1,5 +1,5 @@
 import logging
-from typing import Mapping, Optional, Sequence, Union
+from typing import Any, Mapping, Optional, Sequence, Union
 
 from sqlalchemy.orm import Session
 
@@ -134,7 +134,7 @@ def build_valid_taxonomy(
     Takes the taxonomy from the database and builds a dictionary of
     TaxonomyEntry objects, used for validation.
 
-    :param Sequence taxonomy: From the database model
+    :param Mapping taxonomy: From the database model
         CorpusType.valid_metadata and potentially filtered by entity key
     :param Optional[TaxonomyDataEntry] metadata: The metadata to
         validate.
@@ -152,15 +152,41 @@ def build_valid_taxonomy(
     taxonomy_entries: Mapping[str, TaxonomyEntry] = {}
 
     for key, values in taxonomy.items():
-        # FIXME: Can we do extra validation of the taxonomy here - e.g., compare the
-        # metadata datetime_event_name value against the list of allowed event_ypes
-        # under _event in the taxonomy. In fact - split any conditionals under this for
-        # loop into a separate validate_taxonomy function that we can isolate to test
-        # against.
-        if not isinstance(values, dict):
-            raise TypeError(f"Taxonomy entry for '{key}' is not a dictionary")
+        _validate_taxonomy(taxonomy, key, values)
 
         # We rely on pydantic to validate the values here
         taxonomy_entries[key] = TaxonomyEntry(**values)
 
     return taxonomy_entries
+
+
+def _validate_taxonomy(taxonomy: Mapping, key: str, values: Any) -> None:
+    """Extra validation of the taxonomy.
+
+    :param Mapping taxonomy: From the database model
+        CorpusType.valid_metadata and potentially filtered by entity key
+    :param str key: A taxonomy key.
+    :param Any values: Values for a taxonomy key.
+    :raises TypeError: If values is not a dictionary.
+    :raises ValueError: If too many datetime_event_name values.
+    :raises ValueError: If datetime_event_name value is not in list of
+        allowed event_type values.
+    """
+    if not isinstance(values, dict):
+        raise TypeError(f"Taxonomy entry for '{key}' is not a dictionary")
+
+    if key == "datetime_event_name":
+        # Compare the metadata datetime_event_name value against the list of allowed
+        # event_types under _event in the taxonomy.
+        datetime_event_name_values = values["allowed_values"]
+        if len(datetime_event_name_values) > 1:
+            raise ValueError(f"Too many values for taxonomy '{key}'")
+
+        datetime_event_name_value = datetime_event_name_values[0]
+        if (
+            datetime_event_name_value
+            not in taxonomy["_event"]["event_type"]["allowed_values"]
+        ):
+            raise ValueError(
+                f"Invalid value '{datetime_event_name_value}' for taxonomy '{key}'"
+            )
