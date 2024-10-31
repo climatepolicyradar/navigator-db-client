@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from typing import Literal, Optional, cast
 
@@ -11,6 +12,8 @@ from db_client.models.document import PhysicalDocument
 from db_client.models.organisation import BaseModelEnum, Corpus
 
 from .geography import Geography
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class FamilyCategory(BaseModelEnum):
@@ -144,9 +147,22 @@ class Family(Base):
         """A date to use for filtering by published date."""
         if not self.events:
             return None
+
         date = None
         for event in self.events:
-            if event.event_type_name == "Passed/Approved":
+            event_meta = cast(dict, event.valid_metadata)
+            if "datetime_event_name" not in event_meta:
+                _LOGGER.error(event_meta)
+                return None
+
+            if not isinstance(event_meta["datetime_event_name"], list):
+                _LOGGER.error(
+                    f"datetime_event_name is type {type(event_meta['datetime_event_name'])}"
+                )
+                return None
+
+            datetime_event_name = event_meta["datetime_event_name"][0]
+            if event.event_type_name == datetime_event_name:
                 return cast(datetime, event.date)
             if date is None:
                 date = cast(datetime, event.date)
