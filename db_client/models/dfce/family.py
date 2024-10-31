@@ -152,14 +152,11 @@ class Family(Base):
         for event in self.events:
             event_meta = cast(dict, event.valid_metadata)
             _LOGGER.error(event_meta)
-            if (
-                "_event" not in event_meta
-                or "datetime_event_name" not in event_meta["_event"]
-            ):
+            if "datetime_event_name" not in event_meta:
                 _LOGGER.error(event_meta)
                 # return None
 
-            datetime_event_name = event_meta["_event"]["datetime_event_name"][0]
+            datetime_event_name = event_meta["datetime_event_name"][0]
             if event.event_type_name == datetime_event_name:
                 return cast(datetime, event.date)
             if date is None:
