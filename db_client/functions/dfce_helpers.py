@@ -126,6 +126,12 @@ def add_event(db: Session, family_import_id, family_document_import_id, e):
             date=e["date"],
             event_type_name=e["type"],
             status=e["status"],
+            valid_metadata={
+                "event_type": [e["type"]],
+                "datetime_event_name": [
+                    "Passed/Approved"
+                ],  # TODO Fix as part of PDCT-1622
+            },
         )
     )
 
