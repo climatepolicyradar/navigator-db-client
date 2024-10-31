@@ -146,7 +146,15 @@ class Family(Base):
             return None
         date = None
         for event in self.events:
-            if event.event_type_name == "Passed/Approved":  # FIXME
+            event_meta = cast(dict, event.valid_metadata)
+            if (
+                "_event" not in event_meta
+                or "datetime_event_name" not in event_meta["_event"]
+            ):
+                return None
+
+            datetime_event_name = event_meta["_event"]["datetime_event_name"][0]
+            if event.event_type_name == datetime_event_name:
                 return cast(datetime, event.date)
             if date is None:
                 date = cast(datetime, event.date)
