@@ -11,8 +11,21 @@ uninstall_trunk:
 	sudo rm -if `which trunk`
 	rm -ifr ${HOME}/.cache/trunk
 
-git_hooks: install_trunk
-	trunk actions run configure-pyright-with-pyenv
+configure_pyright:
+	trunk actions run configure-pyright
+
+setup_with_pyenv: install_trunk ## Sets up a local dev environment using Pyenv
+	$(eval venv_name=$(shell  grep 'venv =' pyproject.toml | cut -d '"' -f 2 ))
+	if [ -n "$(venv_name)" ] && ! pyenv versions --bare | grep -q "^$(venv_name)$$"; then \
+		$(eval python_version=$(shell grep 'python =' pyproject.toml | cut -d '"' -f 2 | sed 's/^\^//')) \
+		$(eval pyenv_version=$(shell pyenv versions --bare | grep$(python_version) )) \
+		pyenv virtualenv $(pyenv_version) $(venv_name); \
+	fi
+	@eval "$$(pyenv init -)" && \
+	pyenv activate $(venv_name) && \
+	poetry install
+
+	make configure_pyright
 
 check:
 	trunk fmt
