@@ -7,10 +7,12 @@ Create Date: 2024-03-21 sometime after breakfast
 """
 
 from alembic import op
+from sqlalchemy import update
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 
 from db_client.data_migrations.taxonomy_utils import read_taxonomy_values
+from db_client.models.organisation import EntityCounter
 from db_client.utils import get_library_path
 
 # revision identifiers, used by Alembic.
@@ -106,6 +108,15 @@ def add_corpus(session, Corpus, title, description, org, corpus_type):
     )
     session.add(corpus)
     session.flush()
+
+    op.execute(
+        update(EntityCounter)
+        .where(EntityCounter.counter == 0)
+        .values(
+            counter=1,
+        )
+    )
+    session.commit()
     return corpus
 
 
