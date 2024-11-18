@@ -109,7 +109,7 @@ def add_corpus(session, Corpus, title, description, org, corpus_type):
     session.add(corpus)
     session.flush()
 
-    session.execute(
+    op.execute(
         update(EntityCounter)
         .where(EntityCounter.counter == 0)
         .values(
