@@ -236,7 +236,9 @@ def test_validation_errors_on_non_string_values(db):
     metadata = {"author_type": ["Party", 123, None]}
     setup_test(db, taxonomy, metadata)
 
-    errors = validate_metadata_against_taxonomy(taxonomy, metadata)
+    errors = validate_metadata_against_taxonomy(
+        taxonomy, metadata, is_family_metadata=True
+    )
 
     assert errors is not None
     assert len(errors) == 1
