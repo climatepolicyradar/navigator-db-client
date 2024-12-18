@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "db-client"
-version = "3.8.26"
+version = "3.8.27"
 description = "All things to do with the datamodel and its storage. Including alembic migrations and datamodel code."
 authors = ["CPR-dev-team <tech@climatepolicyradar.org>"]
 license = "Apache-2.0"
