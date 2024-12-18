@@ -115,6 +115,13 @@ def _validate_metadata(
             )
             continue
 
+        # Ensure all items in value_list are strings
+        if not all(isinstance(item, str) for item in value_list):
+            errors.append(
+                f"Invalid value(s) in '{value_list}' for metadata key '{key}', "
+                "expected all items to be strings."
+            )
+
         if not taxonomy_entry.allow_any:
             if not all(item in taxonomy_entry.allowed_values for item in value_list):
                 errors.append(f"Invalid value '{value_list}' for metadata key '{key}'")

@@ -224,3 +224,23 @@ def test_validation_allows_any(db):
     errors = validate_metadata_against_taxonomy(taxonomy, metadata)
 
     assert errors is None
+
+
+def test_validation_errors_on_non_string_values(db):
+    taxonomy = {
+        "author_type": {
+            "allow_blanks": False,
+            "allowed_values": ["Party", "Non-Party"],
+        }
+    }
+    metadata = {"author_type": ["Party", 123, None]}
+    setup_test(db, taxonomy, metadata)
+
+    errors = validate_metadata_against_taxonomy(taxonomy, metadata)
+
+    assert errors is not None
+    assert len(errors) == 1
+    assert errors[0] == (
+        "Invalid value(s) in '['Party', 123, None]' for metadata key "
+        "'author_type', expected all items to be strings."
+    )
