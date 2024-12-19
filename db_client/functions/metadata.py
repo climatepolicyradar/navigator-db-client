@@ -58,16 +58,23 @@ def validate_metadata(
         }
     else:
         taxonomy = get_entity_specific_taxonomy(taxonomy, entity_key)
-    return validate_metadata_against_taxonomy(taxonomy, metadata)
+
+    return validate_metadata_against_taxonomy(
+        taxonomy, metadata, bool(entity_key is None)
+    )
 
 
 def validate_metadata_against_taxonomy(
-    taxonomy: Union[TaxonomyData, TaxonomyDataEntry], metadata: TaxonomyDataEntry
+    taxonomy: Union[TaxonomyData, TaxonomyDataEntry],
+    metadata: TaxonomyDataEntry,
+    is_family_metadata: bool = False,
 ) -> Optional[MetadataValidationErrors]:
     """Build the Corpus taxonomy for the entity & validate against it.
 
     :param TaxonomyDataEntry taxonomy: The Corpus taxonomy to validate against.
     :param TaxonomyDataEntry metadata: The metadata to validate.
+    :param bool is_family_metadata: Whether to validate all metadata
+        values as string arrays.
     :raises TypeError: If the Taxonomy is invalid.
     :return Optional[MetadataValidationResult]: A list of errors or None
         if the metadata is valid.
@@ -79,18 +86,22 @@ def validate_metadata_against_taxonomy(
         # Wrap any TypeError in a more general error
         raise TypeError("Bad Taxonomy data in database") from e
 
-    errors = _validate_metadata(taxonomy_entries, metadata)
+    errors = _validate_metadata(taxonomy_entries, metadata, is_family_metadata)
     return errors if len(errors) > 0 else None
 
 
 def _validate_metadata(
-    taxonomy_entries: Mapping[str, TaxonomyEntry], metadata: Mapping
+    taxonomy_entries: Mapping[str, TaxonomyEntry],
+    metadata: Mapping,
+    is_family_metadata: bool = False,
 ) -> MetadataValidationErrors:
     """Validates the metadata against the taxonomy.
 
     :param _type_ taxonomy_entries: The built entries from the
         CorpusType.valid_metadata.
-    :param _type_ metadata: The metadata to validate.
+    :param Mapping metadata: The metadata to validate.
+    :param bool is_family_metadata: Whether to validate all metadata
+        values as string arrays.
     :return MetadataValidationErrors: a list of errors if the metadata
         is invalid.
     """
@@ -108,13 +119,22 @@ def _validate_metadata(
     for key, value_list in metadata.items():
         if key not in taxonomy_entries:
             continue  # We've already checked for missing keys
-        taxonomy_entry = taxonomy_entries[key]
+
         if not isinstance(value_list, list):
             errors.append(
                 f"Invalid value '{value_list}' for metadata key '{key}' expected list."
             )
             continue
 
+        # Ensure all items in value_list are strings
+        if is_family_metadata and not all(isinstance(item, str) for item in value_list):
+            errors.append(
+                f"Invalid value(s) in '{value_list}' for metadata key '{key}', "
+                "expected all items to be strings."
+            )
+            continue
+
+        taxonomy_entry = taxonomy_entries[key]
         if not taxonomy_entry.allow_any:
             if not all(item in taxonomy_entry.allowed_values for item in value_list):
                 errors.append(f"Invalid value '{value_list}' for metadata key '{key}'")
