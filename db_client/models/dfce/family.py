@@ -23,6 +23,7 @@ class FamilyCategory(BaseModelEnum):
     LEGISLATIVE = "Legislative"
     UNFCCC = "UNFCCC"
     MCF = "MCF"
+    REPORTS = "Reports"
 
 
 class Variant(Base):
