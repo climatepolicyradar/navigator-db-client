@@ -79,11 +79,15 @@ class FamilyConcept(Base):
 
     concept_id = Column(ForeignKey(Concept.id), nullable=False)
     family_import_id = Column(ForeignKey(Family.import_id), nullable=False)
-    relation = Column(String, nullable=False)
+    relation = Column(String, nullable=True)
 
     # We don't base this on a DB enum as we will want to update it on regular intervals
+    # A None relation means we have not found a better way to descr
+    # bar that it is related.
     @validates("relation")
     def validate_relation(self, key, value):
+        if value is None:
+            return value
         valid_relations = ["author"]
         if value not in valid_relations:
             raise ValueError(f"relation must be one of {valid_relations}")
