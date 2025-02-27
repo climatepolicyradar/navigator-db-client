@@ -22,7 +22,6 @@ def upgrade():
     # Get the database connection from Alembic's context
     bind = op.get_bind()
 
-    # Create concept and family_concept tables using the .create method
     metadata = MetaData()
     metadata.reflect(bind=bind)
 
