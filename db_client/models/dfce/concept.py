@@ -79,6 +79,16 @@ class FamilyConcept(Base):
 
     concept_id = Column(ForeignKey(Concept.id), nullable=False)
     family_import_id = Column(ForeignKey(Family.import_id), nullable=False)
+    relation = Column(String, nullable=False)
+
+    # We don't base this on a DB enum as we will want to update it on regular intervals
+    @validates("relation")
+    def validate_relation(self, key, value):
+        valid_relations = ["author"]
+        if value not in valid_relations:
+            raise ValueError(f"relation must be one of {valid_relations}")
+        return value
+
     created = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     last_modified = Column(
         DateTime(timezone=True),
