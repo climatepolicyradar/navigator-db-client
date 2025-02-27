@@ -1,3 +1,4 @@
+from pydantic import BaseModel, ValidationError
 from sqlalchemy import (
     ARRAY,
     Column,
@@ -8,10 +9,16 @@ from sqlalchemy import (
     Text,
     func,
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import relationship, validates
 
 from db_client.models.base import Base
 from db_client.models.dfce.family import Family
+
+
+class ExternalIds(BaseModel):
+    source: str
+    id: str
 
 
 class Concept(Base):
@@ -23,6 +30,9 @@ class Concept(Base):
     __tablename__ = "concept"
 
     id = Column(String, primary_key=True)
+    # This is used for any other ids e.g. wordpress, wikidata, etc.
+    # The shape of this should be { "source": "climatecasechart.com/wp-json/wp/v2", "id": "case_category/415" }
+    ids = Column(JSONB, nullable=False, default=list)
     preferred_label = Column(String, nullable=False)
     alternative_labels = Column(ARRAY(String), nullable=True)
     negative_labels = Column(ARRAY(String), nullable=True)
@@ -32,6 +42,18 @@ class Concept(Base):
     has_subconcept = Column(ARRAY(String), nullable=True)
     related_concepts = Column(ARRAY(String), nullable=True)
     definition = Column(Text, nullable=True)
+
+    @validates("ids")
+    def validate_ids(self, key, value):
+        if value is None:
+            return value
+        try:
+            [ExternalIds.model_validate(item) for item in value]
+        except ValidationError as e:
+            raise ValueError(
+                "ids should be a list[{ 'source': str, 'id': str }]"
+            ) from e
+        return value
 
     families = relationship(
         "Family",

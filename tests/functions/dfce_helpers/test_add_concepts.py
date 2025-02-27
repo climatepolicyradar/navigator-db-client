@@ -5,6 +5,9 @@ from db_client.models.dfce.family import Family, FamilyCategory
 def test_add_concepts(test_db):
     concept1 = Concept(
         id="Q1209",
+        ids=[
+            {"source": "climatecasechart.com/wp-json/wp/v2", "id": "case_category/415"}
+        ],
         preferred_label="organisation and governance instrument",
         alternative_labels=["organisation instrument"],
         negative_labels=[],
