@@ -72,6 +72,11 @@ def test_db(test_engine_fixture):
         connection = test_engine.connect()
 
         run_migrations(test_engine)  # type: ignore for MockConnection
+
+        # Create tables that are not in migrations
+        Base.metadata.tables["concept"].create(test_engine)
+        Base.metadata.tables["family_concept"].create(test_engine)
+
         test_session_maker = sessionmaker(
             autocommit=False,
             autoflush=False,
