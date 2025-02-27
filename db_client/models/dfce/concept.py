@@ -17,8 +17,8 @@ class ExternalIds(BaseModel):
 
 
 class ConceptType(str, Enum):
-    Laws = "laws"
-    LegalCategories = "legal_categories"
+    Law = "law"
+    LegalCategory = "legal_category"
 
 
 class Concept(Base):

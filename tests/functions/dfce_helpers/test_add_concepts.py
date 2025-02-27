@@ -8,7 +8,7 @@ def test_add_concepts(test_db):
         ids=[
             {"source": "climatecasechart.com/wp-json/wp/v2", "id": "case_category/415"}
         ],
-        type=ConceptType.Laws,
+        type=ConceptType.Law,
         preferred_label="organisation and governance instrument",
         alternative_labels=["organisation instrument"],
         negative_labels=[],
