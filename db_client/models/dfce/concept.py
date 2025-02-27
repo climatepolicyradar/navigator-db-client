@@ -96,4 +96,4 @@ class FamilyConcept(Base):
         onupdate=func.now(),
         nullable=False,
     )
-    PrimaryKeyConstraint(concept_id, family_import_id)
+    PrimaryKeyConstraint(concept_id, family_import_id, relation)

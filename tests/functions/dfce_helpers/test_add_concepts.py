@@ -28,6 +28,7 @@ def test_add_concepts(test_db):
     family_concept1 = FamilyConcept(
         family_import_id=family1.import_id,
         concept_id=concept1.id,
+        relation="author",
     )
     test_db.add(concept1)
     test_db.add(family1)
