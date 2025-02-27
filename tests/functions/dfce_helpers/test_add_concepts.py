@@ -44,4 +44,5 @@ def test_add_concepts(test_db):
     families = test_db.query(Family).all()
     assert len(families) == 1
 
-    print(families[0])
+    assert len(families[0].concepts) == 1
+    assert families[0].concepts[0].id == concept1.id
