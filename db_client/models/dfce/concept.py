@@ -33,6 +33,10 @@ class Concept(Base):
     # This is used for any other ids e.g. wordpress, wikidata, etc.
     # The shape of this should be { "source": "climatecasechart.com/wp-json/wp/v2", "id": "case_category/415" }
     ids = Column(JSONB, nullable=False, default=list)
+    # This is similar to the `instance of` property in wikidata.
+    # we've not gone with relationships here for ease of use,
+    # but this would allow us to persue that at a later date
+    # @see https://www.wikidata.org/wiki/Property:P31
     type = Column(SQLAlchemyEnum(ConceptType, native_enum=False), nullable=False)
     preferred_label = Column(String, nullable=False)
     alternative_labels = Column(ARRAY(String), nullable=True)
