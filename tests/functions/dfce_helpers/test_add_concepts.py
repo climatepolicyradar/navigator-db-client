@@ -1,4 +1,4 @@
-from db_client.models.dfce.concept import Concept, FamilyConcept
+from db_client.models.dfce.concept import Concept, ConceptType, FamilyConcept
 from db_client.models.dfce.family import Family, FamilyCategory
 
 
@@ -8,6 +8,7 @@ def test_add_concepts(test_db):
         ids=[
             {"source": "climatecasechart.com/wp-json/wp/v2", "id": "case_category/415"}
         ],
+        type=ConceptType.Laws,
         preferred_label="organisation and governance instrument",
         alternative_labels=["organisation instrument"],
         negative_labels=[],
