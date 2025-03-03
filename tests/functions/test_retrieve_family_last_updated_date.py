@@ -19,12 +19,8 @@ def test_calculates_last_updated_dates_based_on_latest_family_event(test_db):
     test_db.add(family_data)
     test_db.commit()
 
-    approved_event_date = datetime.now(tz=timezone.utc) - timedelta(
-        days=365
-    )  # 1 year ago
-    passed_event_date = datetime.now(tz=timezone.utc) - timedelta(
-        days=180
-    )  # 6 months ago
+    approved_event_date = datetime.now(tz=timezone.utc) - timedelta(days=365)
+    passed_event_date = datetime.now(tz=timezone.utc) - timedelta(days=180)
 
     approved_event = FamilyEvent(
         import_id="event_import_id_1",
