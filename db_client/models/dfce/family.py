@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Literal, Optional, cast
 
 import sqlalchemy as sa
@@ -178,10 +178,11 @@ class Family(Base):
             return None
         date = None
         for event in self.events:
-            if date is None:
-                date = cast(datetime, event.date)
-            else:
-                date = max(cast(datetime, event.date), date)
+            if event.date <= datetime.now(tz=timezone.utc):
+                if date is None:
+                    date = cast(datetime, event.date)
+                else:
+                    date = max(cast(datetime, event.date), date)
         return date
 
 
