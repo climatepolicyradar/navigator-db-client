@@ -43,9 +43,9 @@ class Concept(Base):
     negative_labels = Column(ARRAY(String), nullable=True)
     description = Column(Text, nullable=True)
     wikibase_id = Column(String, nullable=True)
-    subconcept_of = Column(ARRAY(String), nullable=True)
-    has_subconcept = Column(ARRAY(String), nullable=True)
-    related_concepts = Column(ARRAY(String), nullable=True)
+    subconcept_of_ids = Column(ARRAY(String), nullable=True)
+    has_subconcept_ids = Column(ARRAY(String), nullable=True)
+    related_concepts_ids = Column(ARRAY(String), nullable=True)
     definition = Column(Text, nullable=True)
 
     @validates("ids")
