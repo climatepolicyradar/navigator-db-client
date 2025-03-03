@@ -91,9 +91,12 @@ class FamilyConcept(Base):
     # bar that it is related.
     @validates("relation")
     def validate_relation(self, key, value):
+        # NOTICE: this is a hyper-controlled vocabulary and we should seek advice from other teams before updating it
+        # TODO: make a note of who is actually controlling this vocabulary
+        valid_relations = ["author"]
         if value is None:
             return value
-        valid_relations = ["author"]
+
         if value not in valid_relations:
             raise ValueError(f"relation must be one of {valid_relations}")
         return value
