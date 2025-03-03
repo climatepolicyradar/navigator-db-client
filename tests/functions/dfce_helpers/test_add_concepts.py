@@ -14,9 +14,9 @@ def test_add_concepts(test_db):
         negative_labels=[],
         description="Organisation and governance instruments let governments act directly on individuals, property, or the environment, enhancing institutions' capacity for climate action through new roles, bodies, and strategies.",
         wikibase_id="Q1209",
-        subconcept_of=["Q1171"],
-        has_subconcept=["Q1292", "Q1293", "Q1294", "Q1295", "Q1296"],
-        related_concepts=[],
+        subconcept_of_ids=["Q1171"],
+        has_subconcept_ids=["Q1292", "Q1293", "Q1294", "Q1295", "Q1296"],
+        related_concepts_ids=[],
         definition='Allows governments to act directly on individuals, their property, or the environment, focusing on "effecting" rather than detecting. In climate policy, they are designed to enhance institutions\' capacity to address climate change. This includes granting new responsibilities to existing bodies, creating new institutions, and developing governance plans and strategies.',
     )
     family1 = Family(
