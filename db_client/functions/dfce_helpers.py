@@ -43,6 +43,7 @@ def add_collections(db: Session, collections, org_id=1):
                 import_id=c["import_id"],
                 title=c["title"],
                 description=c["description"],
+                valid_metadata=c["metadata"],
             )
         )
     db.flush()

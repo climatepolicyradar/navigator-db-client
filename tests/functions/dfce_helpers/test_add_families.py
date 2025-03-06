@@ -31,6 +31,7 @@ def test_add_families__link_collection_family(test_db):
         "import_id": "CPR.Collection.1.0",
         "title": "Collection1",
         "description": "CollectionSummary1",
+        "metadata": {},
     }
     add_collections(test_db, collections=[collection])
 

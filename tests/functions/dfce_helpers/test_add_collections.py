@@ -7,6 +7,7 @@ def test_add_collections__one_collection(test_db):
         "import_id": "CPR.Collection.1.0",
         "title": "Collection1",
         "description": "CollectionSummary1",
+        "metadata": {"key": "value"},
     }
     add_collections(test_db, collections=[collection1])
 
@@ -17,6 +18,7 @@ def test_add_collections__one_collection(test_db):
     assert collection.import_id == "CPR.Collection.1.0"
     assert collection.title == "Collection1"
     assert collection.description == "CollectionSummary1"
+    assert collection.valid_metadata == {"key": "value"}
 
 
 def test_add_collections__multiple_collections(test_db):
@@ -24,11 +26,13 @@ def test_add_collections__multiple_collections(test_db):
         "import_id": "CPR.Collection.1.0",
         "title": "Collection1",
         "description": "CollectionSummary1",
+        "metadata": {},
     }
     collection2 = {
         "import_id": "CPR.Collection.2.0",
         "title": "Collection2",
         "description": "CollectionSummary2",
+        "metadata": {},
     }
     add_collections(test_db, collections=[collection1, collection2])
 
@@ -48,6 +52,7 @@ def test_add_collections__organisations(test_db):
         "import_id": "CPR.Collection.1.0",
         "title": "Collection1",
         "description": "CollectionSummary1",
+        "metadata": {},
     }
     add_collections(test_db, collections=[collection1])
 
