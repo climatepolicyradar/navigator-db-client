@@ -9,6 +9,7 @@ from db_client.models.dfce.collection import (
     CollectionFamily,
     CollectionOrganisation,
 )
+from db_client.models.dfce.concept import Concept, FamilyConcept
 from db_client.models.dfce.family import (
     DocumentStatus,
     EventStatus,
@@ -28,6 +29,8 @@ __all__ = (
     "Collection",
     "CollectionFamily",
     "CollectionOrganisation",
+    "Concept",
+    "FamilyConcept",
     "DocumentStatus",
     "EventStatus",
     "Family",

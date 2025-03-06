@@ -72,6 +72,7 @@ def test_db(test_engine_fixture):
         connection = test_engine.connect()
 
         run_migrations(test_engine)  # type: ignore for MockConnection
+
         test_session_maker = sessionmaker(
             autocommit=False,
             autoflush=False,
