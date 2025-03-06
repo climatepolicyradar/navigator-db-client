@@ -7,7 +7,7 @@ def test_add_collections__one_collection(test_db):
         "import_id": "CPR.Collection.1.0",
         "title": "Collection1",
         "description": "CollectionSummary1",
-        "valid_metadata": {"key": "value"},
+        "metadata": {"key": "value"},
     }
     add_collections(test_db, collections=[collection1])
 
@@ -26,13 +26,13 @@ def test_add_collections__multiple_collections(test_db):
         "import_id": "CPR.Collection.1.0",
         "title": "Collection1",
         "description": "CollectionSummary1",
-        "valid_metadata": {},
+        "metadata": {},
     }
     collection2 = {
         "import_id": "CPR.Collection.2.0",
         "title": "Collection2",
         "description": "CollectionSummary2",
-        "valid_metadata": {},
+        "metadata": {},
     }
     add_collections(test_db, collections=[collection1, collection2])
 
@@ -52,7 +52,7 @@ def test_add_collections__organisations(test_db):
         "import_id": "CPR.Collection.1.0",
         "title": "Collection1",
         "description": "CollectionSummary1",
-        "valid_metadata": {},
+        "metadata": {},
     }
     add_collections(test_db, collections=[collection1])
 
