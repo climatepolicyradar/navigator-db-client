@@ -7,7 +7,7 @@ Create Date: 2025-02-27 11:56:49.987901
 """
 
 from alembic import op
-from sqlalchemy import MetaData
+from sqlalchemy import MetaData, String
 
 from db_client.models.dfce.concept import Concept, FamilyConcept
 
@@ -30,6 +30,11 @@ def upgrade():
 
     if "family_concept" not in metadata.tables:
         FamilyConcept.__table__.create(bind)
+    else:
+        # Make the relation column nullable
+        op.alter_column(
+            "family_concept", "relation", existing_type=String(), nullable=True
+        )
 
 
 def downgrade():
@@ -38,6 +43,10 @@ def downgrade():
     metadata.reflect(bind=bind)
 
     if "family_concept" in metadata.tables:
+        # Make the relation column non-nullable again
+        op.alter_column(
+            "family_concept", "relation", existing_type=String(), nullable=False
+        )
         metadata.tables["family_concept"].drop(bind)
 
     if "concept" in metadata.tables:
