@@ -31,6 +31,7 @@ class EntitySpecificTaxonomyKeys(str, Enum):
 
     DOCUMENT = "_document"
     EVENT = "_event"
+    COLLECTION = "_collection"
 
 
 @pydantic_dataclass(config=ConfigDict(validate_assignment=True, extra="forbid"))
