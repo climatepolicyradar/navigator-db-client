@@ -14,9 +14,9 @@ class Geography(Base):  # noqa: D101
 
     __tablename__ = "geography"
 
-    id = sa.Column(sa.Integer, primary_key=True)
+    id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
     # to display to end-users
-    display_value = sa.Column(sa.Text, unique=True, nullable=False)
+    display_value = sa.Column(sa.Text, nullable=False)
     slug = sa.Column(sa.Text, nullable=False, unique=True, index=True)
     # e.g. ISO code, World Bank, etc - not necessarily for display
     # non-unique, as some unrecognised territories might share the same code, e.g.
