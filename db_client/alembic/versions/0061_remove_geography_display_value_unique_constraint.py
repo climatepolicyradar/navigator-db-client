@@ -1,4 +1,4 @@
-"""Add auto-increment to geography ID
+"""Remove unique constraint on display_value in geography table
 
 Revision ID: 0061
 Revises: 0060
