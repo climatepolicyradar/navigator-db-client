@@ -23,6 +23,16 @@ down_revision = "0063"
 branch_labels = None
 depends_on = None
 
+# Taken from: https://github.com/pycountry/pycountry/blob/e74d49de784b47ab0bbb9ca22c0dc58122daa232/src/pycountry/databases/iso3166-1.json#L1828-L1833
+vat = pycountry.countries.get(alpha_3="VAT")
+vat_geography = Geography(
+    display_value=getattr(vat, "name", "Holy See (Vatican City State)"),
+    slug=slugify(getattr(vat, "name", "Holy See (Vatican City State)")),
+    value=getattr(vat, "alpha_3", "VAT"),
+    type="ISO-3166",
+    parent_id=215,  # Other
+)
+
 
 def add_countries_pycountry(session: Session):
     countries_to_add = []
@@ -43,19 +53,7 @@ def add_countries_pycountry(session: Session):
 
             continue
 
-        # if it doens't exist - add it
-        else:
-            name = getattr(country, "common_name", country.name)
-            countries_to_add.append(
-                Geography(
-                    display_value=name,
-                    slug=slugify(name.lower()),
-                    value=country.alpha_3,
-                    type="ISO-3166",
-                )
-            )
-
-    session.add_all(instances=countries_to_add)
+    session.add(instance=vat_geography)
     session.commit()
 
 
