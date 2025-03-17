@@ -35,7 +35,6 @@ vat_geography = Geography(
 
 
 def add_countries_pycountry(session: Session):
-    countries_to_add = []
     for country in pycountry.countries:
         country = cast(Country, country)
         existing_country = (
