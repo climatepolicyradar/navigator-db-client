@@ -74,6 +74,7 @@ class Family(Base):
         secondaryjoin="Geography.id == FamilyGeography.geography_id",
         order_by="Geography.slug",
     )
+
     concepts = relationship(
         "Concept",
         secondary="family_concept",
@@ -81,6 +82,7 @@ class Family(Base):
         secondaryjoin="Concept.id == FamilyConcept.concept_id",
         back_populates="families",
     )
+
     events: list["FamilyEvent"] = relationship(
         "FamilyEvent",
         lazy="joined",

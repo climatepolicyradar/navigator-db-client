@@ -1,48 +1,50 @@
+import pytest
+from sqlalchemy.orm import Session
+
 from db_client.models.dfce.concept import Concept, ConceptType, FamilyConcept
 from db_client.models.dfce.family import Family, FamilyCategory
 
 
-def test_add_concepts(test_db):
-    concept1 = Concept(
-        id="Q1209",
-        ids=[
-            {"source": "climatecasechart.com/wp-json/wp/v2", "id": "case_category/415"}
-        ],
-        type=ConceptType.Law,
-        preferred_label="organisation and governance instrument",
-        alternative_labels=["organisation instrument"],
-        negative_labels=[],
-        description="Organisation and governance instruments let governments act directly on individuals, property, or the environment, enhancing institutions' capacity for climate action through new roles, bodies, and strategies.",
-        wikibase_id="Q1209",
-        subconcept_of_ids=["Q1171"],
-        has_subconcept_ids=["Q1292", "Q1293", "Q1294", "Q1295", "Q1296"],
-        related_concepts_ids=[],
-        definition='Allows governments to act directly on individuals, their property, or the environment, focusing on "effecting" rather than detecting. In climate policy, they are designed to enhance institutions\' capacity to address climate change. This includes granting new responsibilities to existing bodies, creating new institutions, and developing governance plans and strategies.',
-    )
+@pytest.mark.asyncio
+async def test_parent_concepts_are_not_included(test_db: Session) -> None:
+    """
+    These tests are mostly to illustrate how the data works
+    and outlines some limitations to the current implementation
+    """
     family1 = Family(
-        import_id="Family1",
+        import_id="family1",
         title="Family1",
         description="FamilySummary1",
         family_category=FamilyCategory.EXECUTIVE,
+        geographies=["GB"],
     )
 
-    family_concept1 = FamilyConcept(
-        family_import_id=family1.import_id,
-        concept_id=concept1.id,
-        relation="author",
+    australia = Concept(
+        id="AUS",
+        type=ConceptType.Country,
+        preferred_label="Australia",
     )
-    test_db.add(concept1)
+
+    australia_new_south_wales = Concept(
+        id="AU-NSW",
+        type=ConceptType.CountrySubdivision,
+        preferred_label="New South Wales",
+        subconcept_of_ids=[australia.id],
+    )
+
+    family_concept_nsw = FamilyConcept(
+        family_import_id=family1.import_id,
+        concept_id=australia_new_south_wales.id,
+        relation="jurisdiction",
+    )
+
+    test_db.add(australia)
+    test_db.add(australia_new_south_wales)
     test_db.add(family1)
     test_db.commit()
-
-    test_db.add(family_concept1)
+    test_db.add(family_concept_nsw)
     test_db.commit()
 
-    concepts = test_db.query(Concept).all()
-    assert len(concepts) == 1
-
-    families = test_db.query(Family).all()
-    assert len(families) == 1
-
-    assert len(families[0].concepts) == 1
-    assert families[0].concepts[0].id == concept1.id
+    family_result: Family = test_db.query(Family).get(family1.import_id)
+    assert family_result is not None
+    assert family_result.concepts == [australia_new_south_wales]
