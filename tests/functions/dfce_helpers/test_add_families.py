@@ -6,7 +6,7 @@ from db_client.functions.dfce_helpers import (
     link_collection_family,
 )
 from db_client.models.dfce.collection import CollectionFamily
-from db_client.models.dfce.family import Family, FamilyGeography
+from db_client.models.dfce.family import Family, FamilyCategory, FamilyGeography
 from db_client.models.dfce.geography import Geography
 
 
@@ -110,7 +110,12 @@ def test_add_families__family_geos(test_db):
 
 
 def test_add_families__different_categories(test_db):
+    """
+    This test ensures that a db migration script is added to update the FamilyCategory enum in Postgres
+    if the FamilyCategory model was updated.
+    """
     basic_family_data = {
+        "corpus_import_id": "CCLW.corpus.i00000001.n0000",
         "title": "Title",
         "description": "Summary",
         "geography_id": [2],
@@ -121,65 +126,17 @@ def test_add_families__different_categories(test_db):
         },
     }
 
-    family_unfccc = {
-        "import_id": "CCLW.family.3003.0",
-        "corpus_import_id": "CCLW.corpus.i00000001.n0000",
-        "category": "UNFCCC",
-        "slug": "FamSlug0",
-        **basic_family_data,
-    }
+    families = []
+    for i, category in enumerate(FamilyCategory):
+        family = {
+            "import_id": f"CCLW.family.3003.{i}",
+            "category": category.value,
+            "slug": f"FamSlug{i}",
+            **basic_family_data,
+        }
+        families.append(family)
 
-    family_executive = {
-        "import_id": "CCLW.family.3003.1",
-        "corpus_import_id": "CCLW.corpus.i00000001.n0000",
-        "category": "Executive",
-        "slug": "FamSlug1",
-        **basic_family_data,
-    }
-
-    family_legislative = {
-        "import_id": "CCLW.family.3003.2",
-        "corpus_import_id": "CCLW.corpus.i00000001.n0000",
-        "category": "Legislative",
-        "slug": "FamSlug2",
-        **basic_family_data,
-    }
-
-    family_mcf = {
-        "import_id": "CCLW.family.3003.3",
-        "corpus_import_id": "CCLW.corpus.i00000001.n0000",
-        "category": "MCF",
-        "slug": "FamSlug3",
-        **basic_family_data,
-    }
-
-    family_reports = {
-        "import_id": "CCLW.family.3003.4",
-        "corpus_import_id": "CCLW.corpus.i00000001.n0000",
-        "category": "Reports",
-        "slug": "FamSlug4",
-        **basic_family_data,
-    }
-
-    family_litigation = {
-        "import_id": "CCLW.family.3003.5",
-        "corpus_import_id": "CCLW.corpus.i00000001.n0000",
-        "category": "Litigation",
-        "slug": "FamSlug5",
-        **basic_family_data,
-    }
-
-    add_families(
-        test_db,
-        families=[
-            family_unfccc,
-            family_executive,
-            family_legislative,
-            family_mcf,
-            family_reports,
-            family_litigation,
-        ],
-    )
+    add_families(test_db, families=families)
 
     saved_families = test_db.query(Family).all()
-    assert len(saved_families) == 6
+    assert len(saved_families) == len(FamilyCategory)
