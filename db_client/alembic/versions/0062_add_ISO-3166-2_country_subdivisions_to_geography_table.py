@@ -43,9 +43,7 @@ def add_country_subdivisions_from_pycountry(session: Session):
             .first()
         )
         if parent is None:
-            print(
-                f"No parent found for {subdivision.name}, {subdivision.code}, {parent_country_alpha_3}"
-            )
+            # No parent found for {subdivision.name}, {subdivision.code}, {parent_country_alpha_3}
             continue
 
         country_subdivisions.append(
