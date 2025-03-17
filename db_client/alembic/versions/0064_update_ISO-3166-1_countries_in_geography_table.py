@@ -35,8 +35,8 @@ def add_countries_pycountry(session: Session):
         # if exists - update with new values
         if existing_country is not None:
             # check if the name and display value match
-            if existing_country.display_value != country.name:
-                name = getattr(country, "common_name", country.name)
+            name = getattr(country, "common_name", country.name)
+            if existing_country.display_value != name:
                 session.query(Geography).filter(
                     Geography.value == country.alpha_3
                 ).update({"display_value": name})
@@ -70,15 +70,3 @@ def upgrade():
 
 def downgrade():
     pass
-    # Base = automap_base()
-    # bind = op.get_bind()
-    # Base.prepare(autoload_with=bind)
-
-    # session = Session(bind=bind)
-
-    # iso_3166_2_subdivisions = (
-    #     session.query(Geography).filter(Geography.type == "ISO-3166-2").all()
-    # )
-    # for subdivision in iso_3166_2_subdivisions:
-    #     session.delete(subdivision)
-    # session.commit()
