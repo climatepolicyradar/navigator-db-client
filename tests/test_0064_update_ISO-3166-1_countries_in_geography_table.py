@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from db_client.models.dfce.geography import Geography
 
 
-def test_geography_subdivisions_exists_with_parent(test_db: Session):
+def test_geography_updates_and_add_vat(test_db: Session):
     # updates to the new ISO values
     tur = test_db.query(Geography).filter(Geography.value == "TUR").first()
     assert tur is not None
