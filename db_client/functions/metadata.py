@@ -54,6 +54,7 @@ def validate_metadata(
                 EntitySpecificTaxonomyKeys.DOCUMENT.value,
                 "event_type",  # TODO: Remove as part of PDCT-1622
                 EntitySpecificTaxonomyKeys.EVENT.value,
+                EntitySpecificTaxonomyKeys.COLLECTION.value,
             ]
         }
     else:

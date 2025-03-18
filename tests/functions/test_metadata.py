@@ -2,7 +2,10 @@ import pytest
 from pydantic import ValidationError
 from pytest_mock_resources import create_postgres_fixture
 
-from db_client.functions.metadata import validate_metadata_against_taxonomy
+from db_client.functions.metadata import (
+    validate_metadata,
+    validate_metadata_against_taxonomy,
+)
 from db_client.models.base import Base
 from tests.functions.helpers import family_build, metadata_build
 
@@ -246,3 +249,43 @@ def test_validation_errors_on_non_string_values(db):
         "Invalid value(s) in '['Party', 123, None]' for metadata key "
         "'author_type', expected all items to be strings."
     )
+
+
+def test_validation_succeeds_when_metadata_matches_taxonomy(db):
+    taxonomy = {
+        "_collection": {
+            "id": {
+                "allow_any": True,
+                "allow_blanks": True,
+                "allowed_values": [],
+            }
+        },
+        "_document": {
+            "id": {
+                "allow_any": True,
+                "allow_blanks": True,
+                "allowed_values": [],
+            }
+        },
+        "_event": {
+            "event_type": {
+                "allow_any": True,
+                "allow_blanks": True,
+                "allowed_values": [],
+            }
+        },
+        "id": {
+            "allow_any": True,
+            "allow_blanks": True,
+            "allowed_values": [],
+        },
+    }
+    metadata = {
+        "_collection": {"id": [1234]},
+        "_document": {"id": [1234]},
+        "_event": {"event_type": ["test"]},
+        "id": [1234],
+    }
+    setup_test(db, taxonomy, metadata)
+
+    validate_metadata(db, "Org1.Corpus.1.1", metadata)
