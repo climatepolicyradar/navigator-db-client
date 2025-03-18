@@ -23,16 +23,6 @@ down_revision = "0063"
 branch_labels = None
 depends_on = None
 
-# Taken from: https://github.com/pycountry/pycountry/blob/e74d49de784b47ab0bbb9ca22c0dc58122daa232/src/pycountry/databases/iso3166-1.json#L1828-L1833
-vat = pycountry.countries.get(alpha_3="VAT")
-vat_geography = Geography(
-    display_value=getattr(vat, "name", "Holy See (Vatican City State)"),
-    slug=slugify(getattr(vat, "name", "Holy See (Vatican City State)")),
-    value=getattr(vat, "alpha_3", "VAT"),
-    type="ISO-3166",
-    parent_id=215,  # Other
-)
-
 
 def add_countries_pycountry(session: Session):
     for country in pycountry.countries:
@@ -52,8 +42,25 @@ def add_countries_pycountry(session: Session):
 
             continue
 
-    session.add(instance=vat_geography)
-    session.commit()
+    # Taken from: https://github.com/pycountry/pycountry/blob/e74d49de784b47ab0bbb9ca22c0dc58122daa232/src/pycountry/databases/iso3166-1.json#L1828-L1833
+    other_geography = (
+        session.query(Geography)
+        .filter(
+            Geography.value == "Other" and Geography.type == "ISO-3166 CPR Extension"
+        )
+        .first()
+    )
+    if other_geography is not None:
+        vat = pycountry.countries.get(alpha_3="VAT")
+        vat_geography = Geography(
+            display_value=getattr(vat, "name", "Holy See (Vatican City State)"),
+            slug=slugify(getattr(vat, "name", "Holy See (Vatican City State)")),
+            value=getattr(vat, "alpha_3", "VAT"),
+            type="ISO-3166",
+            parent_id=other_geography.id,
+        )
+        session.add(instance=vat_geography)
+        session.commit()
 
 
 def upgrade():
