@@ -24,6 +24,7 @@ class FamilyCategory(BaseModelEnum):
     UNFCCC = "UNFCCC"
     MCF = "MCF"
     REPORTS = "Reports"
+    LITIGATION = "Litigation"
 
 
 class Variant(Base):

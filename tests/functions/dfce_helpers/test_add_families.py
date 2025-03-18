@@ -6,7 +6,7 @@ from db_client.functions.dfce_helpers import (
     link_collection_family,
 )
 from db_client.models.dfce.collection import CollectionFamily
-from db_client.models.dfce.family import FamilyGeography
+from db_client.models.dfce.family import Family, FamilyCategory, FamilyGeography
 from db_client.models.dfce.geography import Geography
 
 
@@ -107,3 +107,36 @@ def test_add_families__family_geos(test_db):
             for family_geo in family_geos
         ]
     )
+
+
+def test_add_families__different_categories(test_db):
+    """
+    This test ensures that a db migration script is added to update the FamilyCategory enum in Postgres
+    if the FamilyCategory model was updated.
+    """
+    basic_family_data = {
+        "corpus_import_id": "CCLW.corpus.i00000001.n0000",
+        "title": "Title",
+        "description": "Summary",
+        "geography_id": [2],
+        "documents": [],
+        "metadata": {
+            "size": "small",
+            "color": "blue",
+        },
+    }
+
+    families = []
+    for i, category in enumerate(FamilyCategory):
+        family = {
+            "import_id": f"CCLW.family.3003.{i}",
+            "category": category.value,
+            "slug": f"FamSlug{i}",
+            **basic_family_data,
+        }
+        families.append(family)
+
+    add_families(test_db, families=families)
+
+    saved_families = test_db.query(Family).all()
+    assert len(saved_families) == len(FamilyCategory)
