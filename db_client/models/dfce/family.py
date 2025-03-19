@@ -59,7 +59,7 @@ class Concept(BaseModel):
     # related_concepts: list[str] = []
     # wikibase_id: str = ""
 
-    relation: Literal["author", "jurisdiction", "category", "principle_law"] | None = (
+    relation: Literal["author", "jurisdiction", "category", "principal_law"] | None = (
         None
     )
 
