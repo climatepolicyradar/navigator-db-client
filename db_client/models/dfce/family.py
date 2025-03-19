@@ -23,6 +23,7 @@ class ConceptType(str, Enum):
     LegalCategory = "legal_category"
     Country = "country"
     CountrySubdivision = "country_subdivision"
+    LegalEntity = "legal_entity"
 
 
 class Concept(BaseModel):
@@ -41,37 +42,26 @@ class Concept(BaseModel):
     # @see https://www.wikidata.org/wiki/Property:P31
     type: ConceptType
     preferred_label: str
-    definition: str = ""
-    description: str = ""
-    wikibase_id: str = ""
-    alternative_labels: list[str] = []
-    negative_labels: list[str] = []
-    subconcept_of_ids: list[str] = []
+
+    subconcept_of_labels: list[str] = []
     """
-    We don't currently do bi-directional mapping. This has been left here in case we want to get to it to make
-    our future-selves aware that there is an implementation
+    We don't currently do bi-directional mapping.
+    Nor do we support multiple labels.
+    We have left these fields here in case we want to get to
+    and this our future-selves aware that there is an implementation
     """
-    # has_subconcept_ids = Column(ARRAY(String), nullable=True)
-    # related_concepts_ids = Column(ARRAY(String), nullable=True)
-    relation: str | None = None
+    # definition: str = ""
+    # description: str = ""
+    # alternative_labels: list[str] = []
+    # negative_labels: list[str] = []
+    # subconcepts_of: list[str] = []
+    # has_subconcept: list[str] = []
+    # related_concepts: list[str] = []
+    # wikibase_id: str = ""
 
-    @validates("relation")
-    def validate_relation(self, key: str, value: str | None):
-        """
-        We don't base this on a DB enum as we will want to update it on regular intervals
-        A None relation means we have not found a better way to describe the relationship.
-
-        NOTICE: this is a hyper-controlled vocabulary and we should seek advice from other teams before updating it
-        TODO: make a note of who is actually controlling this vocabulary
-        """
-
-        valid_relations = ["author", "jurisdiction", "category", "principle_law"]
-        if value is None:
-            return value
-
-        if value not in valid_relations:
-            raise ValueError(f"relation must be one of {valid_relations}")
-        return value
+    relation: Literal["author", "jurisdiction", "category", "principle_law"] | None = (
+        None
+    )
 
 
 class FamilyCategory(BaseModelEnum):
