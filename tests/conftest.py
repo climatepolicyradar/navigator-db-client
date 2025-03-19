@@ -8,6 +8,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import create_database, database_exists, drop_database
 
 from db_client import run_migrations
+from db_client.models import Base
 from db_client.utils import get_library_path
 
 
@@ -38,58 +39,79 @@ alembic_engine = create_postgres_fixture()
 # Engine Postgres fixture for our custom tests
 test_engine_fixture = create_postgres_fixture()
 
-template_engine_fixture = create_postgres_fixture(scope="session")
 
+@pytest.fixture()
+def test_engine(test_engine_fixture):
+    """Create a test database and use it for the whole test session."""
+    if not database_exists(test_engine_fixture.url):
+        create_database(test_engine_fixture.url)
 
-@pytest.fixture(scope="session")
-def template_db_engine(template_engine_fixture):
-    """Create a template database with migrations applied to be used by test_db."""
-    db_url = template_engine_fixture.url
+    assert len(Base.metadata.sorted_tables) > 1, "sqlalchemy didn't find your model"
 
-    # Drop template if it exists
-    if database_exists(db_url):
-        drop_database(db_url)
+    Base.metadata.create_all(test_engine_fixture)
 
-    # Create fresh template database
-    create_database(db_url)
-
-    # Apply migrations to template
-    engine = None
-    connection = None
-    try:
-        engine = create_engine(db_url)
-        connection = engine.connect()
-        run_migrations(engine)
-    finally:
-        if connection is not None:
-            connection.close()
-        if engine is not None:
-            engine.dispose()
-
-    yield engine
-
-    # Cleanup
-    if database_exists(db_url):
-        drop_database(db_url)
+    # Run the tests
+    yield test_engine_fixture
 
 
 @pytest.fixture(scope="function")
-def test_db(template_db_engine, test_engine_fixture):
-    """Create a fresh test database for each test by cloning the template database."""
-    db_url = test_engine_fixture.url
+def test_db(test_engine_fixture):
+    """Create a fresh test database for each test."""
 
-    # Drop existing test database if it exists
-    if database_exists(db_url):
-        drop_database(db_url)
+    test_db_url = test_engine_fixture.url
 
-    # Create new test database using template database
-    create_database(db_url, template=template_db_engine.url.database)
+    # Create the test database
+    if database_exists(test_db_url):
+        drop_database(test_db_url)
+    create_database(test_db_url)
 
     test_session = None
     connection = None
     try:
-        test_engine = create_engine(db_url)
+        test_engine = create_engine(test_db_url)
         connection = test_engine.connect()
+
+        print(
+            "Running migrationsRunning migrationsRunning migrationsRunning migrationsRunning migrationsRunning migrations"
+        )
+        run_migrations(test_engine)  # type: ignore for MockConnection
+        test_session_maker = sessionmaker(
+            autocommit=False,
+            autoflush=False,
+            bind=test_engine,
+        )
+        test_session = test_session_maker()
+
+        # Run the tests
+        yield test_session
+    finally:
+        if test_session is not None:
+            test_session.close()
+
+        if connection is not None:
+            connection.close()  # type: ignore for MockConnection
+        # Drop the test database
+        drop_database(test_db_url)
+
+
+@pytest.fixture(scope="function", autouse=False)
+def test_db_no_migrations(test_engine_fixture):
+    """Create a fresh test database for each test."""
+
+    test_db_url = test_engine_fixture.url
+
+    # Create the test database
+    if database_exists(test_db_url):
+        drop_database(test_db_url)
+    create_database(test_db_url)
+
+    test_session = None
+    connection = None
+    try:
+        test_engine = create_engine(test_db_url)
+        connection = test_engine.connect()
+
+        Base.metadata.create_all(test_engine)
 
         test_session_maker = sessionmaker(
             autocommit=False,
@@ -98,13 +120,13 @@ def test_db(template_db_engine, test_engine_fixture):
         )
         test_session = test_session_maker()
 
+        # Run the tests
         yield test_session
     finally:
         if test_session is not None:
             test_session.close()
 
         if connection is not None:
-            connection.close()
-
+            connection.close()  # type: ignore for MockConnection
         # Drop the test database
-        drop_database(db_url)
+        drop_database(test_db_url)

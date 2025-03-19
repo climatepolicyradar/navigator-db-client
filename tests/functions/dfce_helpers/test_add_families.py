@@ -1,12 +1,20 @@
 from typing import cast
 
+from sqlalchemy.orm import Session
+
 from db_client.functions.dfce_helpers import (
     add_collections,
     add_families,
     link_collection_family,
 )
 from db_client.models.dfce.collection import CollectionFamily
-from db_client.models.dfce.family import Family, FamilyCategory, FamilyGeography
+from db_client.models.dfce.family import (
+    Concept,
+    ConceptType,
+    Family,
+    FamilyCategory,
+    FamilyGeography,
+)
 from db_client.models.dfce.geography import Geography
 
 
@@ -140,3 +148,41 @@ def test_add_families__different_categories(test_db):
 
     saved_families = test_db.query(Family).all()
     assert len(saved_families) == len(FamilyCategory)
+
+
+def test_parent_concepts_are_not_included(test_db_no_migrations: Session) -> None:
+    test_db = test_db_no_migrations
+    """
+    These tests are mostly to illustrate how the data works
+    and outlines some limitations to the current implementation
+    """
+
+    australia = Concept(
+        id="AUS",
+        type=ConceptType.Country,
+        preferred_label="Australia",
+    )
+
+    australia_new_south_wales = Concept(
+        id="AU-NSW",
+        type=ConceptType.CountrySubdivision,
+        preferred_label="New South Wales",
+        subconcept_of_ids=[australia.id],
+    )
+
+    family1 = Family(
+        import_id="family1",
+        title="Family1",
+        description="FamilySummary1",
+        family_category=FamilyCategory.EXECUTIVE,
+        geographies=[],
+        concepts=[australia, australia_new_south_wales],
+    )
+
+    test_db.add(family1)
+    test_db.commit()
+
+    family_result: Family = test_db.query(Family).get(family1.import_id)
+
+    assert family_result is not None
+    assert family_result.parsed_concepts() == [australia, australia_new_south_wales]
