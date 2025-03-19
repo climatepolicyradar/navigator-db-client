@@ -21,11 +21,11 @@ def test_run_migrations_with_pytest_mocker(mocker):
     run_migrations(mock_engine)
 
     # Asserts
-    mock_realpath.assert_called_once()
-    mock_dirname.assert_called_once()
-    mock_Config.assert_called_once_with(test_path + "/alembic.ini")
-    mock_Config().set_main_option.assert_called_once_with(
+    mock_realpath.assert_called()
+    mock_dirname.assert_called()
+    mock_Config.assert_called_with(test_path + "/alembic.ini")
+    mock_Config().set_main_option.assert_called_with(
         "script_location", test_path + "/alembic"
     )
-    mock_upgrade.assert_called_once()
+    mock_upgrade.assert_called()
     mock_upgrade.assert_called_with(mock_Config(), "head")

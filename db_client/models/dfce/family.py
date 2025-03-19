@@ -1,11 +1,13 @@
 import logging
 from datetime import datetime, timezone
+from enum import Enum
 from typing import Literal, Optional, cast
 
 import sqlalchemy as sa
+from pydantic import BaseModel
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, validates
 
 from db_client.models.base import Base
 from db_client.models.document import PhysicalDocument
@@ -14,6 +16,52 @@ from db_client.models.organisation import BaseModelEnum, Corpus
 from .geography import Geography
 
 _LOGGER = logging.getLogger(__name__)
+
+
+class ConceptType(str, Enum):
+    Law = "law"
+    LegalCategory = "legal_category"
+    Country = "country"
+    CountrySubdivision = "country_subdivision"
+    LegalEntity = "legal_entity"
+
+
+class Concept(BaseModel):
+    """
+    This is a concept model from the knowledge graph project.
+    @see: https://github.com/climatepolicyradar/knowledge-graph/blob/main/src/concept.py
+    """
+
+    id: str
+    # This is used for any other ids e.g. wordpress, wikidata, etc.
+    # The shape of this should be ["climatecasechart.com/wp-json/wp/v2/case_category/415", "climatepolicyradar.wikibase.cloud/wiki/Item:Q1583"]
+    ids: list[str] = []
+    # This is similar to the `instance of` property in wikidata.
+    # we've not gone with relationships here for ease of use,
+    # but this would allow us to persue that at a later date
+    # @see https://www.wikidata.org/wiki/Property:P31
+    type: ConceptType
+    preferred_label: str
+
+    subconcept_of_labels: list[str] = []
+    """
+    We don't currently do bi-directional mapping.
+    Nor do we support multiple labels.
+    We have left these fields here in case we want to get to
+    and this our future-selves aware that there is an implementation
+    """
+    # definition: str = ""
+    # description: str = ""
+    # alternative_labels: list[str] = []
+    # negative_labels: list[str] = []
+    # subconcepts_of: list[str] = []
+    # has_subconcept: list[str] = []
+    # related_concepts: list[str] = []
+    # wikibase_id: str = ""
+
+    relation: Literal["author", "jurisdiction", "category", "principal_law"] | None = (
+        None
+    )
 
 
 class FamilyCategory(BaseModelEnum):
@@ -63,9 +111,11 @@ class Family(Base):
         "FamilyDocument",
         lazy="joined",
     )
+
     slugs: list["Slug"] = relationship(
         "Slug", lazy="joined", order_by="desc(Slug.created)"
     )
+
     # Define the relationship to Geography through the FamilyGeography link table
     geographies = relationship(
         "Geography",
@@ -74,11 +124,22 @@ class Family(Base):
         secondaryjoin="Geography.id == FamilyGeography.geography_id",
         order_by="Geography.slug",
     )
+
     events: list["FamilyEvent"] = relationship(
         "FamilyEvent",
         lazy="joined",
         order_by="FamilyEvent.date",
     )
+
+    concepts = sa.Column(postgresql.ARRAY(postgresql.JSONB), nullable=True, default=[])
+
+    def parsed_concepts(self) -> list[Concept]:
+        return [Concept.model_validate(concept) for concept in self.concepts]
+
+    @validates("concepts")
+    def validate_concepts(self, key: str, value: list[Concept]):
+        return [concept.model_dump(mode="json") for concept in value]
+
     created = sa.Column(
         sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
     )
