@@ -26,6 +26,15 @@ def upgrade():
         ["collection_import_id"],
         ["import_id"],
     )
+    # Drop the existing CheckConstraint if it exists
+    op.drop_constraint("must_reference_exactly_one_entity", "slug", type_="check")
+
+    # Add the updated CheckConstraint
+    op.create_check_constraint(
+        "must_reference_exactly_one_entity",  # New constraint name
+        "slug",  # Table name
+        "num_nonnulls(family_import_id, family_document_import_id, collection_import_id) = 1",
+    )
 
 
 def downgrade():
@@ -33,3 +42,12 @@ def downgrade():
         op.f("fk_slug__collection_import_id__collection"), "slug", type_="foreignkey"
     )
     op.drop_column("slug", "collection_import_id")
+    # Revert the CheckConstraint change during downgrade
+    op.drop_constraint("must_reference_exactly_one_entity", "slug", type_="check")
+
+    # Add the original CheckConstraint back
+    op.create_check_constraint(
+        "must_reference_exactly_one_entity",
+        "slug",
+        "num_nonnulls(family_import_id, family_document_import_id) = 1",
+    )
