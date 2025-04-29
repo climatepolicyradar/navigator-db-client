@@ -25,6 +25,6 @@ def upgrade():
 
 
 def downgrade():
-    op.drop_index("idx_corpus_import_id", "corpus")
-    op.drop_index("idx_family_corpus_import_id", "family_corpus")
-    op.drop_index("idx_family_import_id", "family")
+    op.drop_index("idx_corpus_import_id", table_name="corpus")
+    op.drop_index("idx_family_import_id", table_name="family")
+    op.drop_index("idx_family_corpus_import_id", table_name="family_corpus")
