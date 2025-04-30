@@ -103,7 +103,7 @@ class Family(Base):
     __allow_unmapped__ = True
 
     title = sa.Column(sa.Text, nullable=False)
-    import_id = sa.Column(sa.Text, primary_key=True)
+    import_id = sa.Column(sa.Text, primary_key=True, unique=True, index=True)
     description = sa.Column(sa.Text, nullable=False)
     family_category = sa.Column(sa.Enum(FamilyCategory), nullable=False)
 
@@ -368,7 +368,11 @@ class FamilyEvent(Base):
 class FamilyCorpus(Base):
     __tablename__ = "family_corpus"
 
-    family_import_id = sa.Column(sa.ForeignKey(Family.import_id), nullable=False)
-    corpus_import_id = sa.Column(sa.ForeignKey(Corpus.import_id), nullable=False)
+    family_import_id = sa.Column(
+        sa.ForeignKey(Family.import_id), nullable=False, index=True
+    )
+    corpus_import_id = sa.Column(
+        sa.ForeignKey(Corpus.import_id), nullable=False, index=True
+    )
 
     sa.PrimaryKeyConstraint(family_import_id)

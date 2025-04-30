@@ -18,7 +18,7 @@ class Corpus(Base):
 
     __tablename__ = "corpus"
 
-    import_id = sa.Column(sa.Text, primary_key=True)
+    import_id = sa.Column(sa.Text, primary_key=True, unique=True, index=True)
     title = sa.Column(sa.Text, nullable=False)
     description = sa.Column(sa.Text, nullable=False)
     corpus_text = sa.Column(sa.Text)
