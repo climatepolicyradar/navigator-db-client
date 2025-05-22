@@ -77,6 +77,9 @@ def test_add_families__family_geos(test_db):
                 "date": "2019-12-25",
                 "type": "Passed/Approved",
                 "status": "OK",
+                "valid_metadata": {
+                    "datetime_event_name": ["Passed/Approved"],
+                },
             }
         ],
     }
