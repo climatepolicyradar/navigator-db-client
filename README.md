@@ -27,6 +27,28 @@ db-client = {git = "https://github.com/climatepolicyradar/navigator-db-client.gi
 
 2. Run `poetry lock`
 
+## Automated Dependency Updates
+
+When a new release is created in this repository, the GitHub Actions workflow
+`update-dependencies.yml` automatically creates pull requests in dependent
+repositories to bump the `db-client` version.
+
+### How it works
+
+1. A release is published in `navigator-db-client`
+2. The workflow triggers and checks out dependent repositories
+3. Updates the `db-client` dependency version in `pyproject.toml`
+4. Updates `poetry.lock` with the new version
+5. Creates a pull request with the changes
+
+### Currently supported repositories
+
+- `[navigator-admin-backend](https://github.com/climatepolicyradar/navigator-admin-backend)`
+
+### TODO dependent repositories
+
+- `[navigator-backend](https://github.com/climatepolicyradar/navigator-backend)`
+
 ## Run migrations
 
 Migrations run automatically at the beginning of the backend service executions
