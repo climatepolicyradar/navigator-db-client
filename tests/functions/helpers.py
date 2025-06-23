@@ -36,7 +36,8 @@ def metadata_build(db, taxonomy):
     dummy_corpus = Corpus(
         import_id="Org1.Corpus.1.1",
         title="Dummy Corpus",
-        description="",
+        description=None,
+        corpus_text="Test corpus text",  # Required field
         corpus_type_name=dummy_corpus_type.name,
         organisation_id=dummy_org.id,
     )

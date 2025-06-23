@@ -20,8 +20,8 @@ class Corpus(Base):
 
     import_id = sa.Column(sa.Text, primary_key=True, unique=True, index=True)
     title = sa.Column(sa.Text, nullable=False)
-    description = sa.Column(sa.Text, nullable=False)
-    corpus_text = sa.Column(sa.Text)
+    description = sa.Column(sa.Text, nullable=True)
+    corpus_text = sa.Column(sa.Text, nullable=False)
     corpus_image_url = sa.Column(sa.Text)
     organisation_id = sa.Column(sa.ForeignKey(Organisation.id), nullable=False)
     corpus_type_name = sa.Column(sa.ForeignKey(CorpusType.name), nullable=False)
