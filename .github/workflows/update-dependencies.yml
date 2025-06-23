@@ -1,0 +1,135 @@
+name: Update Dependencies
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-admin-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout admin-backend
+        uses: actions/checkout@v4
+        with:
+          repository: climatepolicyradar/navigator-admin-backend
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: admin-backend
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+
+      - name: Configure Poetry
+        run: |
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          poetry config virtualenvs.create false
+
+      - name: Install GitHub CLI
+        run: |
+          type -p curl >/dev/null || (sudo apt update && sudo apt install curl -y)
+          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
+          && sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
+          && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+          && sudo apt update \
+          && sudo apt install gh -y
+
+      - name: Validate release tag
+        run: |
+          # Ensure we have a valid version tag
+          if [[ ! "$GITHUB_REF" =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Invalid release tag format: $GITHUB_REF"
+            echo "Expected format: refs/tags/vX.Y.Z"
+            exit 1
+          fi
+          echo "✅ Valid release tag: $GITHUB_REF"
+
+      - name: Update db-client version
+        working-directory: admin-backend
+        run: |
+          # Extract version from release tag (remove 'v' prefix)
+          NEW_VERSION="${GITHUB_REF#refs/tags/}"
+          NEW_VERSION="${NEW_VERSION#v}"
+
+          echo "🔄 Updating db-client to version ${NEW_VERSION}"
+
+          # Check if pyproject.toml exists
+          if [[ ! -f "pyproject.toml" ]]; then
+            echo "❌ pyproject.toml not found"
+            exit 1
+          fi
+
+          # Check if db-client dependency exists
+          if ! grep -q "db-client.*navigator-db-client" pyproject.toml; then
+            echo "❌ db-client dependency not found in pyproject.toml"
+            exit 1
+          fi
+
+          # Update the pyproject.toml file
+          if sed -i "s/tag = \"v[0-9]*\.[0-9]*\.[0-9]*\"/tag = \"v${NEW_VERSION}\"/" pyproject.toml; then
+            echo "✅ Successfully updated pyproject.toml"
+          else
+            echo "❌ Failed to update pyproject.toml"
+            exit 1
+          fi
+
+          # Update poetry.lock
+          if poetry lock --no-update; then
+            echo "✅ Successfully updated poetry.lock"
+          else
+            echo "❌ Failed to update poetry.lock"
+            exit 1
+          fi
+
+      - name: Create Pull Request
+        working-directory: admin-backend
+        run: |
+          # Configure git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Create branch
+          BRANCH_NAME="bump-db-client-to-v${GITHUB_REF#refs/tags/}"
+          git checkout -b "$BRANCH_NAME"
+
+          # Check if there are changes to commit
+          if git diff --quiet; then
+            echo "ℹ️ No changes detected, skipping PR creation"
+            exit 0
+          fi
+
+          # Commit changes
+          git add pyproject.toml poetry.lock
+          git commit -m "🔧 Bump db-client to ${GITHUB_REF#refs/tags/}"
+
+          # Push branch
+          git push origin "$BRANCH_NAME"
+
+          # Create PR using heredoc for body
+          gh pr create \
+            --title "🔧 Bump db-client to ${GITHUB_REF#refs/tags/}" \
+            --body-file - \
+            --base main \
+            --head "$BRANCH_NAME" << 'EOF'
+          This PR updates the db-client dependency to version ${GITHUB_REF#refs/tags/} following the release in navigator-db-client.
+
+          ## Changes
+          - Updated db-client dependency from previous version to ${GITHUB_REF#refs/tags/}
+          - Updated poetry.lock file
+
+          ## Testing
+          - [ ] Verify the application builds successfully
+          - [ ] Run tests to ensure no breaking changes
+          - [ ] Test deployment to staging environment
+
+          ## Automated PR
+          This PR was automatically created by the GitHub Actions workflow in navigator-db-client.
+          EOF
