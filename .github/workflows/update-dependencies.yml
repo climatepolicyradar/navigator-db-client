@@ -3,7 +3,8 @@ name: Update Dependencies
 on:
   push:
     tags: [v*]
-  workflow_dispatch:
+  release:
+    types: [published]
 
 permissions:
   contents: write
@@ -34,34 +35,33 @@ jobs:
           echo "$HOME/.local/bin" >> $GITHUB_PATH
           poetry config virtualenvs.create false
 
-      - name: Validate release tag
+      - name: Determine version
+        id: determine_version
         run: |
-          # For manual triggers, get the most recent tag starting with 'v'
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "🔄 Manual trigger detected - getting most recent tag starting with 'v'"
-            LATEST_TAG=$(git tag --list 'v*' --sort=-v:refname | head -n1)
-            if [[ -z "$LATEST_TAG" ]]; then
-              echo "❌ No tags starting with 'v' found"
-              exit 1
-            fi
-            GITHUB_REF="refs/tags/$LATEST_TAG"
-            echo "✅ Using tag: $LATEST_TAG"
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "version=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+          else
+            # Extract version from push tag
+            RELEASE_TAG="${GITHUB_REF#refs/tags/}"
+            echo "version=${RELEASE_TAG}" >> $GITHUB_OUTPUT
           fi
 
+      - name: Validate release tag
+        run: |
           # Ensure we have a valid version tag
           if [[ ! "$GITHUB_REF" =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "❌ Invalid release tag format: $GITHUB_REF"
             echo "Expected format: refs/tags/vX.Y.Z"
             exit 1
           fi
-          echo "✅ Valid release tag: $GITHUB_REF"
+          echo "✅ Valid version: $VERSION"
 
       - name: Update db-client version
         working-directory: admin-backend
         run: |
-          # Extract version from release tag (remove 'v' prefix)
-          NEW_VERSION="${GITHUB_REF#refs/tags/}"
-          NEW_VERSION="${NEW_VERSION#v}"
+          # Extract version (remove 'v' prefix)
+          VERSION="${{ steps.determine_version.outputs.version }}"
+          NEW_VERSION="${VERSION#v}"
 
           echo "🔄 Updating db-client to version ${NEW_VERSION}"
 
@@ -101,7 +101,8 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           # Create branch
-          BRANCH_NAME="bump-db-client-to-v${GITHUB_REF#refs/tags/}"
+          VERSION="${{ steps.determine_version.outputs.version }}"
+          BRANCH_NAME="bump-db-client-to-${VERSION}"
           git checkout -b "$BRANCH_NAME"
 
           # Check if there are changes to commit
@@ -112,21 +113,21 @@ jobs:
 
           # Commit changes
           git add pyproject.toml poetry.lock
-          git commit -m "🔧 Bump db-client to ${GITHUB_REF#refs/tags/}"
+          git commit -m "🔧 Bump db-client to ${VERSION}"
 
           # Push branch
           git push origin "$BRANCH_NAME"
 
           # Create PR using heredoc for body
           gh pr create \
-            --title "🔧 Bump db-client to ${GITHUB_REF#refs/tags/}" \
+            --title "🔧 Bump db-client to ${VERSION}" \
             --body-file - \
             --base main \
             --head "$BRANCH_NAME" << 'EOF'
-          This PR updates the db-client dependency to version ${GITHUB_REF#refs/tags/} following the release in navigator-db-client.
+          This PR updates the db-client dependency to version ${VERSION} following the release in navigator-db-client.
 
           ## Changes
-          - Updated db-client dependency from previous version to ${GITHUB_REF#refs/tags/}
+          - Updated db-client dependency from previous version to ${VERSION}
           - Updated poetry.lock file
 
           ## Testing
