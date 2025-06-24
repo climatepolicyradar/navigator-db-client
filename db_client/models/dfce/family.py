@@ -73,7 +73,6 @@ class FamilyCategory(BaseModelEnum):
     MCF = "MCF"
     REPORTS = "Reports"
     LITIGATION = "Litigation"
-    CORPORATE_DISCLOSURES = "Corporate Disclosures"
 
 
 class Variant(Base):
