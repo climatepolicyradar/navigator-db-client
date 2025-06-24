@@ -111,7 +111,7 @@ jobs:
               exit 1
             fi
           elif [ "${{ matrix.tool }}" = "uv" ]; then
-            if uv sync; then
+            if uv lock; then
               echo "✅ Successfully updated uv.lock"
             else
               echo "❌ Failed to update uv.lock"
