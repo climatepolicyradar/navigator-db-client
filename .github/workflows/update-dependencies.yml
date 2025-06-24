@@ -112,29 +112,20 @@ jobs:
         working-directory: ${{ matrix.repo }}
         run: |
           VERSION="${{ steps.determine_version.outputs.version }}"
-          VERSION="${VERSION#v}"
-          cat << 'EOF' > pr_body.md
-          This PR updates the db-client to version ${VERSION} following the release in navigator-db-client.
-
-          ## Changes
-          - Updated db-client dependency from previous version to ${VERSION}
-          - Updated poetry.lock file
-
-          ## Testing
-          - [ ] Verify the application builds successfully
-          - [ ] Run tests to ensure no breaking changes
-          - [ ] Test deployment to staging environment
-
-          ## Automated PR
-          This PR was automatically created by the GitHub Actions workflow in navigator-db-client.
-          EOF
-
-          # Replace the version placeholder with actual version
-          sed -i "s/\${VERSION}/${VERSION}/g" pr_body.md
-
-          # Set the body output
           echo "body<<EOF" >> $GITHUB_OUTPUT
-          cat pr_body.md >> $GITHUB_OUTPUT
+          echo "This PR updates the db-client to version ${VERSION} following the release in navigator-db-client." >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_OUTPUT
+          echo "## Changes" >> $GITHUB_OUTPUT
+          echo "- Updated db-client dependency from previous version to ${VERSION}" >> $GITHUB_OUTPUT
+          echo "- Updated poetry.lock file" >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_OUTPUT
+          echo "## Testing" >> $GITHUB_OUTPUT
+          echo "- [ ] Verify the application builds successfully" >> $GITHUB_OUTPUT
+          echo "- [ ] Run tests to ensure no breaking changes" >> $GITHUB_OUTPUT
+          echo "- [ ] Test deployment to staging environment" >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_OUTPUT
+          echo "## Automated PR" >> $GITHUB_OUTPUT
+          echo "This PR was automatically created by the GitHub Actions workflow in navigator-db-client." >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create Pull Request
@@ -143,8 +134,8 @@ jobs:
         with:
           token: ${{ secrets.CROSS_REPO_TOKEN }}
           path: ${{ matrix.repo }}
-          commit-message: Bump db-client to ${VERSION}
-          title: ":robot: Bump db-client to ${VERSION}"
+          commit-message: Bump db-client to ${{ steps.determine_version.outputs.version }}
+          title: ":robot: Bump db-client to ${{ steps.determine_version.outputs.version }}"
           body: ${{ steps.get-pr-body.outputs.body }}
           branch: bump-db-client-to-${{ steps.determine_version.outputs.version }}
           author: >
