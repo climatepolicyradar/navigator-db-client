@@ -86,7 +86,7 @@ jobs:
           fi
 
           # Update poetry.lock
-          if poetry lock --no-update; then
+          if poetry lock; then
             echo "✅ Successfully updated poetry.lock"
           else
             echo "❌ Failed to update poetry.lock"
