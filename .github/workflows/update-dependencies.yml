@@ -88,22 +88,21 @@ jobs:
             exit 1
           fi
 
-          # Check if db-client dependency exists
-          if ! grep -q "db-client.*navigator-db-client" pyproject.toml; then
-            echo "❌ db-client dependency not found in pyproject.toml"
-            exit 1
-          fi
-
-          # Update the pyproject.toml file
-          if sed -i "s/tag = \"v[0-9]*\.[0-9]*\.[0-9]*\"/tag = \"v${NEW_VERSION}\"/" pyproject.toml; then
-            echo "✅ Successfully updated pyproject.toml"
-          else
-            echo "❌ Failed to update pyproject.toml"
-            exit 1
-          fi
-
-          # Update lockfile
+          # Update based on tool type
           if [ "${{ matrix.tool }}" = "poetry" ]; then
+            # Check if db-client dependency exists in Poetry format
+            if ! grep -q "db-client.*navigator-db-client" pyproject.toml; then
+              echo "❌ db-client dependency not found in pyproject.toml"
+              exit 1
+            fi
+            # Update Poetry format
+            if sed -i "s/tag = \"v[0-9]*\.[0-9]*\.[0-9]*\"/tag = \"v${NEW_VERSION}\"/" pyproject.toml; then
+              echo "✅ Successfully updated pyproject.toml (Poetry format)"
+            else
+              echo "❌ Failed to update pyproject.toml"
+              exit 1
+            fi
+            # Update lockfile
             if poetry lock; then
               echo "✅ Successfully updated poetry.lock"
             else
@@ -111,7 +110,20 @@ jobs:
               exit 1
             fi
           elif [ "${{ matrix.tool }}" = "uv" ]; then
-            if uv sync; then
+            # Check if db-client dependency exists in standard format
+            if ! grep -q "db-client @ git" pyproject.toml; then
+              echo "❌ db-client dependency not found in pyproject.toml"
+              exit 1
+            fi
+            # Update standard Python format
+            if sed -i "s/@v[0-9]*\.[0-9]*\.[0-9]*/@v${NEW_VERSION}/" pyproject.toml; then
+              echo "✅ Successfully updated pyproject.toml (standard format)"
+            else
+              echo "❌ Failed to update pyproject.toml"
+              exit 1
+            fi
+            # Update lockfile
+            if uv lock; then
               echo "✅ Successfully updated uv.lock"
             else
               echo "❌ Failed to update uv.lock"
