@@ -11,15 +11,19 @@ permissions:
   pull-requests: write
 
 jobs:
-  update-admin-backend:
+  update-dependencies:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - { repo: navigator-admin-backend }
     steps:
-      - name: Checkout admin-backend
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          repository: climatepolicyradar/navigator-admin-backend
+          repository: climatepolicyradar/${{ matrix.repo }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          path: admin-backend
+          path: ${{ matrix.repo }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -35,29 +39,32 @@ jobs:
           echo "$HOME/.local/bin" >> $GITHUB_PATH
           poetry config virtualenvs.create false
 
-      - name: Determine version
+      - name: Get the latest tag version from navigator-db-client
         id: determine_version
         run: |
-          if [ "${{ github.event_name }}" = "release" ]; then
-            echo "version=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
-          else
-            # Extract version from push tag
-            RELEASE_TAG="${GITHUB_REF#refs/tags/}"
-            echo "version=${RELEASE_TAG}" >> $GITHUB_OUTPUT
+          # Fetch the most recent tag from the db-client repository
+          LATEST_TAG=$(git ls-remote --tags https://github.com/climatepolicyradar/navigator-db-client.git | grep -v '\^{}' | sort -V | tail -1 | sed 's/.*refs\/tags\///')
+
+          if [ -z "$LATEST_TAG" ]; then
+            echo "❌ No tags found in navigator-db-client repository"
+            exit 1
           fi
+
+          echo "📋 Latest tag: $LATEST_TAG"
+          echo "version=$LATEST_TAG" >> $GITHUB_OUTPUT
 
       - name: Validate release tag
         run: |
           # Ensure we have a valid version tag
-          if [[ ! "$GITHUB_REF" =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "❌ Invalid release tag format: $GITHUB_REF"
-            echo "Expected format: refs/tags/vX.Y.Z"
+          if [[ ! "${{ steps.determine_version.outputs.version }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Invalid tag format: ${{ steps.determine_version.outputs.version }}"
+            echo "Expected format: vX.Y.Z"
             exit 1
           fi
           echo "✅ Valid version: $VERSION"
 
       - name: Update db-client version
-        working-directory: admin-backend
+        working-directory: ${{ matrix.repo }}
         run: |
           # Extract version (remove 'v' prefix)
           VERSION="${{ steps.determine_version.outputs.version }}"
@@ -93,38 +100,21 @@ jobs:
             exit 1
           fi
 
-      - name: Create Pull Request
-        working-directory: admin-backend
+      # Determine the user who triggered the workflow. See:
+      # https://github.com/orgs/community/discussions/25502
+      - name: Determine user
+        id: get-user
         run: |
-          # Configure git
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          echo "author=${{ github.actor }}" >> $GITHUB_OUTPUT
 
-          # Create branch
+      - name: Prepare PR body
+        id: get-pr-body
+        working-directory: ${{ matrix.repo }}
+        run: |
           VERSION="${{ steps.determine_version.outputs.version }}"
-          BRANCH_NAME="bump-db-client-to-${VERSION}"
-          git checkout -b "$BRANCH_NAME"
-
-          # Check if there are changes to commit
-          if git diff --quiet; then
-            echo "ℹ️ No changes detected, skipping PR creation"
-            exit 0
-          fi
-
-          # Commit changes
-          git add pyproject.toml poetry.lock
-          git commit -m "🔧 Bump db-client to ${VERSION}"
-
-          # Push branch
-          git push origin "$BRANCH_NAME"
-
-          # Create PR using heredoc for body
-          gh pr create \
-            --title "🔧 Bump db-client to ${VERSION}" \
-            --body-file - \
-            --base main \
-            --head "$BRANCH_NAME" << 'EOF'
-          This PR updates the db-client dependency to version ${VERSION} following the release in navigator-db-client.
+          VERSION="${VERSION#v}"
+          cat << 'EOF' > pr_body.md
+          This PR updates the db-client to version ${VERSION} following the release in navigator-db-client.
 
           ## Changes
           - Updated db-client dependency from previous version to ${VERSION}
@@ -138,3 +128,25 @@ jobs:
           ## Automated PR
           This PR was automatically created by the GitHub Actions workflow in navigator-db-client.
           EOF
+
+          # Replace the version placeholder with actual version
+          sed -i "s/\${VERSION}/${VERSION}/g" pr_body.md
+
+          # Set the body output
+          echo "body<<EOF" >> $GITHUB_OUTPUT
+          cat pr_body.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create Pull Request
+        id: create-pr
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.CROSS_REPO_TOKEN }}
+          path: ${{ matrix.repo }}
+          commit-message: Bump db-client to ${VERSION}
+          title: ":robot: Bump db-client to ${VERSION}"
+          body: ${{ steps.get-pr-body.outputs.body }}
+          branch: bump-db-client-to-${{ steps.determine_version.outputs.version }}
+          author: >
+            ${{ steps.get-user.outputs.author }}
+            <${{ steps.get-user.outputs.author }}@users.noreply.github.com>
