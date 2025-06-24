@@ -1,0 +1,51 @@
+name: Merge to main
+
+on:
+  push:
+    tags: [v*]
+    branches:
+      - main
+
+permissions: read-all
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    if: |
+      ! cancelled() && always() && startsWith(github.ref, 'refs/heads/main')
+    permissions:
+      contents: write
+
+    outputs:
+      new_tag: ${{ steps.determine_next_tag.outputs.new_tag }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: fregante/setup-git-user@v2
+
+      - name: Determine new tag version
+        id: determine_next_tag
+        uses: climatepolicyradar/get-next-tag-from-pr-body@v3
+
+      - name: Create Git tag and push
+        run: |
+          new_tag="${{ steps.determine_next_tag.outputs.new_tag }}"
+          new_tag=${new_tag#v}
+          new_tag=${new_tag%-*}
+
+          if [[ -z "${new_tag}" ]]; then
+            echo "Could not determine next tag";
+            exit 1;
+          elif [[ "${new_tag}" != 'Skip' ]]; then
+            git tag -a "${new_tag}" -m "Version ${new_version_num}"
+            git push --tags origin "${new_tag}"
+          fi
+
+  release:
+    needs: tag
+    if: ${{ ! cancelled() && always() && (needs.tag.result == 'success' && needs.tag.outputs.new_tag != 'Skip')}}
+    permissions:
+      contents: write
+    uses: climatepolicyradar/reusable-workflows/.github/workflows/release.yml@v3
+    with:
+      new_tag: ${{ needs.tag.outputs.new_tag }}

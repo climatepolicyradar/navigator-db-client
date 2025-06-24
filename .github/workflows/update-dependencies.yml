@@ -3,7 +3,7 @@ name: Update Dependencies
 on:
   # Auto deploy once the CI/CD action is completed successfully
   workflow_run:
-    workflows: [CI/CD]
+    workflows: [Merge to main]
     types:
       - completed
     branches:
