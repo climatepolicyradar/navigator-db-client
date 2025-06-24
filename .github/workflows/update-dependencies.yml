@@ -43,7 +43,7 @@ jobs:
         id: determine_version
         run: |
           # Fetch the most recent tag from the db-client repository
-          LATEST_TAG=$(git ls-remote --tags https://github.com/climatepolicyradar/navigator-db-client.git | grep -v '\^{}' | sort -V | tail -1 | sed 's/.*refs\/tags\///')
+          LATEST_TAG=$(git ls-remote --tags https://github.com/climatepolicyradar/navigator-db-client.git | grep -v '\^{}' | sed 's/.*refs\/tags\///' | grep '^v[0-9]\+\.[0-9]\+\.[0-9]\+$' | sort -Vr | head -1)
 
           if [ -z "$LATEST_TAG" ]; then
             echo "❌ No tags found in navigator-db-client repository"
