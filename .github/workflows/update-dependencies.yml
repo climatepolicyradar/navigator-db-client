@@ -20,7 +20,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - { repo: navigator-admin-backend }
+          - { repo: navigator-admin-backend, tool: poetry }
+          - { repo: navigator-backend, tool: uv }
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -42,6 +43,11 @@ jobs:
         run: |
           echo "$HOME/.local/bin" >> $GITHUB_PATH
           poetry config virtualenvs.create false
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Get the latest tag version from navigator-db-client
         id: determine_version
@@ -96,11 +102,23 @@ jobs:
             exit 1
           fi
 
-          # Update poetry.lock
-          if poetry lock; then
-            echo "✅ Successfully updated poetry.lock"
+          # Update lockfile
+          if [ "${{ matrix.tool }}" = "poetry" ]; then
+            if poetry lock; then
+              echo "✅ Successfully updated poetry.lock"
+            else
+              echo "❌ Failed to update poetry.lock"
+              exit 1
+            fi
+          elif [ "${{ matrix.tool }}" = "uv" ]; then
+            if uv sync; then
+              echo "✅ Successfully updated uv.lock"
+            else
+              echo "❌ Failed to update uv.lock"
+              exit 1
+            fi
           else
-            echo "❌ Failed to update poetry.lock"
+            echo "❌ Invalid tool: ${{ matrix.tool }}"
             exit 1
           fi
 
@@ -121,7 +139,7 @@ jobs:
           echo "" >> $GITHUB_OUTPUT
           echo "## Changes" >> $GITHUB_OUTPUT
           echo "- Updated db-client dependency from previous version to ${VERSION}" >> $GITHUB_OUTPUT
-          echo "- Updated poetry.lock file" >> $GITHUB_OUTPUT
+          echo "- Updated lockfile file" >> $GITHUB_OUTPUT
           echo "" >> $GITHUB_OUTPUT
           echo "## Testing" >> $GITHUB_OUTPUT
           echo "- [ ] Verify the application builds successfully" >> $GITHUB_OUTPUT
