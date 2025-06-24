@@ -2,6 +2,7 @@
 
 # Test script for the update-dependencies workflow logic
 # This script simulates the workflow steps to verify they work correctly
+# This script is run in CI to verify the workflow logic
 
 set -e
 
@@ -34,12 +35,23 @@ EOF
 echo "📝 Created test pyproject.toml:"
 cat test_pyproject.toml
 
-# Test the update logic (macOS compatible)
-if sed -i '' "s/tag = \"v[0-9]*\.[0-9]*\.[0-9]*\"/tag = \"v${NEW_VERSION}\"/" test_pyproject.toml; then
-	echo "✅ Successfully updated pyproject.toml"
+# Test the update logic (cross-platform compatible)
+if [[ ${OSTYPE} == "darwin"* ]]; then
+	# macOS
+	if sed -i '' "s/tag = \"v[0-9]*\.[0-9]*\.[0-9]*\"/tag = \"v${NEW_VERSION}\"/" test_pyproject.toml; then
+		echo "✅ Successfully updated pyproject.toml (macOS)"
+	else
+		echo "❌ Failed to update pyproject.toml"
+		exit 1
+	fi
 else
-	echo "❌ Failed to update pyproject.toml"
-	exit 1
+	# Linux
+	if sed -i "s/tag = \"v[0-9]*\.[0-9]*\.[0-9]*\"/tag = \"v${NEW_VERSION}\"/" test_pyproject.toml; then
+		echo "✅ Successfully updated pyproject.toml (Linux)"
+	else
+		echo "❌ Failed to update pyproject.toml"
+		exit 1
+	fi
 fi
 
 echo "📝 Updated pyproject.toml:"
