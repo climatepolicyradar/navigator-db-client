@@ -25,3 +25,4 @@ class Corpus(Base):
     corpus_image_url = sa.Column(sa.Text)
     organisation_id = sa.Column(sa.ForeignKey(Organisation.id), nullable=False)
     corpus_type_name = sa.Column(sa.ForeignKey(CorpusType.name), nullable=False)
+    attribution_url = sa.Column(sa.String, nullable=True)
