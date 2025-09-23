@@ -34,7 +34,9 @@ class CollectionFamily(Base):
     collection_import_id = sa.Column(
         sa.ForeignKey(Collection.import_id), nullable=False
     )
-    family_import_id = sa.Column(sa.ForeignKey(Family.import_id), nullable=False, index=True)
+    family_import_id = sa.Column(
+        sa.ForeignKey(Family.import_id), nullable=False, index=True
+    )
     sa.PrimaryKeyConstraint(collection_import_id, family_import_id)
 
 
