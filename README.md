@@ -22,10 +22,10 @@ Read more about Trunk via their docs page [here](https://docs.trunk.io/).
 1. Include the following in the `pyproject.toml`:
 
 ```toml
-db-client = {git = "https://github.com/climatepolicyradar/navigator-db-client.git", tag = {LATEST_TAG}}
+db-client @ git+https://github.com/climatepolicyradar/navigator-db-client.git@v{LATEST_TAG}
 ```
 
-2. Run `poetry lock`
+2. Run `uv lock`
 
 ## Automated Dependency Updates
 
@@ -38,7 +38,7 @@ repositories to bump the `db-client` version.
 1. A release is published in `navigator-db-client`
 2. The workflow triggers and checks out dependent repositories
 3. Updates the `db-client` dependency version in `pyproject.toml`
-4. Updates `poetry.lock` with the new version
+4. Updates `uv.lock` with the new version
 5. Creates a pull request with the changes
 
 ### Currently supported repositories
