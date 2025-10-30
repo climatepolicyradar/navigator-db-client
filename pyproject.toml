@@ -18,7 +18,7 @@ dependencies = [
   "pycountry>=24.6.1",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
   "pytest-alembic>=0.10.5",
   "pytest-cov>=4.1.0",
