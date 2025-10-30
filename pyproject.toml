@@ -1,6 +1,6 @@
 [project]
 name = "db-client"
-version = "3.9.21"
+version = "3.10.0"
 description = "All things to do with the datamodel and its storage. Including alembic migrations and datamodel code."
 authors = [{ name = "CPR-dev-team", email = "tech@climatepolicyradar.org" }]
 license = { text = "Apache-2.0" }
