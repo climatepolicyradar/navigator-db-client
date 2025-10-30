@@ -1,5 +1,6 @@
 from typing import List, Tuple
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from db_client.models.dfce import (
@@ -160,7 +161,11 @@ def add_document(db: Session, family_import_id, d):
     db.flush()
 
     for lang in d["languages"]:
-        db_lang = db.query(Language).filter(Language.language_code == lang).one()
+        db_lang = (
+            db.execute(select(Language).where(Language.language_code == lang))
+            .scalars()
+            .first()
+        )
         db.add(
             PhysicalDocumentLanguage(
                 language_id=db_lang.id, document_id=pd.id, source="User", visible=True
