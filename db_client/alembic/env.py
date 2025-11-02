@@ -247,20 +247,20 @@ def run_migrations_online():
             context.run_migrations()
 
 
-register_entities(
-    [
-        last_modified_procedure,
-        update_family_when_related_entity_updated,
-        update_collection_when_related_entity_updated,
-        doc_last_modified_trigger,
-        event_last_modified_trigger,
-        family_last_modified_trigger,
-        family_doc_last_modified_trigger,
-        family_event_last_modified_trigger,
-        collection_last_modified_trigger,
-        family_collection_last_modified_trigger,
-    ]
-)
+# register_entities(
+#     [
+#         last_modified_procedure,
+#         update_family_when_related_entity_updated,
+#         update_collection_when_related_entity_updated,
+#         doc_last_modified_trigger,
+#         event_last_modified_trigger,
+#         family_last_modified_trigger,
+#         family_doc_last_modified_trigger,
+#         family_event_last_modified_trigger,
+#         collection_last_modified_trigger,
+#         family_collection_last_modified_trigger,
+#     ]
+# )
 
 
 if context.is_offline_mode():
