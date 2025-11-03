@@ -556,7 +556,7 @@ def upgrade():
     END;
     $$ language 'plpgsql'""",
     )
-    op.create_entity(public_update_1_last_modified)  # type: ignore
+    op.create_entity(public_update_1_last_modified)
 
     public_update_2_family_last_modified = PGFunction(
         schema="public",
@@ -577,7 +577,7 @@ def upgrade():
     END;
     $$ language 'plpgsql'""",
     )
-    op.create_entity(public_update_2_family_last_modified)  # type: ignore
+    op.create_entity(public_update_2_family_last_modified)
 
     public_update_2_collection_last_modified = PGFunction(
         schema="public",
@@ -598,7 +598,7 @@ def upgrade():
     END;
     $$ language 'plpgsql'""",
     )
-    op.create_entity(public_update_2_collection_last_modified)  # type: ignore
+    op.create_entity(public_update_2_collection_last_modified)
 
     # Create audit triggers
     public_family_document_update_last_modified = PGTrigger(
@@ -611,7 +611,7 @@ def upgrade():
     FOR EACH ROW
     EXECUTE PROCEDURE public.update_1_last_modified()""",
     )
-    op.create_entity(public_family_document_update_last_modified)  # type: ignore
+    op.create_entity(public_family_document_update_last_modified)
 
     public_family_event_update_last_modified = PGTrigger(
         schema="public",
@@ -623,7 +623,7 @@ def upgrade():
     FOR EACH ROW
     EXECUTE PROCEDURE public.update_1_last_modified()""",
     )
-    op.create_entity(public_family_event_update_last_modified)  # type: ignore
+    op.create_entity(public_family_event_update_last_modified)
 
     public_family_update_last_modified = PGTrigger(
         schema="public",
@@ -635,7 +635,7 @@ def upgrade():
     FOR EACH ROW
     EXECUTE PROCEDURE public.update_1_last_modified()""",
     )
-    op.create_entity(public_family_update_last_modified)  # type: ignore
+    op.create_entity(public_family_update_last_modified)
 
     public_family_document_update_family_last_modified = PGTrigger(
         schema="public",
@@ -647,7 +647,7 @@ def upgrade():
     FOR EACH ROW
     EXECUTE PROCEDURE public.update_2_family_last_modified()""",
     )
-    op.create_entity(public_family_document_update_family_last_modified)  # type: ignore
+    op.create_entity(public_family_document_update_family_last_modified)
 
     public_family_event_update_family_last_modified = PGTrigger(
         schema="public",
@@ -659,7 +659,7 @@ def upgrade():
     FOR EACH ROW
     EXECUTE PROCEDURE public.update_2_family_last_modified()""",
     )
-    op.create_entity(public_family_event_update_family_last_modified)  # type: ignore
+    op.create_entity(public_family_event_update_family_last_modified)
 
     public_collection_update_collection_last_modified = PGTrigger(
         schema="public",
@@ -671,7 +671,7 @@ def upgrade():
     FOR EACH ROW
     EXECUTE PROCEDURE public.update_1_last_modified()""",
     )
-    op.create_entity(public_collection_update_collection_last_modified)  # type: ignore
+    op.create_entity(public_collection_update_collection_last_modified)
 
     public_collection_family_update_collection_last_modified = PGTrigger(
         schema="public",
@@ -683,7 +683,7 @@ def upgrade():
     FOR EACH ROW
     EXECUTE PROCEDURE public.update_2_collection_last_modified()""",
     )
-    op.create_entity(public_collection_family_update_collection_last_modified)  # type: ignore
+    op.create_entity(public_collection_family_update_collection_last_modified)
 
     # ### end Alembic commands ###
 
