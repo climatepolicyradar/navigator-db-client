@@ -343,7 +343,7 @@ def upgrade():
         "CCLW national policies",
         cclw,
         law_and_policy,
-        "CCLW national policies",
+        '\n        <p>\n          The summary of this document was written by researchers at the <a href="http://lse.ac.uk/grantham" target="_blank"> Grantham Research Institute </a> . \n          If you want to use this summary, please check <a href="https://www.lse.ac.uk/granthaminstitute/cclw-terms-and-conditions" target="_blank"> terms of use </a> for citation and licensing of third party data.\n        </p>\n',
     )
     session.flush()
 
@@ -357,6 +357,7 @@ def upgrade():
             "UN",
             "UNFCCC",
         )
+
     add_corpus(
         session,
         Corpus,
@@ -364,7 +365,7 @@ def upgrade():
         "UNFCCC Submissions",
         unfccc,
         intl_agreements,
-        "UNFCCC Submissions",
+        '\n        <p>\n          This document was downloaded from the <a href="https://unfccc.int/" target="...site/terms-of-use" target="_blank"> terms of use </a> for citation and licensing of third party data.\n        </p>\n',
     )
     session.flush()
 
