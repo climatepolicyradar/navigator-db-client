@@ -307,3 +307,15 @@ def test_entity_specific_taxonomy_value_counts_correct(
 
         for tax_key, expected_value_count in entity_specific_taxonomy_items:
             assert len(schema[tax_key]["allowed_values"]) == expected_value_count
+
+
+@pytest.mark.parametrize("corpus_type_name", ["Intl. agreements", "Laws and Policies"])
+def test_no_duplicate_event_type_subtaxonomy_for_intl_agreements_and_laws_and_policies(
+    test_db: Session, corpus_type_name: str
+):
+    corpus_type = (
+        test_db.query(CorpusType).filter(CorpusType.name == corpus_type_name).one()
+    )
+    assert corpus_type is not None
+    assert corpus_type.valid_metadata["_event"]["event_type"] is not None
+    assert corpus_type.valid_metadata.get("event_type") is None
