@@ -99,8 +99,10 @@ def _populate_language(session: Session, language_model) -> None:
 
 def _populate_document_variants(session: Session, variant):
     if session.scalar(select(func.count()).select_from(variant)) == 0:
-        session.add(variant(variant_name="original", description="Original language"))
-        session.add(variant(variant_name="translation", description="Translation"))
+        session.add(
+            variant(variant_name="Original Language", description="Original Language")
+        )
+        session.add(variant(variant_name="Translation", description="Translation"))
     session.flush()
 
 
