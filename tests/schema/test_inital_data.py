@@ -1,5 +1,5 @@
 import logging
-from sqlalchemy import select
+
 import pytest
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session
