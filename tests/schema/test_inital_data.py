@@ -313,8 +313,12 @@ def test_entity_specific_taxonomy_value_counts_correct(
 def test_no_duplicate_event_type_subtaxonomy_for_intl_agreements_and_laws_and_policies(
     test_db: Session, corpus_type_name: str
 ):
+    from sqlalchemy import select
+
     corpus_type = (
-        test_db.query(CorpusType).filter(CorpusType.name == corpus_type_name).one()
+        test_db.execute(select(CorpusType).where(CorpusType.name == corpus_type_name))
+        .scalars()
+        .one()
     )
     assert corpus_type is not None
     assert corpus_type.valid_metadata["_event"]["event_type"] is not None

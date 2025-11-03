@@ -1,3 +1,5 @@
+from sqlalchemy import select
+
 from db_client.functions.dfce_helpers import add_collections
 from db_client.models.dfce.collection import Collection, CollectionOrganisation
 
@@ -11,7 +13,7 @@ def test_add_collections__one_collection(test_db):
     }
     add_collections(test_db, collections=[collection1])
 
-    collections = test_db.query(Collection).all()
+    collections = test_db.execute(select(Collection)).unique().scalars().all()
     assert len(collections) == 1
 
     collection = collections[0]
@@ -36,8 +38,8 @@ def test_add_collections__multiple_collections(test_db):
     }
     add_collections(test_db, collections=[collection1, collection2])
 
-    collections = test_db.query(Collection).all()
-    assert len(test_db.query(Collection).all()) == 2
+    collections = test_db.execute(select(Collection)).unique().scalars().all()
+    assert len(collections) == 2
 
     assert all(
         [
@@ -56,9 +58,11 @@ def test_add_collections__organisations(test_db):
     }
     add_collections(test_db, collections=[collection1])
 
-    assert len(test_db.query(Collection).all()) == 1
+    assert len(test_db.execute(select(Collection)).unique().scalars().all()) == 1
 
-    collections = test_db.query(CollectionOrganisation).all()
+    collections = (
+        test_db.execute(select(CollectionOrganisation)).unique().scalars().all()
+    )
     assert len(collections) == 1
 
     collection = collections[0]
