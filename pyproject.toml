@@ -38,5 +38,4 @@ packages = ["db_client"]
 [tool.pyright]
 include = ["db_client", "tests"]
 exclude = ["**/__pycache__"]
-executionEnvironments = [{ "root" = "db_client" }]
 venv = "dbclient"
