@@ -1,5 +1,5 @@
 import logging
-
+from sqlalchemy import select
 import pytest
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session
@@ -313,8 +313,6 @@ def test_entity_specific_taxonomy_value_counts_correct(
 def test_no_duplicate_event_type_subtaxonomy_for_intl_agreements_and_laws_and_policies(
     test_db: Session, corpus_type_name: str
 ):
-    from sqlalchemy import select
-
     corpus_type = (
         test_db.execute(select(CorpusType).where(CorpusType.name == corpus_type_name))
         .scalars()
