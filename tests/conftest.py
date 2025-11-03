@@ -1,9 +1,11 @@
 import os
+from typing import cast
 
 import pytest
 from pytest_alembic.config import Config
 from pytest_mock_resources import PostgresConfig, create_postgres_fixture
 from sqlalchemy import create_engine
+from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import create_database, database_exists, drop_database
 
@@ -55,11 +57,12 @@ def template_db_engine(template_engine_fixture):
 
     # Apply migrations to template
     engine = None
-    connection = None
+    connection: Connection | None = None
     try:
-        engine = create_engine(db_url)
-        connection = engine.connect()
-        run_migrations(engine)
+        e = cast(Engine, create_engine(db_url))
+        engine = e
+        connection = e.connect()
+        run_migrations(e)
     finally:
         if connection is not None:
             connection.close()
@@ -86,15 +89,14 @@ def test_db(template_db_engine, test_engine_fixture):
     create_database(db_url, template=template_db_engine.url.database)
 
     test_session = None
-    connection = None
+    connection: Connection | None = None
     try:
-        test_engine = create_engine(db_url)
+        test_engine = cast(Engine, create_engine(db_url))
         connection = test_engine.connect()
 
         test_session_maker = sessionmaker(
-            autocommit=False,
-            autoflush=False,
             bind=test_engine,
+            autoflush=False,
         )
         test_session = test_session_maker()
 

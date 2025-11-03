@@ -3,6 +3,7 @@ from typing import cast
 
 import pytest
 from pydantic import ValidationError
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from db_client.functions.dfce_helpers import (
@@ -50,7 +51,9 @@ def test_add_families__link_collection_family(test_db):
         test_db, [(str("CPR.Collection.1.0"), str("CCLW.family.3003.0"))]
     )
 
-    collection_family_links = test_db.query(CollectionFamily).all()
+    collection_family_links = (
+        test_db.execute(select(CollectionFamily)).unique().scalars().all()
+    )
     assert len(collection_family_links) == 1
 
     collection_family_link = collection_family_links[0]  # type: ignore
@@ -101,20 +104,22 @@ def test_add_families__family_geos(test_db):
     add_families(test_db, families=[family])
 
     family_geos = (
-        test_db.query(FamilyGeography)
-        .filter(FamilyGeography.family_import_id == "CCLW.family.3003.0")
+        test_db.execute(
+            select(FamilyGeography).where(
+                FamilyGeography.family_import_id == "CCLW.family.3003.0"
+            )
+        )
+        .scalars()
         .all()
     )
     assert len(family_geos) == 2
 
-    ind_id = (
-        test_db.query(Geography.id).filter(Geography.display_value == "India").scalar()
-    )
-    afg_id = (
-        test_db.query(Geography.id)
-        .filter(Geography.display_value == "Afghanistan")
-        .scalar()
-    )
+    ind_id = test_db.execute(
+        select(Geography.id).where(Geography.display_value == "India")
+    ).scalar_one_or_none()
+    afg_id = test_db.execute(
+        select(Geography.id).where(Geography.display_value == "Afghanistan")
+    ).scalar_one_or_none()
     assert all(
         [
             cast(int, family_geo.geography_id) in [ind_id, afg_id]
@@ -152,7 +157,7 @@ def test_add_families__different_categories(test_db):
 
     add_families(test_db, families=families)
 
-    saved_families = test_db.query(Family).all()
+    saved_families = test_db.execute(select(Family)).unique().scalars().all()
     assert len(saved_families) == len(FamilyCategory)
 
 
@@ -210,7 +215,11 @@ def test_add_family_with_concepts(test_db: Session):
     test_db.commit()
 
     family = (
-        test_db.query(Family).filter(Family.import_id == "family_with_concepts").first()
+        test_db.execute(
+            select(Family).where(Family.import_id == "family_with_concepts")
+        )
+        .scalars()
+        .first()
     )
     assert family is not None
     assert family.parsed_concepts() == concepts

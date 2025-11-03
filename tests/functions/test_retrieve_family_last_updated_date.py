@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta, timezone
 
+from sqlalchemy import select
+
 from db_client.models.dfce.family import (
     EventStatus,
     Family,
@@ -44,7 +46,7 @@ def test_calculates_last_updated_dates_based_on_latest_family_event(test_db):
     test_db.add(passed_event)
     test_db.commit()
 
-    families = test_db.query(Family).all()
+    families = test_db.execute(select(Family)).unique().scalars().all()
     assert len(families) == 1
 
     family = families[0]
@@ -101,7 +103,7 @@ def test_family_last_updated_date_excludes_event_dates_in_the_future(test_db):
     test_db.add(future_completed_event)
     test_db.commit()
 
-    families = test_db.query(Family).all()
+    families = test_db.execute(select(Family)).unique().scalars().all()
     assert len(families) == 1
 
     family = families[0]
