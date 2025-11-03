@@ -6,20 +6,12 @@ Create Date: 2025-10-30 17:01:09.258758
 
 """
 
-import json
-
 import sqlalchemy as sa
 from alembic import op
 from alembic_utils.pg_function import PGFunction
 from alembic_utils.pg_trigger import PGTrigger
-from slugify import slugify
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.orm import Session
-from sqlalchemy.sql import text
-
-from db_client.models.dfce.geography import CPR_DEFINED_GEOS, GEO_OTHER
-from db_client.utils import get_library_path
 
 # revision identifiers, used by Alembic.
 revision = "0001"

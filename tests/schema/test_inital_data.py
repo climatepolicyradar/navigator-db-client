@@ -1,8 +1,6 @@
 import logging
 
 import pytest
-from alembic import command
-from alembic.config import Config
 from sqlalchemy.orm import Session
 
 from db_client.models.organisation.corpus import Corpus, CorpusType, Organisation
