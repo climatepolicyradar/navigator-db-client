@@ -400,7 +400,7 @@ def upgrade():
     _populate_initial_geographies(session, Base.classes.geography)
 
     # Counters
-    _populate_counters(session, Base.classes.entity_counter)
+    # _populate_counters(session, Base.classes.entity_counter) # TODO
 
     # Geo statistics
     _populate_initial_geo_statistics(session, Base.classes.geo_statistics)
