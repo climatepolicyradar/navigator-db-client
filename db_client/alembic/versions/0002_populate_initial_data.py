@@ -10,13 +10,10 @@ import json
 from typing import cast
 
 import pycountry
-import sqlalchemy as sa
 from alembic import op
-from alembic_utils.pg_function import PGFunction
-from alembic_utils.pg_trigger import PGTrigger
 from pycountry.db import Country, Subdivision
 from slugify import slugify
-from sqlalchemy.dialects import postgresql
+from sqlalchemy import func, select
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
@@ -80,62 +77,50 @@ def add_corpus(session, Corpus, title, description, org, corpus_type, corpus_tex
     return corpus
 
 
-def _populate_language(session: Session) -> None:
+def _populate_language(session: Session, language_model) -> None:
     """Populates the language table with pre-defined data."""
-    if session.execute(text("select count(*) from language")).scalar() == 0:
+    if session.scalar(select(func.count()).select_from(language_model)) == 0:
         language_data_path = (
             f"{get_library_path()}/data_migrations/data/source/language_data.json"
         )
         with open(language_data_path) as language_file:
             language_data = json.load(language_file)
-            query = text(
-                "insert into language (language_code, part1_code, part2_code, name) "
-                "values (:language_code, :part1_code, :part2_code, :name)"
-            )
-            session.execute(query, params=language_data)
+            for language in language_data:
+                session.add(
+                    language_model(
+                        language_code=language["language_code"],
+                        part1_code=language.get("part1_code", None),
+                        part2_code=language.get("part2_code", None),
+                        name=language.get("name", None),
+                    )
+                )
     session.flush()
 
 
 def _populate_document_variants(session: Session, variant):
-    if session.execute(text("select count(*) from variant")).scalar() != 0:
-        return
-
-    session.execute(
-        text(
-            "insert into variant (variant_name, description) values (:variant_name, :description)"
-        ),
-        params=[
-            {"variant_name": "original", "description": "Original language"},
-            {"variant_name": "translation", "description": "Translation"},
-        ],
-    )
+    if session.scalar(select(func.count()).select_from(variant)) == 0:
+        session.add(variant(variant_name="original", description="Original language"))
+        session.add(variant(variant_name="translation", description="Translation"))
     session.flush()
 
 
-def _populate_counters(session: Session):
-    if session.execute(text("select count(*) from entity_counter")).scalar() != 0:
-        return
-
-    statement = text(
-        "insert into entity_counter (prefix, description) values (:prefix, :description)"
-    )
-    session.execute(
-        statement,
-        params=[
-            {"prefix": "CCLW", "description": "Counter for CCLW entities"},
-            {
-                "prefix": "UNFCCC",
-                "description": "Counter for UNFCCC entities",
-            },
-        ],
-    )
+def _populate_counters(session: Session, entity_counter_model):
+    if session.scalar(select(func.count()).select_from(entity_counter_model)) == 0:
+        session.add(
+            entity_counter_model(prefix="CCLW", description="Counter for CCLW entities")
+        )
+        session.add(
+            entity_counter_model(
+                prefix="UNFCCC", description="Counter for UNFCCC entities"
+            )
+        )
     session.flush()
 
 
-def _populate_initial_geo_statistics(db: Session) -> None:
+def _populate_initial_geo_statistics(db: Session, geo_statistics_model) -> None:
     """Populates the geo_statistics table with pre-defined data."""
 
-    if db.execute(text("select count(*) from geo_statistics")).scalar() != 0:
+    if db.scalar(select(func.count()).select_from(geo_statistics_model)) != 0:
         return
 
     # Load geo_stats data from structured data file
@@ -155,27 +140,21 @@ def _populate_initial_geo_statistics(db: Session) -> None:
             if geography_id is None:
                 continue
 
-            args = {**geo_stat}
-            args["geography_id"] = geography_id
-            del args["iso"]
-
-            db.execute(
-                text(
-                    "insert into geo_statistics ("
-                    "name, legislative_process, federal, federal_details, "
-                    "political_groups, global_emissions_percent, "
-                    "climate_risk_index, worldbank_income_group, visibility_status, "
-                    "geography_id "
-                    ") values "
-                    "("
-                    ":name, :legislative_process, :federal, :federal_details, "
-                    ":political_groups, :global_emissions_percent, "
-                    ":climate_risk_index, :worldbank_income_group, :visibility_status, "
-                    ":geography_id"
-                    ")"
-                ),
-                params=args,
+            db.add(
+                geo_statistics_model(
+                    name=geo_stat["name"],
+                    legislative_process=geo_stat["legislative_process"],
+                    federal=geo_stat["federal"],
+                    federal_details=geo_stat["federal_details"],
+                    political_groups=geo_stat["political_groups"],
+                    global_emissions_percent=geo_stat["global_emissions_percent"],
+                    climate_risk_index=geo_stat["climate_risk_index"],
+                    worldbank_income_group=geo_stat["worldbank_income_group"],
+                    visibility_status=geo_stat["visibility_status"],
+                    geography_id=geography_id,
+                )
             )
+
     db.flush()
 
 
@@ -216,42 +195,40 @@ def add_country_subdivisions_from_pycountry(session: Session, geography):
     session.commit()
 
 
+def _insert_geo_tree(nodes, geography, session: Session, parent_id=None):
+    for entry in nodes:
+        data = entry["node"]
+        display_value = data["display_value"]
+        slug = slugify(display_value, separator="-")
+        value = data["value"]
+        geo_type = data["type"]
+
+        geo_obj = geography(
+            display_value=display_value,
+            slug=slug,
+            value=value,
+            type=geo_type,
+            parent_id=parent_id,
+        )
+        session.add(geo_obj)
+        session.flush()
+        inserted_id = geo_obj.id
+
+        children = entry.get("children") or []
+        if children:
+            _insert_geo_tree(children, geography, session, parent_id=inserted_id)
+
+
 def _populate_initial_geographies(session: Session, geography):
-    if session.execute(text("select count(*) from geography")).scalar() != 0:
+    if session.scalar(select(func.count()).select_from(geography)) != 0:
         return
-
-    def _insert_geo_tree(nodes, parent_id=None):
-        for entry in nodes:
-            data = entry["node"]
-            display_value = data["display_value"]
-            slug = slugify(display_value, separator="-")
-            value = data["value"]
-            geo_type = data["type"]
-            inserted_id = session.execute(
-                text(
-                    "insert into geography (display_value, slug, value, type, parent_id) "
-                    "values (:display_value, :slug, :value, :type, :parent_id) "
-                    "returning id"
-                ),
-                params={
-                    "display_value": display_value,
-                    "slug": slug,
-                    "value": value,
-                    "type": geo_type,
-                    "parent_id": parent_id,
-                },
-            ).scalar_one()
-
-            children = entry.get("children") or []
-            if children:
-                _insert_geo_tree(children, parent_id=inserted_id)
 
     geo_data_path = (
         f"{get_library_path()}/data_migrations/data/source/geography_data.json"
     )
     with open(geo_data_path) as geo_data_file:
         geo_data = json.load(geo_data_file)
-        _insert_geo_tree(geo_data, parent_id=None)
+        _insert_geo_tree(geo_data, geography, session, parent_id=None)
 
     add_country_subdivisions_from_pycountry(session, geography)
 
@@ -278,18 +255,15 @@ def _populate_initial_geographies(session: Session, geography):
     ).scalar_one_or_none()
 
     if other_row is None:
-        other_id = session.execute(
-            text(
-                "insert into geography (display_value, slug, value, type) "
-                "values (:display_value, :slug, :value, :type) returning id"
-            ),
-            params={
-                "display_value": GEO_OTHER,
-                "slug": slugify(GEO_OTHER),
-                "value": GEO_OTHER,
-                "type": "ISO-3166 CPR Extension",
-            },
-        ).scalar_one()
+        other_geo = geography(
+            display_value=GEO_OTHER,
+            slug=slugify(GEO_OTHER),
+            value=GEO_OTHER,
+            type="ISO-3166 CPR Extension",
+        )
+        session.add(other_geo)
+        session.flush()
+        other_id = other_geo.id
     else:
         other_id = other_row[0]
 
@@ -299,18 +273,14 @@ def _populate_initial_geographies(session: Session, geography):
             params={"value": value},
         ).scalar_one_or_none()
         if exists is None:
-            session.execute(
-                text(
-                    "insert into geography (display_value, slug, value, type, parent_id) "
-                    "values (:display_value, :slug, :value, :type, :parent_id)"
-                ),
-                params={
-                    "display_value": description,
-                    "slug": slugify(value),
-                    "value": value,
-                    "type": "ISO-3166 CPR Extension",
-                    "parent_id": other_id,
-                },
+            session.add(
+                geography(
+                    display_value=description,
+                    slug=slugify(value),
+                    value=value,
+                    type="ISO-3166 CPR Extension",
+                    parent_id=other_id,
+                )
             )
 
     session.flush()
@@ -364,7 +334,7 @@ def upgrade():
             session, Org, "CCLW", "LSE CCLW team", "Academic", "CCLW"
         )
 
-    corpus = add_corpus(
+    add_corpus(
         session,
         Corpus,
         "CCLW national policies",
@@ -385,7 +355,7 @@ def upgrade():
             "UN",
             "UNFCCC",
         )
-    corpus = add_corpus(
+    add_corpus(
         session,
         Corpus,
         "UNFCCC Submissions",
@@ -400,13 +370,13 @@ def upgrade():
     _populate_initial_geographies(session, Base.classes.geography)
 
     # Counters
-    _populate_counters(session)
+    _populate_counters(session, Base.classes.entity_counter)
 
     # Geo statistics
-    _populate_initial_geo_statistics(session)
+    _populate_initial_geo_statistics(session, Base.classes.geo_statistics)
 
     # Languages
-    _populate_language(session)
+    _populate_language(session, Base.classes.language)
 
     _populate_document_variants(session, Base.classes.variant)
 
