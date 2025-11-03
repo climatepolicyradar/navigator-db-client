@@ -4,9 +4,6 @@ from logging.config import fileConfig
 from typing import cast
 
 from alembic import context
-from alembic_utils.pg_function import PGFunction
-from alembic_utils.pg_trigger import PGTrigger
-from alembic_utils.replaceable_entity import register_entities
 from sqlalchemy import engine_from_config, pool
 
 from db_client.models import Base
