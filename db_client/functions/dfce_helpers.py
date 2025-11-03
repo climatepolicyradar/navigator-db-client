@@ -166,11 +166,15 @@ def add_document(db: Session, family_import_id, d):
             .scalars()
             .first()
         )
-        db.add(
-            PhysicalDocumentLanguage(
-                language_id=db_lang.id, document_id=pd.id, source="User", visible=True
+        if db_lang is not None:
+            db.add(
+                PhysicalDocumentLanguage(
+                    language_id=db_lang.id,
+                    document_id=pd.id,
+                    source="User",
+                    visible=True,
+                )
             )
-        )
 
     new_slug = Slug(
         family_import_id=None,

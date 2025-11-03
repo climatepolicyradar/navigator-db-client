@@ -6,7 +6,7 @@ from db_client.models.organisation.counters import CountedEntity, EntityCounter
 
 def test_import_id_generation(test_db: Session):
     rows = test_db.scalar(select(func.count()).select_from(EntityCounter))
-    assert rows > 0
+    assert rows is not None and rows > 0
 
     row: EntityCounter = (
         test_db.execute(select(EntityCounter).where(EntityCounter.prefix == "CCLW"))
