@@ -262,7 +262,9 @@ class FamilyDocument(Base):
     __tablename__ = "family_document"
     __allow_unmapped__ = True
 
-    family_import_id = sa.Column(sa.ForeignKey(Family.import_id), nullable=False)
+    family_import_id = sa.Column(
+        sa.ForeignKey(Family.import_id), nullable=False, index=True
+    )
     physical_document_id = sa.Column(
         sa.ForeignKey(PhysicalDocument.id),
         nullable=False,
@@ -301,7 +303,9 @@ class FamilyGeography(Base):  # noqa: D101
     __tablename__ = "family_geography"
 
     geography_id = sa.Column(sa.ForeignKey(Geography.id), nullable=False)
-    family_import_id = sa.Column(sa.ForeignKey(Family.import_id), nullable=False)
+    family_import_id = sa.Column(
+        sa.ForeignKey(Family.import_id), nullable=False, index=True
+    )
     sa.PrimaryKeyConstraint(geography_id, family_import_id)
 
 
@@ -318,9 +322,11 @@ class Slug(Base):
     )
 
     name = sa.Column(sa.Text, primary_key=True)
-    family_import_id = sa.Column(sa.ForeignKey(Family.import_id))
-    family_document_import_id = sa.Column(sa.ForeignKey(FamilyDocument.import_id))
-    collection_import_id = sa.Column(sa.ForeignKey("collection.import_id"))
+    family_import_id = sa.Column(sa.ForeignKey(Family.import_id), index=True)
+    family_document_import_id = sa.Column(
+        sa.ForeignKey(FamilyDocument.import_id), index=True
+    )
+    collection_import_id = sa.Column(sa.ForeignKey("collection.import_id"), index=True)
     created = sa.Column(
         sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
     )
@@ -345,11 +351,14 @@ class FamilyEvent(Base):
     title = sa.Column(sa.Text, nullable=False)
     date = sa.Column(sa.DateTime(timezone=True), nullable=False)
     event_type_name = sa.Column(sa.Text, nullable=False)
-    family_import_id = sa.Column(sa.ForeignKey(Family.import_id), nullable=False)
+    family_import_id = sa.Column(
+        sa.ForeignKey(Family.import_id), nullable=False, index=True
+    )
     family_document_import_id = sa.Column(
         sa.ForeignKey(FamilyDocument.import_id),
         default=None,
         nullable=True,
+        index=True,
     )
     status = sa.Column(sa.Enum(EventStatus), nullable=False)
     created = sa.Column(
