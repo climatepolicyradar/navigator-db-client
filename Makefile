@@ -33,3 +33,6 @@ check:
 
 test:
 	poetry run pytest -vvv --cov=db_client --cov-fail-under=80 --cov-report=term --cov-report=html
+
+update-python-version:
+	poetry python install $(head -n1 .python-version)
