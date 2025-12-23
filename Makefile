@@ -23,7 +23,7 @@ setup_with_pyenv: install_trunk ## Sets up a local dev environment using Pyenv
 	fi
 	@eval "$$(pyenv init -)" && \
 	pyenv activate $(venv_name) && \
-	poetry install
+	poetry install --with dev
 
 	make configure_pyright
 
