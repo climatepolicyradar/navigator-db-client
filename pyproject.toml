@@ -2,12 +2,12 @@
 name = "db-client"
 version = "4.0.0"
 description = "All things to do with the data model and its storage. Including alembic migrations and data model code."
-authors = ["CPR-dev-team <tech@climatepolicyradar.org>"]
+authors = [{ name = "CPR-dev-team", email = "tech@climatepolicyradar.org" }]
 license = "Apache-2.0"
 readme = "README.md"
 requires-python = ">=3.13,<3.14"
 dependencies = [
-  "sqlalchemy>=2..0",
+  "sqlalchemy>=2.0.0",
   "alembic>=1.13.2",
   "alembic-utils>=0.8.2",
   "psycopg2-binary>=2.9.3",
