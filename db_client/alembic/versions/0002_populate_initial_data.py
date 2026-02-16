@@ -43,7 +43,7 @@ def add_organisation(session, Org, name, description, organisation_type, display
 
 
 def get_organisation(session, Org, name):
-    org = session.query(Org).filter(Org.name == name).one_or_none()
+    org = session.execute(select(Org).where(Org.name == name)).scalars().one_or_none()
     return org
 
 
@@ -177,17 +177,22 @@ def add_country_subdivisions_from_pycountry(session: Session, geography):
         subdivision = cast(Subdivision, subdivision)
         # if it exists, skip
         existing_subdivision = (
-            session.query(geography).filter(geography.value == subdivision.code).first()
+            session.execute(
+                select(geography).where(geography.value == subdivision.code)
+            )
+            .scalars()
+            .first()
         )
         if existing_subdivision is not None:
             print(f"Subdivision already exists: {subdivision.name}, {subdivision.code}")
             continue
         # if it does not have a parent, skip
-        # trunk-ignore(pyright/reportGeneralTypeIssues)
-        parent_country_alpha_3 = subdivision.country.alpha_3
+        parent_country_alpha_3 = cast(Country, subdivision.country).alpha_3
         parent = (
-            session.query(geography)
-            .filter(geography.value == parent_country_alpha_3)
+            session.execute(
+                select(geography).where(geography.value == parent_country_alpha_3)
+            )
+            .scalars()
             .first()
         )
         if parent is None:
@@ -248,7 +253,9 @@ def _populate_initial_geographies(session: Session, geography):
     for country in pycountry.countries:
         country = cast(Country, country)
         existing_country = (
-            session.query(geography).filter(geography.value == country.alpha_3).first()
+            session.execute(select(geography).where(geography.value == country.alpha_3))
+            .scalars()
+            .first()
         )
 
         # if exists - update with new values
@@ -256,9 +263,12 @@ def _populate_initial_geographies(session: Session, geography):
             # check if the name and display value match
             name = getattr(country, "common_name", country.name)
             if existing_country.display_value != name:
-                session.query(geography).filter(
-                    geography.value == country.alpha_3
-                ).update({"display_value": name})
+                session.execute(
+                    text(
+                        "update geography set display_value = :name where value = :val"
+                    ),
+                    {"name": name, "val": country.alpha_3},
+                )
 
             continue
 
@@ -278,7 +288,7 @@ def _populate_initial_geographies(session: Session, geography):
         session.flush()
         other_id = other_geo.id
     else:
-        other_id = other_row[0]
+        other_id = other_row
 
     for value, description in CPR_DEFINED_GEOS.items():
         exists = session.execute(

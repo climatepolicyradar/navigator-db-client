@@ -167,25 +167,25 @@ class Family(Base):
     @family_status.expression
     def family_status(cls):
         is_published = (
-            sa.select([sa.func.count(FamilyDocument.document_status)])
+            sa.select(sa.func.count(FamilyDocument.document_status))
             .where(
                 sa.and_(
                     FamilyDocument.family_import_id == cls.import_id,
                     FamilyDocument.document_status == DocumentStatus.PUBLISHED,
                 )
             )
-            .as_scalar()
+            .scalar_subquery()
         )
 
         is_created = (
-            sa.select([sa.func.count(FamilyDocument.document_status)])
+            sa.select(sa.func.count(FamilyDocument.document_status))
             .where(
                 sa.and_(
                     FamilyDocument.family_import_id == cls.import_id,
                     FamilyDocument.document_status == DocumentStatus.CREATED,
                 )
             )
-            .as_scalar()
+            .scalar_subquery()
         )
 
         # DO NOT USE 'is None'!

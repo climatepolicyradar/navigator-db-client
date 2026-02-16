@@ -1,6 +1,7 @@
 import logging
 
 import pytest
+from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
 from db_client.models.organisation.corpus import Corpus, CorpusType, Organisation
@@ -62,7 +63,7 @@ EXPECTED_ENTITY_COUNTER = 2
 def test_initial_data_populated_via_migrations(
     test_db: Session, table_name: str, expected_count: int
 ):
-    count = test_db.execute(f"SELECT count(*) FROM {table_name};").scalar()
+    count = test_db.execute(text(f"SELECT count(*) FROM {table_name};")).scalar()
     assert count == expected_count
 
 
@@ -76,7 +77,11 @@ def test_initial_data_populated_via_migrations(
 def test_organisation_values_correct(
     test_db: Session, name: str, description: str, organisation_type: str
 ):
-    org = test_db.query(Organisation).filter(Organisation.name == name).one_or_none()
+    org = (
+        test_db.execute(select(Organisation).where(Organisation.name == name))
+        .scalars()
+        .first()
+    )
     assert org is not None
 
     assert org.name == name
@@ -109,10 +114,14 @@ def test_corpora_values_correct(
     title: str,
 ):
     corpus = (
-        test_db.query(Corpus)
-        .join(Organisation, Corpus.organisation_id == Organisation.id)
-        .filter(Organisation.name == org_name)
-        .one_or_none()
+        test_db.execute(
+            select(Corpus)
+            .join(Organisation, Corpus.organisation_id == Organisation.id)
+            .where(Organisation.name == org_name)
+        )
+        .unique()
+        .scalars()
+        .first()
     )
 
     assert corpus is not None
@@ -159,14 +168,15 @@ def test_taxonomy_value_counts_correct(
     expected_taxonomy_items: list[tuple[str, int]],
 ):
     corpus_type = (
-        test_db.query(CorpusType)
-        .join(
-            Corpus,
-            Corpus.corpus_type_name == CorpusType.name,
+        test_db.execute(
+            select(CorpusType)
+            .join(Corpus, Corpus.corpus_type_name == CorpusType.name)
+            .join(Organisation, Organisation.id == Corpus.organisation_id)
+            .where(Organisation.name == org_name)
         )
-        .join(Organisation, Organisation.id == Corpus.organisation_id)
-        .filter(Organisation.name == org_name)
-        .one_or_none()
+        .unique()
+        .scalars()
+        .first()
     )
     assert corpus_type is not None
 
@@ -229,14 +239,15 @@ def test_entity_specific_taxonomy_value_counts_correct(
     expected_taxonomy_items: list[tuple[str, list[tuple[str, int]]]],
 ):
     corpus_type = (
-        test_db.query(CorpusType)
-        .join(
-            Corpus,
-            Corpus.corpus_type_name == CorpusType.name,
+        test_db.execute(
+            select(CorpusType)
+            .join(Corpus, Corpus.corpus_type_name == CorpusType.name)
+            .join(Organisation, Organisation.id == Corpus.organisation_id)
+            .where(Organisation.name == org_name)
         )
-        .join(Organisation, Organisation.id == Corpus.organisation_id)
-        .filter(Organisation.name == org_name)
-        .one_or_none()
+        .unique()
+        .scalars()
+        .first()
     )
     assert corpus_type is not None
 
@@ -303,7 +314,9 @@ def test_no_duplicate_event_type_subtaxonomy_for_intl_agreements_and_laws_and_po
     test_db: Session, corpus_type_name: str
 ):
     corpus_type = (
-        test_db.query(CorpusType).filter(CorpusType.name == corpus_type_name).one()
+        test_db.execute(select(CorpusType).where(CorpusType.name == corpus_type_name))
+        .scalars()
+        .one()
     )
     assert corpus_type is not None
     assert corpus_type.valid_metadata["_event"]["event_type"] is not None

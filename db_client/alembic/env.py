@@ -1,10 +1,11 @@
 import logging
 import os
 from logging.config import fileConfig
-from typing import cast
+from typing import Any, cast
 
 from alembic import context
 from sqlalchemy import engine_from_config, pool
+from sqlalchemy.engine import Connection, Engine
 
 from db_client.models import Base
 
@@ -85,7 +86,8 @@ def run_migrations_online():
     In this scenario we need to create an Engine
     and associate a connection with the context.
     """
-    connectable = config.attributes.get("connection", None)
+    attributes = cast(dict[str, Any], config.attributes)
+    connectable = attributes.get("connection", None)
 
     if connectable is None:
         configuration = config.get_section(config.config_ini_section)
@@ -98,15 +100,27 @@ def run_migrations_online():
             poolclass=pool.NullPool,
         )
 
-    with connectable.connect() as connection:
+    # If provided a Connection, use it directly; if an Engine, connect first
+    if isinstance(connectable, Engine):
+        with connectable.connect() as connection:
+            context.configure(
+                connection=connection,
+                target_metadata=target_metadata,
+                process_revision_directives=generate_incremental_revision_id,
+            )
+
+            with context.begin_transaction():
+                context.run_migrations()
+    elif isinstance(connectable, Connection):
         context.configure(
-            connection=connection,
+            connection=connectable,
             target_metadata=target_metadata,
             process_revision_directives=generate_incremental_revision_id,
         )
-
         with context.begin_transaction():
             context.run_migrations()
+    else:
+        raise TypeError("Unsupported connectable provided to Alembic context")
 
 
 if context.is_offline_mode():
