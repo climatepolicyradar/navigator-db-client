@@ -25,11 +25,13 @@ if [[ ! ${GITHUB_REF} =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
 fi
 echo "✅ Valid release tag: ${GITHUB_REF}"
 
-# Test the sed command with a sample pyproject.toml
+# Test the sed command with a sample pyproject.toml (uv format)
 cat >test_pyproject.toml <<'EOF'
-[tool.poetry.dependencies]
-python = "^3.13"
-db-client = { git = "https://github.com/climatepolicyradar/navigator-db-client.git", tag = "v3.9.12" }
+[project]
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "db-client @ git+https://github.com/climatepolicyradar/navigator-db-client.git@v3.9.12",
+]
 EOF
 
 echo "📝 Created test pyproject.toml:"
@@ -38,7 +40,7 @@ cat test_pyproject.toml
 # Test the update logic (cross-platform compatible)
 if [[ ${OSTYPE} == "darwin"* ]]; then
 	# macOS
-	if sed -i '' "s/tag = \"v[0-9]*\.[0-9]*\.[0-9]*\"/tag = \"v${NEW_VERSION}\"/" test_pyproject.toml; then
+	if sed -i '' "s/@v[0-9]*\.[0-9]*\.[0-9]*/@v${NEW_VERSION}/" test_pyproject.toml; then
 		echo "✅ Successfully updated pyproject.toml (macOS)"
 	else
 		echo "❌ Failed to update pyproject.toml"
@@ -46,7 +48,7 @@ if [[ ${OSTYPE} == "darwin"* ]]; then
 	fi
 else
 	# Linux
-	if sed -i "s/tag = \"v[0-9]*\.[0-9]*\.[0-9]*\"/tag = \"v${NEW_VERSION}\"/" test_pyproject.toml; then
+	if sed -i "s/@v[0-9]*\.[0-9]*\.[0-9]*/@v${NEW_VERSION}/" test_pyproject.toml; then
 		echo "✅ Successfully updated pyproject.toml (Linux)"
 	else
 		echo "❌ Failed to update pyproject.toml"
