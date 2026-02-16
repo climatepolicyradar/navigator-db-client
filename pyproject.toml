@@ -5,7 +5,7 @@ description = "All things to do with the datamodel and its storage. Including al
 authors = [{ name = "CPR-dev-team", email = "tech@climatepolicyradar.org" }]
 license = { text = "Apache-2.0" }
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.13,<3.14"
 dependencies = [
   "sqlalchemy>=1.4.31,<2.0",
   "alembic>=1.7.6",

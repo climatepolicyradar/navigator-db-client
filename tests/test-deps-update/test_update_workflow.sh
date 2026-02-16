@@ -28,7 +28,7 @@ echo "✅ Valid release tag: ${GITHUB_REF}"
 # Test the sed command with a sample pyproject.toml (uv format)
 cat >test_pyproject.toml <<'EOF'
 [project]
-requires-python = ">=3.11"
+requires-python = ">=3.13,<3.14"
 dependencies = [
     "db-client @ git+https://github.com/climatepolicyradar/navigator-db-client.git@v3.9.12",
 ]
