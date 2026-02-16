@@ -23,7 +23,7 @@ setup_with_pyenv: install_trunk ## Sets up a local dev environment using Pyenv
 	fi
 	@eval "$$(pyenv init -)" && \
 	pyenv activate $(venv_name) && \
-	poetry install
+	poetry install --with dev
 
 	make configure_pyright
 
@@ -33,3 +33,6 @@ check:
 
 test:
 	poetry run pytest -vvv --cov=db_client --cov-fail-under=80 --cov-report=term --cov-report=html
+
+update-python-version:
+	poetry python install $(head -n1 .python-version)

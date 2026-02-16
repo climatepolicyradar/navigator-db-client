@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "db-client"
-version = "3.10.1"
+version = "3.10.2"
 description = "All things to do with the datamodel and its storage. Including alembic migrations and datamodel code."
 authors = ["CPR-dev-team <tech@climatepolicyradar.org>"]
 license = "Apache-2.0"
@@ -8,7 +8,7 @@ readme = "README.md"
 packages = [{ include = "db_client" }]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.13"
 sqlalchemy = "^1.4.31,<2.0"
 alembic = "^1.7.6"
 alembic-utils = "^0.8.2"
@@ -19,7 +19,7 @@ python-slugify = "^6.1.2"
 pydantic = "^2.4.0"
 pycountry = "^24.6.1"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 pytest-alembic = "^0.10.5"
 pytest-cov = "^4.1.0"
 pytest-mock = "^3.12.0"

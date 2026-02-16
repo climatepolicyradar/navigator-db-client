@@ -28,7 +28,7 @@ echo "✅ Valid release tag: ${GITHUB_REF}"
 # Test the sed command with a sample pyproject.toml
 cat >test_pyproject.toml <<'EOF'
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.13"
 db-client = { git = "https://github.com/climatepolicyradar/navigator-db-client.git", tag = "v3.9.12" }
 EOF
 
