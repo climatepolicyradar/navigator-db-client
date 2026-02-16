@@ -60,18 +60,17 @@ def template_db_engine(template_engine_fixture):
         engine = create_engine(db_url)
         connection = engine.connect()
         run_migrations(engine)
-        connection.close()
-
-        yield engine
     finally:
         if connection is not None:
             connection.close()
         if engine is not None:
             engine.dispose()
 
-        # Cleanup
-        if database_exists(db_url):
-            drop_database(db_url)
+    yield engine
+
+    # Cleanup
+    if database_exists(db_url):
+        drop_database(db_url)
 
 
 @pytest.fixture(scope="function")
