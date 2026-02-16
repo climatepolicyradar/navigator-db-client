@@ -6,7 +6,8 @@ import pytest
 from pytest_alembic.config import Config
 from pytest_mock_resources import PostgresConfig, create_postgres_fixture
 from sqlalchemy import create_engine
-from sqlalchemy.engine import URL, Engine, make_url
+from sqlalchemy.engine.base import Engine
+from sqlalchemy.engine.url import URL, make_url
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import create_database, database_exists, drop_database
 
