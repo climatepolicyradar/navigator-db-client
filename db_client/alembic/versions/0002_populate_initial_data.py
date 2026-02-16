@@ -58,7 +58,16 @@ def add_corpus_type(session, CorpusType, name, description, valid_metadata):
     return corpus_type
 
 
-def add_corpus(session, Corpus, title, description, org, corpus_type, corpus_text):
+def add_corpus(
+    session,
+    Corpus,
+    title,
+    description,
+    org,
+    corpus_type,
+    corpus_text,
+    corpus_image_url=None,
+):
     # NOTE: we cannot use create_import_id here.. so pinch the code
     n = 0  # The fourth quad is historical
     i_value = str(1).zfill(8)
@@ -71,6 +80,8 @@ def add_corpus(session, Corpus, title, description, org, corpus_type, corpus_tex
         organisation_id=org.id,
         corpus_type=corpus_type,
         corpus_text=corpus_text,
+        corpus_image_url=corpus_image_url,
+        attribution_url=None,
     )
     session.add(corpus)
     session.flush()
@@ -99,8 +110,10 @@ def _populate_language(session: Session, language_model) -> None:
 
 def _populate_document_variants(session: Session, variant):
     if session.scalar(select(func.count()).select_from(variant)) == 0:
-        session.add(variant(variant_name="original", description="Original language"))
-        session.add(variant(variant_name="translation", description="Translation"))
+        session.add(
+            variant(variant_name="Original Language", description="Original Language")
+        )
+        session.add(variant(variant_name="Translation", description="Translation"))
     session.flush()
 
 
@@ -341,7 +354,16 @@ def upgrade():
         "CCLW national policies",
         cclw,
         law_and_policy,
-        "CCLW national policies",
+        (
+            "\n        <p>\n          The summary of this document was written by "
+            'researchers at the <a href="http://lse.ac.uk/grantham" target="_blank"> '
+            "Grantham Research Institute </a> . \n          If you want to use this summary"
+            ', please check <a href="'
+            'https://www.lse.ac.uk/granthaminstitute/cclw-terms-and-conditions" target='
+            '"_blank"> terms of use </a> for citation and licensing of third party data.'
+            "\n        </p>\n"
+        ),
+        "corpora/CCLW.corpus.i00000001.n0000/logo.png",
     )
     session.flush()
 
@@ -355,6 +377,7 @@ def upgrade():
             "UN",
             "UNFCCC",
         )
+
     add_corpus(
         session,
         Corpus,
@@ -362,7 +385,14 @@ def upgrade():
         "UNFCCC Submissions",
         unfccc,
         intl_agreements,
-        "UNFCCC Submissions",
+        (
+            "\n        <p>\n          This document was downloaded from "
+            'the <a href="https://unfccc.int/" target="_blank"> UNFCCC website </a> . '
+            '\n          Please check <a href="https://unfccc.int/this-site/terms-of-use'
+            '" target="_blank"> terms of use </a> for citation and licensing of third '
+            "party data.\n        </p>\n"
+        ),
+        None,
     )
     session.flush()
 
