@@ -7,6 +7,8 @@ the CorpusType for example which is normally done with a migration, this is
 captured in these functions below.
 """
 
+from sqlalchemy import select
+
 from db_client.functions.dfce_helpers import add_families, add_organisation
 from db_client.models.dfce.family import Family
 from db_client.models.dfce.geography import Geography
@@ -64,4 +66,9 @@ def family_build(db, org, corpus, metadata) -> Family:
         "metadata": metadata,
     }
     add_families(db, families=[family], org_id=org.id)
-    return db.query(Family).filter(Family.import_id == family["import_id"]).one()
+    return (
+        db.execute(select(Family).where(Family.import_id == family["import_id"]))
+        .unique()
+        .scalars()
+        .one()
+    )

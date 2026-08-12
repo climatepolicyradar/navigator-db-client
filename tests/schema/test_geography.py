@@ -1,4 +1,5 @@
 import pytest
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from db_client.models.dfce.geography import Geography
@@ -11,17 +12,27 @@ from db_client.models.dfce.geography import Geography
 def test_geography_updates_and_add_vat(
     test_db: Session, iso_value: str, expected_display_value: str
 ):
-    geography = test_db.query(Geography).filter(Geography.value == iso_value).first()
+    geography = (
+        test_db.execute(select(Geography).where(Geography.value == iso_value))
+        .scalars()
+        .first()
+    )
     assert geography is not None
     assert geography.display_value == expected_display_value
 
 
 def test_geography_subdivisions_exists_with_parent(test_db: Session):
-    australia = test_db.query(Geography).filter(Geography.value == "AUS").first()
+    australia = (
+        test_db.execute(select(Geography).where(Geography.value == "AUS"))
+        .scalars()
+        .first()
+    )
     assert australia is not None
 
     new_south_wales = (
-        test_db.query(Geography).filter(Geography.value == "AU-NSW").first()
+        test_db.execute(select(Geography).where(Geography.value == "AU-NSW"))
+        .scalars()
+        .first()
     )
     assert new_south_wales is not None
     assert new_south_wales.display_value == "New South Wales"
@@ -29,7 +40,14 @@ def test_geography_subdivisions_exists_with_parent(test_db: Session):
     assert new_south_wales.parent_id == australia.id
 
     # Verify no duplicates were created
-    assert test_db.query(Geography).filter(Geography.value == "AU-NSW").count() == 1
+    assert (
+        test_db.scalar(
+            select(func.count())
+            .select_from(Geography)
+            .where(Geography.value == "AU-NSW")
+        )
+        == 1
+    )
 
 
 # These are the countries we know we don't have
@@ -64,4 +82,11 @@ def test_geography_subdivisions_exists_with_parent(test_db: Session):
 def test_geography_subdivisions_does_not_exist_without_parent(
     test_db: Session, iso_value: str
 ):
-    assert test_db.query(Geography).filter(Geography.value == iso_value).count() == 0
+    assert (
+        test_db.scalar(
+            select(func.count())
+            .select_from(Geography)
+            .where(Geography.value == iso_value)
+        )
+        == 0
+    )

@@ -1,6 +1,7 @@
 import logging
 from typing import Mapping, Optional, Sequence, Union
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from db_client.models.organisation import Corpus, CorpusType
@@ -22,12 +23,13 @@ def get_taxonomy_from_corpus(db: Session, corpus_id: str) -> Optional[TaxonomyDa
     :return Optional[TaxonomyData]: The taxonomy of the given corpus or
         None.
     """
-    return (
-        db.query(CorpusType.valid_metadata)
+    stmt = (
+        select(CorpusType.valid_metadata)
         .join(Corpus, Corpus.corpus_type_name == CorpusType.name)
-        .filter(Corpus.import_id == corpus_id)
-        .scalar()
+        .where(Corpus.import_id == corpus_id)
+        .distinct()
     )
+    return db.execute(stmt).scalar_one_or_none()
 
 
 def get_taxonomy_by_corpus_type_name(db: Session, corpus_type_name: str):
@@ -38,11 +40,8 @@ def get_taxonomy_by_corpus_type_name(db: Session, corpus_type_name: str):
     :return Optional[TaxonomyData]: The taxonomy of the given corpus or
         None.
     """
-    return (
-        db.query(CorpusType.valid_metadata)
-        .filter(CorpusType.name == corpus_type_name)
-        .scalar()
-    )
+    stmt = select(CorpusType.valid_metadata).where(CorpusType.name == corpus_type_name)
+    return db.execute(stmt).scalar_one_or_none()
 
 
 def get_entity_specific_taxonomy(

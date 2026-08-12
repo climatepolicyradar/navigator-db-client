@@ -27,4 +27,6 @@ check:
 	trunk check
 
 test:
-	uv run pytest -vvv --cov=db_client --cov-fail-under=80 --cov-report=term --cov-report=html
+	# Unset CI so pytest-mock-resources uses its Docker container (port 5532) rather
+	# than localhost:5432 with user/password; avoids auth failure against local Postgres.
+	env -u CI uv run pytest -vvv --cov=db_client --cov-fail-under=80 --cov-report=term --cov-report=html

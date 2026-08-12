@@ -3,6 +3,10 @@
 All things to do with the data model and its storage. Including alembic
 migrations and data model code.
 
+Note: As of 4.0.0 this library requires SQLAlchemy 2.x. Legacy
+`Session.query(...)` calls in consumer code should be migrated to
+`select(...)` with `Session.execute(...)` where applicable.
+
 ## Used by
 
 - [navigator-backend](https://github.com/climatepolicyradar/navigator-backend)
