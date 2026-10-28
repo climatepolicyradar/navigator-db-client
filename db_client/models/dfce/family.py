@@ -1,7 +1,7 @@
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
-from typing import Literal, Optional, cast
+from typing import Literal, cast
 
 import sqlalchemy as sa
 from pydantic import BaseModel
@@ -59,9 +59,17 @@ class Concept(BaseModel):
     # related_concepts: list[str] = []
     # wikibase_id: str = ""
 
-    relation: Literal["author", "jurisdiction", "category", "principal_law"] | None = (
-        None
-    )
+    relation: (
+        Literal[
+            "author",
+            "jurisdiction",
+            "category",
+            "principal_law",
+            "plaintiff",
+            "defendant",
+        ]
+        | None
+    ) = None
 
 
 class FamilyCategory(BaseModelEnum):
@@ -206,7 +214,7 @@ class Family(Base):
         ).label("family_status")
 
     @hybrid_property
-    def published_date(self) -> Optional[datetime]:
+    def published_date(self) -> datetime | None:
         """A date to use for filtering by published date."""
         if not self.events:
             return None
@@ -234,13 +242,13 @@ class Family(Base):
         return date
 
     @hybrid_property
-    def last_updated_date(self) -> Optional[datetime]:
+    def last_updated_date(self) -> datetime | None:
         """A "last updated" date to use during display of Family."""
         if not self.events:
             return None
         date = None
         for event in self.events:
-            if event.date <= datetime.now(tz=timezone.utc):
+            if event.date <= datetime.now(tz=UTC):
                 if date is None:
                     date = cast(datetime, event.date)
                 else:
@@ -297,7 +305,7 @@ class FamilyDocument(Base):
     valid_metadata = sa.Column(postgresql.JSONB, nullable=False)
 
 
-class FamilyGeography(Base):  # noqa: D101
+class FamilyGeography(Base):
     """Database model for a Family's Geographys"""
 
     __tablename__ = "family_geography"
