@@ -71,6 +71,7 @@ class PhysicalDocumentLanguage(Base):
     document_id = sa.Column(
         sa.ForeignKey(PhysicalDocument.id, ondelete="CASCADE"),
         nullable=False,
+        index=True,
     )
 
     source = sa.Column(

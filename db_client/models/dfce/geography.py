@@ -4,9 +4,14 @@ from db_client.models.base import Base
 
 GEO_NONE = "XAA"
 GEO_INTERNATIONAL = "XAB"
+GEO_VATICAN = "VAT"
 
 GEO_OTHER = "Other"
-CPR_DEFINED_GEOS = {GEO_NONE: "No Geography", GEO_INTERNATIONAL: "International"}
+CPR_DEFINED_GEOS = {
+    GEO_NONE: "No Geography",
+    GEO_INTERNATIONAL: "International",
+    GEO_VATICAN: "Holy See (Vatican City State)",
+}
 
 
 class Geography(Base):  # noqa: D101
