@@ -49,6 +49,7 @@ TRIGGERS = [
 
 
 def _function_sql(name: str, table: str, key_column: str, return_expr: str) -> str:
+    # Identifiers come from the hardcoded TRIGGERS constants, not user input.
     return f"""
     CREATE OR REPLACE FUNCTION public.{name}() RETURNS TRIGGER AS $$
     BEGIN
@@ -64,7 +65,7 @@ def _function_sql(name: str, table: str, key_column: str, return_expr: str) -> s
         RETURN {return_expr};
     END;
     $$ language 'plpgsql'
-    """
+    """  # nosec B608
 
 
 def _recreate_triggers(timing: str) -> None:
