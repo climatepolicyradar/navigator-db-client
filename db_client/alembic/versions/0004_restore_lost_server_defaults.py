@@ -13,7 +13,7 @@ entity_counter.counter is deliberately not touched: the old chain had no default
 there, and the flattened default of 0 matches the model's server_default.
 
 SET DEFAULT is idempotent, so this is a no-op for databases that still carry the
-old defaults.
+old defaults
 
 Revision ID: 0004
 Revises: 0003
@@ -22,7 +22,6 @@ Create Date: 2026-11-05
 """
 
 import sqlalchemy as sa
-
 from alembic import op
 
 # revision identifiers, used by Alembic.
