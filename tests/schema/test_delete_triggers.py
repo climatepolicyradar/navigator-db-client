@@ -6,8 +6,11 @@ functions that `RETURN NEW` (NULL on DELETE), which silently cancelled deletes: 
 DELETE statement succeeded with rowcount 0 and the rows stayed in place.
 """
 
+from typing import cast
+
 import pytest
 from sqlalchemy import text
+from sqlalchemy.engine import CursorResult
 from sqlalchemy.orm import Session
 
 TRIGGER_TABLES = [
@@ -75,7 +78,7 @@ def test_delete_collection_family_removes_row(linked_rows: Session):
     )
     linked_rows.commit()
 
-    assert result.rowcount == 1  # pyright: ignore[reportAttributeAccessIssue]
+    assert cast(CursorResult, result).rowcount == 1
     assert _count(linked_rows, "collection_family") == 0
 
 
@@ -85,7 +88,7 @@ def test_delete_family_event_removes_row(linked_rows: Session):
     )
     linked_rows.commit()
 
-    assert result.rowcount == 1  # pyright: ignore[reportAttributeAccessIssue]
+    assert cast(CursorResult, result).rowcount == 1
     assert _count(linked_rows, "family_event") == 0
 
 
@@ -95,7 +98,7 @@ def test_delete_family_document_removes_row(linked_rows: Session):
     )
     linked_rows.commit()
 
-    assert result.rowcount == 1  # pyright: ignore[reportAttributeAccessIssue]
+    assert cast(CursorResult, result).rowcount == 1
     assert _count(linked_rows, "family_document") == 0
 
 
