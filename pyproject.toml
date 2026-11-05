@@ -1,6 +1,6 @@
 [project]
 name = "db-client"
-version = "3.12.0"
+version = "3.12.1"
 description = "All things to do with the datamodel and its storage. Including alembic migrations and datamodel code."
 authors = [{ name = "CPR-dev-team", email = "tech@climatepolicyradar.org" }]
 license = { text = "Apache-2.0" }
@@ -38,4 +38,5 @@ packages = ["db_client"]
 [tool.pyright]
 include = ["db_client", "tests"]
 exclude = ["**/__pycache__"]
-venv = "dbclient"
+venvPath = "."
+venv = ".venv"
