@@ -24,6 +24,7 @@ class ConceptType(str, Enum):
     Country = "country"
     CountrySubdivision = "country_subdivision"
     LegalEntity = "legal_entity"
+    LegalSide = "legal_side"
 
 
 class Concept(BaseModel):
